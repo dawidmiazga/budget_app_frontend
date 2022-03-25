@@ -2,57 +2,59 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import AuthenticationService from "./AuthenticationService.js";
 import { withRouter } from 'react-router';
-import * as FaIcons from "react-icons/fa"
+import logo from '../images/edit_button.png';
 
 class HeaderComponent extends Component {
 
     constructor(props) {
         super(props)
         this.addExpenseClicked = this.addExpenseClicked.bind(this)
+        this.addIncomeClicked = this.addIncomeClicked.bind(this)
+        this.AddUser = this.AddUser.bind(this)
     }
 
     addExpenseClicked() {
         this.props.history.push(`/expenses/-1`)
     }
-
+    addIncomeClicked() {
+        this.props.history.push(`/incomes/-1`)
+    }
+    AddUser() {
+        this.props.history.push(`/userslist/-1`)
+    }
     render() {
-
-        const isUserLoggedIn = AuthenticationService.isUserLoggedIn();
+        var isUserLoggedIn = AuthenticationService.isUserLoggedIn();
+        var webAddress = window.location.href
+        if (webAddress.includes("userslist")) {
+            isUserLoggedIn = false
+        }
         var rootStyle = {
             backgroundColor: 'rgb(38, 38, 38)',
         }
-        // console.log("x " + isUserLoggedIn)
+
         return (
             <header>
 
                 <nav className="navbar navbar-expand-md navbar-dark" style={rootStyle}>
-                    {/* <div className="Sidebar"> */}
-                    {/* <FaIcons.FaBars/> */}
                     <ul className="navbar-nav">
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/welcome/dawid">Home</Link></li>}
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/expenses">Expenses</Link></li>}
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/incomes">Income</Link></li>}
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/statistics">Statistics</Link></li>}
-                        {/* {isUserLoggedIn && <li><Link className="nav-link" to="/charts">Charts</Link></li>} */}
-
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/categories">Categories</Link></li>}
-
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/test">Nav4</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/welcome/dawid">Strona Domowa</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/expenses">Wydatki</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/incomes">Przychody</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/categories">Kategorie</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/budgets">Budżety</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/statistics">Statystyki</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/settings">Ustawienia</Link></li>}
                     </ul>
+
                     <ul className="navbar-nav navbar-collapse justify-content-end">
-                        {!isUserLoggedIn && <li><Link className="nav-link" to="/login">Login</Link></li>}
-                        {isUserLoggedIn && <li><Link className="nav-link" to="/logout" onClick={AuthenticationService.logout}>Logout</Link></li>}
+                        {isUserLoggedIn && <button className="button-66" onClick={this.addExpenseClicked}>Dodaj wydatek</button>}
+                        {isUserLoggedIn && <button className="button-66" onClick={this.addIncomeClicked}>Dodaj przychod</button>}
+                        {!isUserLoggedIn && <button className="button-77" onClick={this.AddUser}>Dodaj konto</button>}
+                        {(webAddress.includes("login") || !isUserLoggedIn) && <li><Link className="hb-nav-link" to="/login">Zaloguj</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/logout" onClick={AuthenticationService.logout}>Wyloguj</Link></li>}
                     </ul>
-
-                    <div>
-                        <button className="button" onClick={this.addExpenseClicked}>Add</button>
-                    </div>
-                    {/* </div> */}
-
                 </nav>
             </header>
-
-
         )
     }
 }

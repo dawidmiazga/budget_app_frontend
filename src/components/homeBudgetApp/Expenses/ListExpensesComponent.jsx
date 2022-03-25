@@ -1,13 +1,12 @@
 import moment from "moment";
 import React, { Component } from "react";
-import ExpenseDataService from '../../../api/to-do/ExpenseDataService.js';
+import ExpenseDataService from '../../../api/HomeBudget/ExpenseDataService.js';
 import AuthenticationService from '../AuthenticationService.js';
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
-import 'react-datepicker/dist/react-datepicker.css'
 import "../../../App.css"
-import DatePicker from "react-datepicker";
-import SortTable from "../SortTable.jsx";
+import btnEdit from '../../images/edit_button.png';
+import btnDel from '../../images/delete_button.png';
+import btnClear from '../../images/clear_button.png';
+import btnSort from '../../images/sort_button.png';
 
 class ListExpensesComponent extends Component {
 
@@ -16,42 +15,41 @@ class ListExpensesComponent extends Component {
         this.state = {
             startDate: "",
             endDate: "",
-            startDate2: null,
-            endDate2: null,
             expenses: [],
             message: null,
-            selectYear: "All",
-            selectMonth: "All",
-            selectDate: Date(),
-            month: new Date().getMonth(),
-            year: new Date().getFullYear(),
+            sortAsc: 1,
         }
 
         this.deleteExpenseClicked = this.deleteExpenseClicked.bind(this)
         this.updateExpenseClicked = this.updateExpenseClicked.bind(this)
         this.addExpenseClicked = this.addExpenseClicked.bind(this)
         this.refreshExpenses = this.refreshExpenses.bind(this)
-        this.handleSelect = this.handleSelect.bind(this);
-        // this.handleChange = this.handleChange.bind(this);
-        // this.handleChange2 = this.handleChange2.bind(this);
         this.changeStartDateCal = this.changeStartDateCal.bind(this);
         this.changeEndDateCal = this.changeEndDateCal.bind(this);
         this.onFormSubmit = this.onFormSubmit.bind(this);
-
-    }
-
-    componentWillUnmount() {
-        // console.log('componoentWillUnmoiunt')
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        // console.log('shouldComponentUpdate')
-        return true;
+        this.clearDates = this.clearDates.bind(this);
+        this.sortByDecsNotCycle = this.sortByDecsNotCycle.bind(this);
+        this.sortByDecsCycle = this.sortByDecsCycle.bind(this);
+        this.sortByDateCycle = this.sortByDateCycle.bind(this);
+        this.sortByDateNotCycle = this.sortByDateNotCycle.bind(this);
+        this.sortByAmountCycle = this.sortByAmountCycle.bind(this);
+        this.sortByAmountNotCycle = this.sortByAmountNotCycle.bind(this);
+        this.refreshDate = this.refreshDate.bind(this);
     }
 
     componentDidMount() {
-        // console.log(' componentDidMount')
         this.refreshExpenses()
+        this.refreshDate()
+    }
+
+    refreshDate() {
+        var todayDay = new Date()
+        var currentStartDate = moment(new Date(todayDay.getFullYear(), todayDay.getMonth(), 1)).format("YYYY-MM-DD");
+        var currentEndDate = moment(new Date(todayDay.getFullYear(), todayDay.getMonth() + 1, 0)).format("YYYY-MM-DD");
+        document.getElementById("startDateIdField").value = currentStartDate;
+        document.getElementById("endDateIdField").value = currentEndDate;
+        this.setState({ startDate: currentStartDate, })
+        this.setState({ endDate: currentEndDate, })
     }
 
     refreshExpenses() {
@@ -69,7 +67,7 @@ class ListExpensesComponent extends Component {
         ExpenseDataService.deleteExpense(username, id)
             .then(
                 response => {
-                    this.setState({ message: `Expense deleted` })
+                    this.setState({ message: `Wydatek usuniety` })
                     this.refreshExpenses()
                 }
             )
@@ -83,188 +81,266 @@ class ListExpensesComponent extends Component {
         this.props.history.push(`/expenses/-1`)
     }
 
-    handleSelect(date) {
-        // console.log("eee");
-    }
-
-    handleSelect2(ranges) {
-        // console.log("Start date: " + (ranges.selection.startDate.getMonth()) + (ranges.selection.startDate.getFullYear()));
-        // console.log("End date: " + (ranges.selection.endDate.getMonth()) + (ranges.selection.endDate.getFullYear()));
-        // console.log("Start date: " + ranges.selection.startDate);
-        // console.log("End date: " + ranges.selection.endDate);
-    }
-
-    // handleChange(date) {
-    //     // const datatest = document.getElementById('startDate22').value
-    //     // console.log(this.state.startDate)
-    //     this.setState({ startDate: date, })
-    //     console.log("startDate2 " + date)
-    // }
-    // handleChange2(date) {
-    //     this.setState({ endDate: date, })
-    // }
-
     changeStartDateCal() {
         const datatest = document.getElementById('startDateIdField').value
         this.setState({ startDate: datatest, })
-        console.log("startDate2 " + datatest)
     }
+
     changeEndDateCal() {
         const datatest = document.getElementById('endDateIdField').value
         this.setState({ endDate: datatest, })
-        console.log("endDate2 " + datatest)
+    }
+
+    clearDates() {
+        this.setState({ startDate: "", })
+        this.setState({ endDate: "", })
+        document.getElementById('startDateIdField').value = ""
+        document.getElementById('endDateIdField').value = ""
+    }
+
+    sortByDecsNotCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let username = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(username)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort(
+                            (a, b) =>
+                                (a.cycle == "Nie" && b.cycle == "Nie" && a.description.toLowerCase() < b.description.toLowerCase()) ? 1 : -1
+                        )
+                    } else {
+                        response.data.sort(
+                            (a, b) =>
+                                (a.cycle == "Nie" && b.cycle == "Nie" && a.description.toLowerCase() > b.description.toLowerCase()) ? 1 : -1
+                        )
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    }
+
+    sortByDecsCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let username = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(username)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort(
+                            (a, b) =>
+                                (a.cycle != "Nie" && b.cycle != "Nie" && a.description.toLowerCase() < b.description.toLowerCase()) ? 1 : -1
+                        )
+                    } else {
+                        response.data.sort(
+                            (a, b) =>
+                                (a.cycle != "Nie" && b.cycle != "Nie" && a.description.toLowerCase() > b.description.toLowerCase()) ? 1 : -1
+                        )
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    }
+
+    sortByDateNotCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let username = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(username)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.targetDate < b.targetDate) ? 1 : -1)
+                    } else {
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.targetDate > b.targetDate) ? 1 : -1)
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    }
+
+    sortByDateCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let username = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(username)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.targetDate < b.targetDate) ? 1 : -1)
+                    } else {
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.targetDate > b.targetDate) ? 1 : -1)
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    }
+
+    sortByAmountNotCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let username = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(username)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.price < b.price) ? 1 : -1)
+                    } else {
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.price > b.price) ? 1 : -1)
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    }
+
+    sortByAmountCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let username = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(username)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.price < b.price) ? 1 : -1)
+                    } else {
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.price > b.price) ? 1 : -1)
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
     }
 
     onFormSubmit(e) {
         e.preventDefault();
-        // console.log("onFormSubmit" + this.state.startDate)
     }
 
     render() {
 
-        // let howManyWeeks;
-        // // howManyWeeks = Math.round(Date.parse(this.state.expense.finishDate) / (1000 * 3600 * 24), 0) -
-        // //     Math.round(Date.parse(this.state.expense.targetDate) / (1000 * 3600 * 24), 0)
-        // if (this.state.startDate == null || this.state.endDate == null) {
-        //     howManyWeeks = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every 2 weeks")
-        //         .reduce((total, currentItem) => total = total + currentItem.price * (2), 0));
-        // } else {
-        //     howManyWeeks = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every 2 weeks" &&
-        //         Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-        //         Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-        //         .reduce((total, currentItem) => total = total + currentItem.price * (currentItem.price), 0));
-        // }
-        // console.log("howManyWeeks" + howManyWeeks)
-        // console.log(this.state.startDate)
-        // console.log(this.state.endDate)
-
-        // console.log(Date.parse(this.state.startDate))
-        // console.log(moment(Date.parse(this.state.endDate)).format("DD-MM-YYYY"))
-        let totalSingle;
-        if (this.state.startDate == "" && this.state.endDate == "") {
-            totalSingle = (this.state.expenses.filter(expense =>
-
-                expense.cycle == "Nie")
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
-
-        } else if (this.state.endDate == "") {
-            totalSingle = (this.state.expenses.filter(expense =>
-
-                expense.cycle == "Nie" &&
-                moment(Date.parse(expense.targetDate)).format("YYYY-MM-DD") >= moment(Date.parse(this.state.startDate)).format("YYYY-MM-DD"))
-
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
-        } else if (this.state.startDate == "") {
-            totalSingle = (this.state.expenses.filter(expense =>
-
-                expense.cycle == "Nie" &&
-                moment(Date.parse(expense.finishDate)).format("YYYY-MM-DD") <= moment(Date.parse(this.state.endDate)).format("YYYY-MM-DD"))
-
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
-        } else {
-            totalSingle = (this.state.expenses.filter(expense =>
-
-                expense.cycle == "Nie" &&
-                moment(Date.parse(expense.targetDate)).format("YYYY-MM-DD") >= moment(Date.parse(this.state.startDate)).format("YYYY-MM-DD") &&
-                moment(Date.parse(expense.targetDate)).format("YYYY-MM-DD") <= moment(Date.parse(this.state.endDate)).format("YYYY-MM-DD"))
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
+        if (this.state.startDate == "") {
+            this.state.startDate = new Date("1111-12-31")
+        }
+        if (this.state.endDate == "") {
+            this.state.endDate = new Date("9999-12-31")
         }
 
+        function getMonthsBetweenTwoDates3(targetDate, finishDate, startDate, endDate, whatCycle, nazwa, cena) {
 
+            var targetDate = new Date(targetDate);
+            var finishDate = new Date(finishDate);
+            var startDate = new Date(startDate);
+            var endDate = new Date(endDate);
 
+            var targetDate1 = changeDateFormat(targetDate);
+            var finishDate1 = changeDateFormat(finishDate);
+            var startDate1 = changeDateFormat(startDate);
+            var endDate1 = changeDateFormat(endDate);
 
+            var firstDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+            var lastDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
 
+            var monthsCount = 0;
 
+            if (targetDate1 <= startDate1 && finishDate1 >= endDate1) {
+                monthsCount = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+                monthsCount -= startDate.getMonth();
+                monthsCount += endDate.getMonth();
+                if (endDate.getDate() - startDate.getDate() >= 0) {
+                    monthsCount += 1
+                }
+            } else if (targetDate1 <= startDate1 && finishDate1 < endDate1 && finishDate1 >= startDate1) {
+                monthsCount = (finishDate.getFullYear() - startDate.getFullYear()) * 12;
+                monthsCount -= startDate.getMonth();
+                monthsCount += finishDate.getMonth();
+                if ((finishDate.getDate() - startDate.getDate() >= 0)) {
+                    monthsCount += 1
+                }
+            } else if (targetDate1 > startDate1 && targetDate1 <= endDate1 && finishDate1 >= endDate1) {
+                monthsCount = (endDate.getFullYear() - targetDate.getFullYear()) * 12;
+                monthsCount -= targetDate.getMonth();
+                monthsCount += endDate.getMonth();
+                if (endDate.getDate() - targetDate.getDate() >= 0) {
+                    monthsCount += 1
+                }
+            } else if (targetDate1 > startDate1 && finishDate1 < endDate1) {
+                monthsCount = (finishDate.getFullYear() - targetDate.getFullYear()) * 12;
+                monthsCount -= targetDate.getMonth();
+                monthsCount += finishDate.getMonth();
+                if (finishDate.getDate() - targetDate.getDate() >= 0) {
+                    monthsCount += 1
+                }
+            } else { }
 
+            if (whatCycle == "Co miesiac") {
+                if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
+                } else if (startDate.getMonth() == endDate.getMonth() && (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                    monthsCount -= 1;
+                } else if (startDate.getMonth() != endDate.getMonth() && (
+                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
+                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                )) {
+                    monthsCount -= 1;
+                } else { }
+            }
 
+            if (whatCycle == "Co pol roku") {
 
+                var yearsCount = Math.floor(monthsCount / 12)
+                var halfYearsCount = Math.ceil(monthsCount / 6)
 
+                monthsCount = halfYearsCount
+                if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
+                } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
+                    (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                    monthsCount -= 1;
+                } else if (startDate.getMonth() != endDate.getMonth() && (
+                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
+                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                )) {
+                    monthsCount -= 1;
+                } else if (targetDate1 < startDate1 & halfYearsCount <= 1) {
+                    monthsCount -= 1;
+                } else { }
+            }
 
-        // let totalCyclicalOneWeek;
-        // if (this.state.startDate == null || this.state.endDate == null) {
-        //     totalCyclicalOneWeek = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every week")
-        //         .reduce((total, currentItem) => total = total + currentItem.price * 4, 0));
-        // } else {
-        //     totalCyclicalOneWeek = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every week" &&
-        //         Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-        //         Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-        //         .reduce((total, currentItem) => total = total + currentItem.price * 4, 0));
-        // }
+            if (whatCycle == "Co rok") {
 
-        // let totalCyclicalTwoWeeks;
-        // if (this.state.startDate == null || this.state.endDate == null) {
-        //     totalCyclicalTwoWeeks = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every 2 weeks")
-        //         .reduce((total, currentItem) => total = total + currentItem.price * 2, 0));
-        // } else {
-        //     totalCyclicalTwoWeeks = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every 2 weeks" &&
-        //         Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-        //         Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-        //         .reduce((total, currentItem) => total = total + currentItem.price * 2, 0));
-        // }
+                var yearsCount = Math.ceil(monthsCount / 12)
+                var halfYearsCount = Math.ceil(monthsCount / 6)
 
-        let totalCyclicalOneMonth;
-        if (this.state.startDate == "" && this.state.endDate == "") {
-            totalCyclicalOneMonth = (this.state.expenses.filter(expense =>
-                expense.cycle == "Every month")
-                .reduce((total, currentItem) => total = total + currentItem.price * (moment(currentItem.finishDate).format("MM") - moment(currentItem.targetDate).format("MM") + 1), 0));
-        } else if (this.state.startDate == "") {
-            totalCyclicalOneMonth = (this.state.expenses.filter(expense =>
-                expense.cycle == "Every month" &&
-                Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-                Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
-
-
-
-
-
-
-
-
-
-
-
-                
-        } else if (this.state.endDate == "") {
-            totalCyclicalOneMonth = (this.state.expenses.filter(expense =>
-                expense.cycle == "Every month" &&
-                Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-                Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
-        } else {
-            totalCyclicalOneMonth = (this.state.expenses.filter(expense =>
-                expense.cycle == "Every month" &&
-                Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-                Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-                .reduce((total, currentItem) => total = total + currentItem.price, 0));
+                monthsCount = yearsCount
+                if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
+                } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
+                    (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                    monthsCount -= 1;
+                } else if (startDate.getMonth() != endDate.getMonth() && (
+                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
+                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                )) {
+                    monthsCount -= 1;
+                } else if (targetDate1 < startDate1 & yearsCount <= 1) {
+                    monthsCount -= 1;
+                } else { }
+            }
+            if (monthsCount < 0) { monthsCount = 0 }
+            return monthsCount;
         }
 
+        function changeDateFormat(date1) {
+            var datePrased = moment(Date.parse(date1)).format("YYYY-MM-DD");
+            return datePrased;
+        }
 
-        // let totalCyclicalOneMonth;
-        // if ((this.state.startDate == null || this.state.endDate == null) || this.state.startDate == "" || this.state.endDate == "") {
-        //     totalCyclicalOneMonth = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every month")
-        //         .reduce((total, currentItem) => total = total + currentItem.price * (
-        //             Math.floor(moment(currentItem.finishDate).format("MM") - moment(currentItem.targetDate).format("MM"))
-        //         ), 0));
-        // } else {
-        //     totalCyclicalOneMonth = (this.state.expenses.filter(expense =>
-        //         expense.cycle == "Every month" &&
-        //         Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) &&
-        //         Date.parse(expense.targetDate) <= Date.parse(this.state.endDate))
-        //         .reduce((total, currentItem) => total = total + currentItem.price, 0));
-        // }
+        function changeDateFormatWithoutDays(date1) {
+            var datePrased = moment(Date.parse(date1)).format("YYYY-MM");
+            return datePrased;
+        }
 
-        let totalCyclical;
-        totalCyclical = totalCyclicalOneMonth //+ totalCyclicalTwoWeeks + totalCyclicalOneWeek
-        // console.log("Start date :" + this.state.startDate)
-        // console.log("End date :" + this.state.endDate)
+        let totalSingleExpense = (this.state.expenses.filter(expense =>
+            expense.cycle == "Nie" &&
+            changeDateFormat(expense.targetDate) >= changeDateFormat(this.state.startDate) &&
+            changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.endDate))
+
+            .reduce((total, currentItem) => total = total + currentItem.price, 0));
+
+        let totalCyclical = (this.state.expenses.filter(expense => expense.cycle != "Nie")
+            .reduce((total, currentItem) => total = total + (currentItem.price *
+                getMonthsBetweenTwoDates3(currentItem.targetDate, currentItem.finishDate, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.price)), 0));
 
         var formatter = new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -272,197 +348,163 @@ class ListExpensesComponent extends Component {
         });
 
         return (
-            // <div className="background-color-all">
-            <div>
-                <div>
-                    <div>
-                        <h1>Expenses</h1>
-                    </div>
-                    <div>
+            <div className="background-color-all">
+                {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
+                <div className="container-exp-inc-left">
+                    <div className="text-20px-white">
                         Wybierz zakres dat:
                     </div>
-                    <div>
-                        {/* <DatePicker selected={this.state.startDate} onChange={this.handleChange} name="startDate" dateFormat="dd/MM/yyyy" showYearDropdown showMonthDropdown todayButton='Dzisiaj' isClearable={true} withPortal placeholderText='Wybierz date poczatkowa' />
-                        <DatePicker selected={this.state.endDate} onChange={this.handleChange2} name="endDate" dateFormat="dd/MM/yyyy" showYearDropdown showMonthDropdown todayButton='Dzisiaj' isClearable withPortal placeholderText='Wybierz date koncowa' /> */}
-                        <input
-                            type="date"
-                            id="startDateIdField"
-                            onChange={this.changeStartDateCal}
-                        >
-                        </input>
-                        <input
-                            type="date"
-                            id="endDateIdField"
-                            onChange={this.changeEndDateCal}
-                        >
-                        </input>
+                    <input type="date" id="startDateIdField" onChange={this.changeStartDateCal}></input>
+                    <input type="date" id="endDateIdField" onChange={this.changeEndDateCal}></input>
+                    <div className="inline-button-clear">
+                        <img src={btnClear} width="30" height="30" onClick={this.clearDates} />
                     </div>
                 </div>
-                <form onSubmit={this.onFormSubmit}>
 
-                </form>
-
-                {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
-
-                {/* <div class="row"> */}
-                {/* <div className="container-left-expenses"> */}
-                <div>
-                    <div>
-                        <h3>Wydatki pojedyńcze</h3>
+                <div className="container-exp-inc-middle">
+                    <div className="text-40px-white">
+                        Wydatki
                     </div>
-                    <div>
-                        <h5>
-                            Suma w wybranym okresie: {formatter.format(totalSingle)}
-                        </h5>
+                    <div className="text-25px-white">
+                        Suma wydatkow w wybranym okresie: {formatter.format(totalSingleExpense + totalCyclical)}
                     </div>
-                    <table className="table">
+                </div>
+                <div className="container-exp-inc-right">
+                </div>
+
+                <form onSubmit={this.onFormSubmit}></form>
+
+                <div className="container-expenses-left">
+                    <div>
+                        <div className="text-25px-white">Wydatki pojedyńcze</div>
+                        <div className="text-20px-white">Suma w wybranym okresie: {formatter.format(totalSingleExpense)}</div>
+                    </div>
+
+                    <table className="hb-table">
                         <thead>
                             <tr>
-                                <th onClick={this.refreshExpenses}>Opis</th>
-                                <th onClick={() => console.log(this.testsum)}>Data transakcji</th>
-                                <th>Kategoria</th>
-                                <th>Komentarz</th>
-                                <th>Kwota</th>
-                                {/* <th>Cykliczność</th> */}
+                                <th>
+                                    Opis
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsNotCycle} /></div>
+                                </th>
+                                <th>
+                                    Data
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDateNotCycle} /></div>
+                                </th>
+                                <th>
+                                    Kwota
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByAmountNotCycle} /></div>
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 this.state.expenses.filter(expense =>
-                                    (this.state.startDate == "" && this.state.endDate == "" && expense.cycle == "Nie") ||
-                                    (this.state.startDate == "" && moment(Date.parse(expense.targetDate)).format("YYYY-MM-DD") <= moment(Date.parse(this.state.endDate)).format("YYYY-MM-DD") && expense.cycle == "Nie") ||
-                                    (this.state.endDate == "" && moment(Date.parse(expense.targetDate)).format("YYYY-MM-DD") >= moment(Date.parse(this.state.startDate)).format("YYYY-MM-DD") && expense.cycle == "Nie") ||
-                                    (Date.parse(expense.targetDate) >= Date.parse(this.state.startDate) && Date.parse(expense.targetDate) <= Date.parse(this.state.endDate) && expense.cycle == "Nie")
-                                ).map(
-                                    expense =>
-
-                                        <tr key={expense.id}>
-
-                                            <td>{expense.description}</td>
-                                            <td>{moment(expense.targetDate).format('DD-MM-YYYY')}</td>
-                                            <td>{expense.category}</td>
-                                            <td>{expense.comment}</td>
-                                            <td>{formatter.format(expense.price)}</td>
-                                            {/* <td>{Date.parse(expense.targetDate)}</td> */}
-
-                                            <td>
-
-                                                <button
-                                                    className="button_edit"
-                                                    onClick={() => this.updateExpenseClicked(expense.id)}>
-                                                    Edit
-                                                </button>
-
-                                                <button
-                                                    className="button_delete"
-                                                    onClick={() => this.deleteExpenseClicked(expense.id)}>
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
+                                (changeDateFormat(expense.targetDate) >= changeDateFormat(this.state.startDate) &&
+                                    changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.endDate) &&
+                                    expense.cycle == "Nie")
+                                ).map(expense =>
+                                    <tr key={expense.id}>
+                                        <td><div className="text-20px-white">{expense.description}</div>
+                                            <tr></tr>Kategoria: {expense.category}
+                                            <tr></tr>{expense.comment}
+                                        </td>
+                                        <td>{moment(expense.targetDate).format('DD-MM-YYYY')}</td>
+                                        <td>{formatter.format(expense.price)}</td>
+                                        <td>
+                                            <img src={btnEdit}
+                                                width="40" height="40"
+                                                onClick={() => this.updateExpenseClicked(expense.id)} />
+                                            <img src={btnDel}
+                                                width="40" height="40"
+                                                onClick={() => this.deleteExpenseClicked(expense.id)} />
+                                        </td>
+                                    </tr>
                                 )
                             }
                         </tbody>
                         <tfoot>
-                            {/* <tr><td /><td /><td /><td />Total: {formatter.format(totalSingle)}</tr> */}
                         </tfoot>
                     </table>
                 </div>
-                {/* <div className="container-right-expenses"> */}
-                <div>
+                <div className="container-expenses-right">
                     <div>
-                        <h3>Wydatki cykliczne</h3>
+                        <div className="text-25px-white">Wydatki cykliczne</div>
+                        <div className="text-20px-white">Suma w wybranym okresie: {formatter.format(totalCyclical)}</div>
                     </div>
-                    <div>
-                        <h5>
-                            Suma w wybranym okresie: {formatter.format(totalCyclical)}
-                        </h5>
-                    </div>
-                    <table className="table">
+                    <table className="hb-table">
                         <thead>
                             <tr>
-                                <th onClick={this.refreshExpenses}>Opis</th>
-                                <th>Data rozpoczecia</th>
-                                <th>Data zakonczenia</th>
-                                <th>Kategoria</th>
-                                <th>Komentarz</th>
-                                <th>Kwota</th>
-                                <th>Cykliczność</th>
-                                {/* <th>dni</th>
-                                <th>ilosc cykli</th> */}
+                                <th>
+                                    Opis
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsCycle} /></div>
+                                </th>
+                                <th>
+                                    Data
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDateCycle} /></div>
+                                </th>
+                                <th>
+                                    Kwota
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByAmountCycle} /></div>
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 this.state.expenses.filter(expense =>
-                                    expense.cycle != "Nie" && (
-                                        (this.state.startDate == "" && this.state.endDate == "") ||
-                                        (this.state.endDate == "" && moment(Date.parse(expense.finishDate)).format("YYYY-MM-DD") >= moment(Date.parse(this.state.startDate)).format("YYYY-MM-DD")) ||
-                                        (this.state.startDate == "" && moment(Date.parse(expense.startDate)).format("YYYY-MM-DD") <= moment(Date.parse(this.state.endDate)).format("YYYY-MM-DD")) ||
-                                        Date.parse(expense.finishDate) >= Date.parse(this.state.startDate)
-                                    )
-                                ).map(
-                                    expense =>
+                                    expense.cycle != "Nie" && ((changeDateFormat(this.state.endDate) >= changeDateFormat(this.state.startDate) &&
+                                        (
+                                            (changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(expense.finishDate) >= changeDateFormat(this.state.endDate)) &&
+                                            getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
-                                        <tr key={expense.id}>
+                                            (changeDateFormat(expense.targetDate) > changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(expense.finishDate) < changeDateFormat(this.state.endDate)) &&
+                                            getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
-                                            <td>{expense.description}</td>
-                                            <td>{moment(expense.targetDate).format('DD-MM-YYYY')}</td>
-                                            <td>{moment(expense.finishDate).format('DD-MM-YYYY')}</td>
-                                            <td>{expense.category}</td>
-                                            <td>{expense.comment}</td>
-                                            <td>{formatter.format(expense.price)}</td>
-                                            <td>{expense.cycle}</td>
-                                            {/* <td>
-                                                {
-                                                    Math.round(Date.parse(expense.finishDate) / (1000 * 3600 * 24), 0) -
-                                                    Math.round(Date.parse(expense.targetDate) / (1000 * 3600 * 24), 0)
-                                                }
-                                            </td>
-                                            <td>
-                                                {
-                                                    Math.floor((
-                                                        (Date.parse(expense.finishDate) / (1000 * 3600 * 24) -
-                                                            Date.parse(expense.targetDate) / (1000 * 3600 * 24))
-                                                        / 14
-                                                    ), 0)
-                                                }
-                                            </td> */}
+                                            (changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(expense.finishDate) < changeDateFormat(this.state.endDate) &&
+                                                changeDateFormat(expense.finishDate) >= changeDateFormat(this.state.startDate)) &&
+                                            getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
-                                            <td>
-
-                                                <button
-                                                    className="button_edit"
-                                                    onClick={() => this.updateExpenseClicked(expense.id)}>
-                                                    Edit
-                                                </button>
-
-                                                <button
-                                                    className="button_delete"
-                                                    onClick={() => this.deleteExpenseClicked(expense.id)}>
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
+                                            (changeDateFormat(expense.targetDate) > changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.endDate) &&
+                                                changeDateFormat(expense.finishDate) >= changeDateFormat(this.state.endDate) &&
+                                                getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1)
+                                        )
+                                    ))
+                                ).map(expense =>
+                                    <tr key={expense.id}>
+                                        <td><div className="text-20px-white">{expense.description}</div>
+                                            <tr></tr>
+                                            Kategoria: {expense.category}
+                                            <tr></tr>
+                                            {expense.cycle}
+                                            <tr></tr>
+                                            {expense.comment}
+                                        </td>
+                                        <td>
+                                            <tr></tr>
+                                            Od: {moment(expense.targetDate).format('DD-MM-YYYY')}
+                                            <tr></tr>
+                                            Do: {moment(expense.finishDate).format('DD-MM-YYYY')}
+                                        </td>
+                                        <td>{formatter.format(expense.price)}</td>
+                                        <td>
+                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateExpenseClicked(expense.id)} />
+                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteExpenseClicked(expense.id)} />
+                                        </td>
+                                    </tr>
                                 )
                             }
                         </tbody>
                         <tfoot>
-                            {/* <tr><td /><td /><td /><td /><td />Total: {formatter.format(totalCyclical)}</tr> */}
                         </tfoot>
                     </table>
-
-                    <div>
-
-                    </div>
                 </div>
-                {/* </div> */}
-                <button className="button" onClick={this.addExpenseClicked}>Add</button>
-                {/* <SortTable /> */}
             </div >
-
         )
     }
 }

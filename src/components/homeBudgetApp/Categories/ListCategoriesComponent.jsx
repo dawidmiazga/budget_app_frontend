@@ -1,16 +1,14 @@
 import { Component } from "react";
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
 import "../../../App.css"
-import 'react-calendar/dist/Calendar.css';
-import CategoryDataService from '../../../api/to-do/CategoryDataService.js'
+import CategoryDataService from '../../../api/HomeBudget/CategoryDataService.js'
 import AuthenticationService from "../AuthenticationService";
-// import DatePicker from "react-datepicker";
+import btnEdit from '../../images/edit_button.png';
+import btnDel from '../../images/delete_button.png';
+import reactCSS from 'reactcss'
+
 class ListCategoriesComponent extends Component {
 
     constructor(props) {
-
-
         super(props)
         this.state = {
             categories: [],
@@ -21,20 +19,9 @@ class ListCategoriesComponent extends Component {
         this.updateCategoryClicked = this.updateCategoryClicked.bind(this)
         this.addCategoryClicked = this.addCategoryClicked.bind(this)
         this.refreshCategories = this.refreshCategories.bind(this)
-
     }
-
-    componentWillUnmount() {
-        // console.log('componoentWillUnmoiunt')
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return true;
-    }
-
 
     componentDidMount() {
-        console.log(' componentDidMount')
         this.refreshCategories()
     }
 
@@ -53,7 +40,7 @@ class ListCategoriesComponent extends Component {
         CategoryDataService.deleteCategory(username, id)
             .then(
                 response => {
-                    this.setState({ message: `Category deleted` })
+                    this.setState({ message: `Kategoria usunieta` })
                     this.refreshCategories()
                 }
             )
@@ -67,45 +54,35 @@ class ListCategoriesComponent extends Component {
         this.props.history.push(`/categories/-1`)
     }
 
-
-
     render() {
         return (
-            <div>
-                <h1>Categories</h1>
+            <div className="background-color-all">
                 {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
-                {/* <DatePicker/> */}
-                <div className="container">
-                    <table className="table">
+                <div className="text-40px-white">
+                    Kategorie
+                </div>
+                <div className="container-categories">
+                    <table className="hb-table">
                         <thead>
                             <tr>
-                                <th>Category name</th>
+                                <th>Nazwa</th>
+                                <th></th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                // this.state.categories.filter(category =>
-                                //     this.state.startDate == null || this.state.endDate == null ||
-                                //     (Date.parse(category.targetDate) >= Date.parse(this.state.startDate) && Date.parse(category.targetDate) <= Date.parse(this.state.endDate))
-                                // ).map(
-                                    this.state.categories.map(
+                                this.state.categories.map(
                                     category =>
-
                                         <tr key={category.id}>
-                                            <td>{category.categoryname}</td>
                                             <td>
-
-                                                <button
-                                                    className="button_edit"
-                                                    onClick={() => this.updateCategoryClicked(category.id)}>
-                                                    Edit
-                                                </button>
-
-                                                <button
-                                                    className="button_delete"
-                                                    onClick={() => this.deleteCategoryClicked(category.id)}>
-                                                    Delete
-                                                </button>
+                                                <div className="text-20px-white">{category.categoryname}</div>
+                                                <tr></tr>
+                                                {category.comment}
+                                            </td>
+                                            <td>
+                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateCategoryClicked(category.id)} />
+                                                <img src={btnDel} width="40" height="40" onClick={() => this.deleteCategoryClicked(category.id)} />
                                             </td>
                                         </tr>
                                 )
@@ -113,13 +90,10 @@ class ListCategoriesComponent extends Component {
                         </tbody>
                         <tfoot>
                             <tr>
-
                             </tr>
                         </tfoot>
                     </table>
-                    <div className="row jc-center">
-                        <button className="button" onClick={this.addCategoryClicked}>Add</button>
-                    </div>
+                    <button className="button-66" onClick={this.addCategoryClicked}>Dodaj nowa kategorie</button>
                 </div>
             </div>
         )

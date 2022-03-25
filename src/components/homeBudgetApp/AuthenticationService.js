@@ -44,7 +44,7 @@ class AuthenticationService {
     }
     isUserLoggedIn() {
         let user = sessionStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME)
-        if (user === null) return false;
+        if (user === null || (user ==="" && window.location.href==="http://localhost:4200/login")) return false;
         return true;
     }
 
