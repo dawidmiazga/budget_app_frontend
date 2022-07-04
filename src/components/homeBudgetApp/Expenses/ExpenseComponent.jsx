@@ -12,16 +12,18 @@ class ExpenseComponent extends Component {
         this.state = {
             expenses: [],
             categories: [],
-            id: this.props.match.params.id,
+            expenseid: this.props.match.params.id,
+            expenseid2: this.props.match.params.id2,
             description: '',
-            targetDate: moment(new Date()).format('YYYY-MM-DD'),
-            finishDate: moment(new Date()).format('YYYY-MM-DD'),
+            target_date: moment(new Date()).format('YYYY-MM-DD'),
+            finish_date: moment(new Date()).format('YYYY-MM-DD'),
             price: '',
             category: '',
             comment: '',
             cycle: '',
             cycleValue: '',
         }
+
         this.onSubmit = this.onSubmit.bind(this)
         this.validate = this.validate.bind(this)
         this.refreshExpenses = this.refreshExpenses.bind(this)
@@ -31,25 +33,60 @@ class ExpenseComponent extends Component {
     }
 
     componentDidMount() {
-        if (this.state.id == -1) {
+        console.log("expenseid " + this.state.expenseid)
+        console.log("expenseid2 " + this.state.expenseid2)
+        if(this.state.expenseid2==null){
+            console.log("null")
+        }
+
+        if (this.state.expenseid == -1&&this.state.expenseid2 == null) {
             this.getPeriodicity()
             this.refreshCategories()
             return
         }
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveExpense(username, this.state.id)
-            .then(response => this.setState({
-                description: response.data.description,
-                targetDate: moment(response.data.targetDate).format('YYYY-MM-DD'),
-                finishDate: moment(response.data.finishDate).format('YYYY-MM-DD'),
-                price: response.data.price,
-                category: response.data.category,
-                comment: response.data.comment,
-                cycle: response.data.cycle,
-            }))
 
         this.refreshExpenses()
         this.refreshCategories()
+
+        // let usernameid = AuthenticationService.getLoggedInUserName()
+        // CategoryDataService.retrieveAllCategories(usernameid)
+        //     .then(response => { this.setState({ categories: response.data }) })
+
+        // function categoryMap(id, categoryList) {
+        //     const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
+        //     console.log(arrCat)
+        //     if (arrCat[1].includes(id)) {
+        //         var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
+        //         return idCurrentCat;
+        //     } else {
+        //         return "N/A";
+        //     }
+        // }
+
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        if (this.state.expenseid==-1){
+        ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid2)
+        .then(response => this.setState({
+            description: response.data.description,
+            target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
+            finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
+            price: response.data.price,
+            category: response.data.category,//categoryMap(response.data.category, this.state.categories),
+            comment: response.data.comment,
+            cycle: response.data.cycle,
+        }))
+    }else{
+        ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid)
+            .then(response => this.setState({
+                description: response.data.description,
+                target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
+                finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
+                price: response.data.price,
+                category: response.data.category,//categoryMap(response.data.category, this.state.categories),
+                comment: response.data.comment,
+                cycle: response.data.cycle,
+            }))
+        }
     }
 
     getPeriodicity() {
@@ -58,15 +95,15 @@ class ExpenseComponent extends Component {
     }
 
     refreshExpenses() {
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(response => { this.setState({ expenses: response.data }) })
 
     }
 
     refreshCategories() {
-        let username = AuthenticationService.getLoggedInUserName()
-        CategoryDataService.retrieveAllCategories(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        CategoryDataService.retrieveAllCategories(usernameid)
             .then(response => { this.setState({ categories: response.data }) })
     }
 
@@ -75,11 +112,11 @@ class ExpenseComponent extends Component {
         if (!values.description) {
             errors.description = "Wpisz nazwe"
         }
-        if (!moment(values.targetDate).isValid()) {
-            errors.targetDate = 'Podaj prawidlowa date'
+        if (!moment(values.target_date).isValid()) {
+            errors.target_date = 'Podaj prawidlowa date'
         }
-        if (!moment(values.finishDate).isValid()) {
-            errors.finishDate = 'Podaj prawidlowa date'
+        if (!moment(values.finish_date).isValid()) {
+            errors.finish_date = 'Podaj prawidlowa date'
         }
         if (values.cycle == "dummy" || values.cycle == "" || values.cycle == null) {
             errors.cycle = 'Wybierz cyklicznosc'
@@ -94,26 +131,37 @@ class ExpenseComponent extends Component {
     }
 
     onSubmit(values) {
-        if (values.cycle == "Nie") {
-            values.finishDate = values.targetDate
+
+        function categoryMap(name, categoryList) {
+            const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
+            if (arrCat[0].includes(name)) {
+                var idCurrentCat = arrCat[1][arrCat[0].indexOf(name)]
+                return idCurrentCat;
+            } else {
+                return "N/A";
+            }
         }
 
-        let username = AuthenticationService.getLoggedInUserName()
+        if (values.cycle == "Nie") {
+            values.finish_date = values.target_date
+        }
+
+        let usernameid = AuthenticationService.getLoggedInUserName()
         let expense = {
-            id: this.state.id,
+            expenseid: this.state.expenseid,
             description: values.description,
-            targetDate: values.targetDate,
-            finishDate: values.finishDate,
-            username: username,
+            target_date: values.target_date,
+            finish_date: values.finish_date,
+            usernameid: usernameid,
             price: values.price,
-            category: values.category,
+            category: categoryMap(values.category, this.state.categories),
             comment: values.comment,
             cycle: values.cycle,
         }
-        if (this.state.id == -1) {
-            ExpenseDataService.createExpense(username, expense).then(() => this.props.history.push('/expenses'))
+        if (this.state.expenseid == -1) {
+            ExpenseDataService.createExpense(usernameid, expense).then(() => this.props.history.push('/expenses'))
         } else {
-            ExpenseDataService.updateExpense(username, this.state.id, expense).then(() => this.props.history.push('/expenses'))
+            ExpenseDataService.updateExpense(usernameid, this.state.expenseid, expense).then(() => this.props.history.push('/expenses'))
         }
     }
 
@@ -128,7 +176,20 @@ class ExpenseComponent extends Component {
     }
 
     render() {
-        let { description, targetDate, finishDate, price, category, comment, cycle } = this.state
+
+        function categoryMap(id, categoryList) {
+            const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
+            if (arrCat[1].includes(id)) {
+                var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
+                return idCurrentCat;
+            } else {
+                return "N/A";
+            }
+        }
+
+        let { description, target_date, finish_date, price, comment, cycle } = this.state
+        let category = categoryMap(this.state.category, this.state.categories)
+
         if (this.state.cycleValue == '') {
             this.state.cycleValue = cycle
         }
@@ -136,7 +197,7 @@ class ExpenseComponent extends Component {
             <div className="background-color-all">
                 <div className="container">
                     <Formik
-                        initialValues={{ description, targetDate, finishDate, price, category, comment, cycle }}
+                        initialValues={{ description, target_date, finish_date, price, category, comment, cycle }}
                         onSubmit={this.onSubmit}
                         validateOnChange={false}  //to i to ponizej zostawia nam wyswietlanie bledu "na zywo"
                         validateOnBlur={false}
@@ -147,13 +208,13 @@ class ExpenseComponent extends Component {
                             (props) => (
                                 <Form>
                                     <ErrorMessage name="description" component="div" className="alert alert-warning" />
-                                    <ErrorMessage name="targetDate" component="div" className="alert alert-warning" />
-                                    <ErrorMessage name="finishDate" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="target_date" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="finish_date" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="category" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="cycle" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="price" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>Dodaj wydatek</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.id != -1 ? 'block' : 'none') }}>Edytuj wydatek</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.expenseid == -1 ? 'block' : 'none') }}>Dodaj wydatek</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.expenseid != -1 ? 'block' : 'none') }}>Edytuj wydatek</div>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Opis</div>
                                         <Field className="hb-form-control" type="text" name="description" />
@@ -171,11 +232,11 @@ class ExpenseComponent extends Component {
                                     <fieldset className="form-group">
                                         <div className="text-20px-white" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>Data poczatkowa</div>
                                         <div className="text-20px-white" style={{ display: (this.state.cycleValue == 'Nie' ? 'block' : 'none') }}>Data transakcji</div>
-                                        <Field className="hb-form-control" type="date" name="targetDate" />
+                                        <Field className="hb-form-control" type="date" name="target_date" />
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>
                                         <div className="text-20px-white">Data koncowa</div>
-                                        <Field className="hb-form-control" type="date" name="finishDate" />
+                                        <Field className="hb-form-control" type="date" name="finish_date" />
                                     </fieldset>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Kwota</div>

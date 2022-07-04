@@ -15,6 +15,7 @@ class LoginComponent extends Component {
         this.handleChange = this.handleChange.bind(this)
         this.LoginClick = this.LoginClick.bind(this)
         this.AddUser = this.AddUser.bind(this)
+        this.PasswordReciever=this.PasswordReciever.bind(this)
     }
 
     componentDidMount() {
@@ -28,7 +29,7 @@ class LoginComponent extends Component {
     }
 
     refreshUsers() {
-        AuthenticationService.registerSuccessfulLogin('', '')
+        AuthenticationService.registerSuccessfulLogin('', '', '')
         LoginDataService.retrieveAllLogins()
             .then(
                 response => {
@@ -40,13 +41,20 @@ class LoginComponent extends Component {
     LoginClick() {
         var usernamechoice = this.state.username
         var usernamepassword = this.state.password
-        const arrUsers = ([(this.state.users.map(user => user.login)), (this.state.users.map(user => user.password))]);
+        const arrUsers = ([
+            (this.state.users.map(user => user.username)),
+            (this.state.users.map(user => user.password)),
+            (this.state.users.map(user => user.usernameid)),
+            (this.state.users.map(user => user.useremail))
+        ]);
 
         if (arrUsers[0].includes(usernamechoice)) {
             var passwordOfUserFromSQL = arrUsers[1][arrUsers[0].indexOf(usernamechoice)]
+            var idOfUserFromSQL = arrUsers[2][arrUsers[0].indexOf(usernamechoice)]
+
             if (usernamepassword == passwordOfUserFromSQL) {
-                AuthenticationService.registerSuccessfulLogin(this.state.username, this.state.password)
-                this.props.history.push(`/welcome/${this.state.username}`)
+                AuthenticationService.registerSuccessfulLogin(this.state.username, this.state.password, idOfUserFromSQL)
+                this.props.history.push(`/welcome/${idOfUserFromSQL}`)
             } else {
                 this.setState({ showSuccessMsg: false })
                 this.setState({ hasLoginFailed: true })
@@ -57,6 +65,20 @@ class LoginComponent extends Component {
         }
     }
 
+    PasswordReciever() {
+        var usernamechoice = this.state.username
+        var usernamepassword = this.state.password
+        const arrUsers = ([
+            (this.state.users.map(user => user.username)),
+            (this.state.users.map(user => user.password)),
+            (this.state.users.map(user => user.usernameid)),
+            (this.state.users.map(user => user.useremail))
+        ]);
+
+        console.log(arrUsers)
+        
+    }
+    
     AddUser() {
         this.props.history.push(`/userslist/-1`)
     }
@@ -79,6 +101,7 @@ class LoginComponent extends Component {
                 </div>
                 <div className="container-welcome-middle">
                     <button className="button-66" onClick={this.LoginClick}>Zaloguj</button>
+                    <button className="button-77" onClick={this.PasswordReciever}>Zapomnialem Hasla</button>
                 </div>
             </div>
         )

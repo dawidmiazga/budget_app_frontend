@@ -10,10 +10,10 @@ class IncomeComponent extends Component {
         super(props)
         this.state = {
             incomes: [],
-            id: this.props.match.params.id,
+            incomeid: this.props.match.params.id,
             description: '',
-            targetDate: moment(new Date()).format('YYYY-MM-DD'),
-            finishDate: moment(new Date()).format('YYYY-MM-DD'),
+            target_date: moment(new Date()).format('YYYY-MM-DD'),
+            finish_date: moment(new Date()).format('YYYY-MM-DD'),
             amount: '',
             comment: '',
             cycle: '',
@@ -27,16 +27,16 @@ class IncomeComponent extends Component {
     }
 
     componentDidMount() {
-        if (this.state.id == -1) {
+        if (this.state.incomeid == -1) {
             this.getPeriodicity()
             return
         }
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.retrieveIncome(username, this.state.id)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveIncome(usernameid, this.state.incomeid)
             .then(response => this.setState({
                 description: response.data.description,
-                targetDate: moment(response.data.targetDate).format('YYYY-MM-DD'),
-                finishDate: moment(response.data.finishDate).format('YYYY-MM-DD'),
+                target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
+                finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
                 amount: response.data.amount,
                 comment: response.data.comment,
                 cycle: response.data.cycle,
@@ -50,8 +50,8 @@ class IncomeComponent extends Component {
     }
 
     refreshIncomes() {
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.retrieveAllIncomes(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveAllIncomes(usernameid)
             .then(response => { this.setState({ incomes: response.data }) })
     }
 
@@ -60,11 +60,11 @@ class IncomeComponent extends Component {
         if (!values.description) {
             errors.description = "Wpisz nazwe"
         }
-        if (!moment(values.targetDate).isValid()) {
-            errors.targetDate = 'Podaj prawidlowa date'
+        if (!moment(values.target_date).isValid()) {
+            errors.target_date = 'Podaj prawidlowa date'
         }
-        if (!moment(values.finishDate).isValid()) {
-            errors.finishDate = 'Podaj prawidlowa date'
+        if (!moment(values.finish_date).isValid()) {
+            errors.finish_date = 'Podaj prawidlowa date'
         }
         if (values.cycle == "dummy" || values.cycle == "" || values.cycle == null) {
             errors.cycle = 'Wybierz cyklicznosc'
@@ -77,23 +77,23 @@ class IncomeComponent extends Component {
 
     onSubmit(values) {
         if (values.cycle == "Nie") {
-            values.finishDate = values.targetDate
+            values.finish_date = values.target_date
         }
-        let username = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName()
         let income = {
-            id: this.state.id,
+            incomeid: this.state.incomeid,
             description: values.description,
-            targetDate: values.targetDate,
-            finishDate: values.finishDate,
-            username: username,
+            target_date: values.target_date,
+            finish_date: values.finish_date,
+            usernameid: usernameid,
             amount: values.amount,
             comment: values.comment,
             cycle: values.cycle,
         }
-        if (this.state.id == -1) {
-            IncomeDataService.createIncome(username, income).then(() => this.props.history.push('/incomes'))
+        if (this.state.incomeid == -1) {
+            IncomeDataService.createIncome(usernameid, income).then(() => this.props.history.push('/incomes'))
         } else {
-            IncomeDataService.updateIncome(username, this.state.id, income).then(() => this.props.history.push('/incomes'))
+            IncomeDataService.updateIncome(usernameid, this.state.incomeid, income).then(() => this.props.history.push('/incomes'))
         }
     }
 
@@ -108,7 +108,7 @@ class IncomeComponent extends Component {
     }
 
     render() {
-        let { description, targetDate, finishDate, amount, comment, cycle } = this.state
+        let { description, target_date, finish_date, amount, comment, cycle } = this.state
         if (this.state.cycleValue == '') {
             this.state.cycleValue = cycle
         }
@@ -116,7 +116,7 @@ class IncomeComponent extends Component {
             <div className="background-color-all">
                 <div className="container">
                     <Formik
-                        initialValues={{ description, targetDate, finishDate, amount, comment, cycle }}
+                        initialValues={{ description, target_date, finish_date, amount, comment, cycle }}
                         onSubmit={this.onSubmit}
                         validateOnChange={false}  //to i to ponizej zostawia nam wyswietlanie bledu "na zywo"
                         validateOnBlur={false}
@@ -127,12 +127,12 @@ class IncomeComponent extends Component {
                             (props) => (
                                 <Form>
                                     <ErrorMessage name="description" component="div" className="alert alert-warning" />
-                                    <ErrorMessage name="targetDate" component="div" className="alert alert-warning" />
-                                    <ErrorMessage name="finishDate" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="target_date" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="finish_date" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="cycle" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="amount" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>Dodaj przychod</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.id != -1 ? 'block' : 'none') }}>Edytuj przychod</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.incomeid == -1 ? 'block' : 'none') }}>Dodaj przychod</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.incomeid != -1 ? 'block' : 'none') }}>Edytuj przychod</div>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Opis</div>
                                         <Field className="hb-form-control" type="text" name="description" />
@@ -151,11 +151,11 @@ class IncomeComponent extends Component {
                                     <fieldset className="form-group">
                                         <div className="text-20px-white" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>Data poczatkowa</div>
                                         <div className="text-20px-white" style={{ display: (this.state.cycleValue == 'Nie' ? 'block' : 'none') }}>Data transakcji</div>
-                                        <Field className="hb-form-control" type="date" name="targetDate" />
+                                        <Field className="hb-form-control" type="date" name="target_date" />
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>
                                         <div className="text-20px-white">Data zakonczenia</div>
-                                        <Field className="hb-form-control" type="date" name="finishDate" />
+                                        <Field className="hb-form-control" type="date" name="finish_date" />
                                     </fieldset>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Kwota</div>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Order from "../../../src/api/HomeBudget/Order.js"
 import AuthenticatedRoute from './AuthenticatedRoute.jsx'
 import LoginComponent from './Login/LoginComponent.jsx'
 import ListExpensesComponent from './Expenses/ListExpensesComponent.jsx'
@@ -18,6 +19,7 @@ import ListBudgetsComponent from './Budget/ListBudgetComponent.jsx';
 import BudgetComponent from './Budget/BudgetComponent.jsx';
 import AddUserComponent from './Login/LoginAddComponent.jsx';
 import ListSettingsComponent from './Settings/ListSettingsComponent.jsx';
+import TestComponent from './TestComponent.jsx';
 
 class BudgetApp extends Component {
 
@@ -37,6 +39,7 @@ class BudgetApp extends Component {
                         <Route path="/login" exact component={LoginComponent} />
                         <AuthenticatedRoute path="/welcome/:name" exact component={WelcomeComponent} />
                         <AuthenticatedRoute path="/expenses/:id" exact component={ExpenseComponent} />
+                        <AuthenticatedRoute path="/expenses/:id2/:id" exact component={ExpenseComponent} />
                         <AuthenticatedRoute path="/incomes/:id" exact component={IncomeComponent} />
                         <AuthenticatedRoute path="/expenses" exact component={ListExpensesComponent} />
                         <AuthenticatedRoute path="/statistics" exact component={StatisticsComponent} />
@@ -49,6 +52,8 @@ class BudgetApp extends Component {
                         <AuthenticatedRoute path="/logout" exact component={LogoutComponent} />
                         <AuthenticatedRoute path="/settings" exact component={ListSettingsComponent} />
                         <AuthenticatedRoute path="/changepassword/:id" exact component={AddUserComponent} />
+                        <AuthenticatedRoute path="/test" exact component={TestComponent} />
+                        {/* <AuthenticatedRoute path="/year/:yearnumber" exact component={TestComponent} /> */}
                         <Route component={ErrorComponent} />
                     </Switch>
                     <FooterComponent />

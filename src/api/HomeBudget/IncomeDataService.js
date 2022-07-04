@@ -2,20 +2,20 @@ import axios from 'axios'
 import { JPA_API_URL } from '../../Constants'
 
 class IncomeDataService {
-    retrieveAllIncomes(name) {
-        return axios.get(`${JPA_API_URL}/users/${name}/incomes`);
+    retrieveAllIncomes(usernameid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/incomes`);
     }
-    retrieveIncome(name, id) {
-        return axios.get(`${JPA_API_URL}/users/${name}/incomes/${id}`);
+    retrieveIncome(usernameid, incomeid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/incomes/${incomeid}`);
     }
-    deleteIncome(name, id) {
-        return axios.delete(`${JPA_API_URL}/users/${name}/incomes/${id}`);
+    deleteIncome(usernameid, incomeid) {
+        return axios.delete(`${JPA_API_URL}/users/${usernameid}/incomes/${incomeid}`);
     }
-    updateIncome(name, id, income) {
-        return axios.put(`${JPA_API_URL}/users/${name}/incomes/${id}`, income);
+    updateIncome(usernameid, incomeid, income) {
+        return axios.put(`${JPA_API_URL}/users/${usernameid}/incomes/${incomeid}`, income);
     }
-    createIncome(name, income) {
-        return axios.post(`${JPA_API_URL}/users/${name}/incomes`, income);
+    createIncome(usernameid, income) {
+        return axios.post(`${JPA_API_URL}/users/${usernameid}/incomes`, income);
     }
 }
 

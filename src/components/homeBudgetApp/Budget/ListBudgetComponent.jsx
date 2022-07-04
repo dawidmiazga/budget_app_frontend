@@ -40,8 +40,8 @@ class ListBudgetsComponent extends Component {
     }
 
     refreshLogins() {
-        let username = AuthenticationService.getLoggedInUserName()
-        LoginDataService.retrieveAllLogins(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        LoginDataService.retrieveAllLogins(usernameid)
             .then(
                 response => {
                     this.setState({ users: response.data })
@@ -50,8 +50,8 @@ class ListBudgetsComponent extends Component {
     }
 
     refreshBudgets() {
-        let username = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BudgetDataService.retrieveAllBudgets(usernameid)
             .then(
                 response => {
                     this.setState({ budgets: response.data })
@@ -61,14 +61,14 @@ class ListBudgetsComponent extends Component {
 
     sortByMonth() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BudgetDataService.retrieveAllBudgets(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
-                        response.data.sort((a, b) => (a.targetMonth < b.targetMonth) ? 1 : -1)
+                        response.data.sort((a, b) => (a.target_month < b.target_month) ? 1 : -1)
                     } else {
-                        response.data.sort((a, b) => (a.targetMonth > b.targetMonth) ? 1 : -1)
+                        response.data.sort((a, b) => (a.target_month > b.target_month) ? 1 : -1)
                     }
                     this.setState({ budgets: response.data })
                 }
@@ -77,8 +77,8 @@ class ListBudgetsComponent extends Component {
 
     sortByAmount() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BudgetDataService.retrieveAllBudgets(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -91,9 +91,9 @@ class ListBudgetsComponent extends Component {
             )
     }
 
-    deleteBudgetClicked(id) {
-        let username = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.deleteBudget(username, id)
+    deleteBudgetClicked(budgetid) {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BudgetDataService.deleteBudget(usernameid, budgetid)
             .then(
                 response => {
                     this.setState({ message: `Budget usuniety` })
@@ -102,8 +102,8 @@ class ListBudgetsComponent extends Component {
             )
     }
 
-    updateBudgetClicked(id) {
-        this.props.history.push(`/budgets/${id}`)
+    updateBudgetClicked(budgetid) {
+        this.props.history.push(`/budgets/${budgetid}`)
     }
 
     addBudgetClicked() {
@@ -143,8 +143,8 @@ class ListBudgetsComponent extends Component {
 
         let totalBudget;
         totalBudget = (this.state.budgets.filter(budget =>
-            changeDateFormatWithoutDays(budget.targetMonth) >= changeDateFormatWithoutDays(this.state.startDate) &&
-            changeDateFormatWithoutDays(budget.targetMonth) <= changeDateFormatWithoutDays(this.state.endDate))
+            changeDateFormatWithoutDays(budget.target_month) >= changeDateFormatWithoutDays(this.state.startDate) &&
+            changeDateFormatWithoutDays(budget.target_month) <= changeDateFormatWithoutDays(this.state.endDate))
 
             .reduce((total, currentItem) => total = total + currentItem.amount, 0));
 
@@ -197,15 +197,15 @@ class ListBudgetsComponent extends Component {
                         <tbody>
                             {
                                 this.state.budgets.filter(budget =>
-                                (changeDateFormatWithoutDays(budget.targetMonth) >= changeDateFormatWithoutDays(this.state.startDate) &&
-                                    changeDateFormatWithoutDays(budget.targetMonth) <= changeDateFormatWithoutDays(this.state.endDate))
+                                (changeDateFormatWithoutDays(budget.target_month) >= changeDateFormatWithoutDays(this.state.startDate) &&
+                                    changeDateFormatWithoutDays(budget.target_month) <= changeDateFormatWithoutDays(this.state.endDate))
                                 ).map(
                                     budget =>
 
-                                        <tr key={budget.id}>
+                                        <tr key={budget.budgetid}>
                                             <td>
                                                 <div className="text-20px-white">
-                                                    {changeDateFormatWithoutDays(budget.targetMonth)}
+                                                    {changeDateFormatWithoutDays(budget.target_month)}
                                                 </div>
                                             </td>
                                             <td>
@@ -219,8 +219,8 @@ class ListBudgetsComponent extends Component {
                                                 </div>
                                             </td>
                                             <td>
-                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateBudgetClicked(budget.id)} />
-                                                <img src={btnDel} width="40" height="40" onClick={() => this.deleteBudgetClicked(budget.id)} />
+                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateBudgetClicked(budget.budgetid)} />
+                                                <img src={btnDel} width="40" height="40" onClick={() => this.deleteBudgetClicked(budget.budgetid)} />
                                             </td>
                                         </tr>
                                 )

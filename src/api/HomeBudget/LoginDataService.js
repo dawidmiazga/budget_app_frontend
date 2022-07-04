@@ -5,18 +5,23 @@ class LoginDataService {
     retrieveAllLogins() {
         return axios.get(`${JPA_API_URL}/users/userslist`);
     }
-    retrieveLogin(id) {
-        return axios.get(`${JPA_API_URL}/users/userslist/${id}`);
+    retrieveLogin(usernameid) {
+        return axios.get(`${JPA_API_URL}/users/userslist/${usernameid}`);
     }
-    deleteLogin(id) {
-        return axios.delete(`${JPA_API_URL}/users/userslist/${id}`);
+    deleteLogin(usernameid) {
+        return axios.delete(`${JPA_API_URL}/users/userslist/${usernameid}`);
     }
-    updateLogin(id, login) {
-        return axios.put(`${JPA_API_URL}/users/userslist/${id}`, login);
+    updateLogin(usernameid, login) {
+        return axios.put(`${JPA_API_URL}/users/userslist/${usernameid}`, login);
     }
     createLogin(login) {
         return axios.post(`${JPA_API_URL}/users/userslist`, login);
     }
+
+    // testretrieve(usernameid,yearnumber) {
+    //     return axios.get(`${JPA_API_URL}/users/userslist/${usernameid}/year/${yearnumber}`);
+    // }
+
 }
 
 export default new LoginDataService

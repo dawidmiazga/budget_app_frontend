@@ -6,7 +6,7 @@ class LoginAddComponent extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            id: this.props.match.params.id,
+            usernameid: this.props.match.params.id,
             users: [],
         }
         this.onSubmit = this.onSubmit.bind(this)
@@ -15,7 +15,7 @@ class LoginAddComponent extends Component {
     }
 
     refreshUsers() {
-        if (this.state.id == -1) {
+        if (this.state.usernameid == -1) {
             LoginDataService.retrieveAllLogins()
                 .then(
                     response => {
@@ -23,9 +23,9 @@ class LoginAddComponent extends Component {
                     }
                 )
         } else {
-            LoginDataService.retrieveLogin(this.state.id)
+            LoginDataService.retrieveLogin(this.state.usernameid)
                 .then(response => this.setState({
-                    login: response.data.login,
+                    username: response.data.username,
                     password: response.data.password,
                 }))
         }
@@ -37,13 +37,13 @@ class LoginAddComponent extends Component {
 
     validate(values) {
         let errors = {}
-        const arrUsers = ([(this.state.users.map(user => user.login))]);
-        if (this.state.id == -1) {
-            if (!values.login) {
-                errors.login = "Wpisz login"
+        const arrUsers = ([(this.state.users.map(user => user.username))]);
+        if (this.state.usernameid == -1) {
+            if (!values.username) {
+                errors.username = "Wpisz login"
             }
-            if (arrUsers[0].includes(values.login)) {
-                errors.login = "Podany login jest juz zajety. Prosimy wybrac inny"
+            if (arrUsers[0].includes(values.username)) {
+                errors.username = "Podany login jest juz zajety. Prosimy wybrac inny"
             }
             if (!values.password) {
                 errors.password = "Wpisz haslo"
@@ -69,29 +69,29 @@ class LoginAddComponent extends Component {
     }
 
     onSubmit(values) {
-        if (this.state.id == -1) {
+        if (this.state.usernameid == -1) {
             var userslist = {
-                id: this.state.id,
-                login: values.login,
+                usernameid: this.state.usernameid,
+                username: values.username,
                 password: values.password,
             }
         } else {
             var userslist = {
-                id: this.state.id,
-                login: this.state.login,
+                usernameid: this.state.usernameid,
+                username: this.state.username,
                 password: values.newpassword,
             }
         }
-        if (this.state.id == -1) {
+        if (this.state.usernameid == -1) {
             LoginDataService.createLogin(userslist).then(() => this.props.history.push('/login'))
         }
         else {
-            LoginDataService.updateLogin(this.state.id, userslist).then(() => this.props.history.push('/settings'))
+            LoginDataService.updateLogin(this.state.usernameid, userslist).then(() => this.props.history.push('/settings'))
         }
     }
 
     cancelButton() {
-        if (this.state.id == -1) {
+        if (this.state.usernameid == -1) {
             this.props.history.push(`/login`)
         } else {
             this.props.history.push(`/settings`)
@@ -99,13 +99,13 @@ class LoginAddComponent extends Component {
     }
 
     render() {
-        var login = ""
+        var username = ""
         var password = ""
         return (
             <div className="background-color-all">
                 <div className="container">
                     <Formik
-                        initialValues={{ login, password }}
+                        initialValues={{ username, password }}
                         onSubmit={this.onSubmit}
                         validateOnChange={false}  //to i to ponizej zostawia nam wyswietlanie bledu "na zywo"
                         validateOnBlur={false}
@@ -115,26 +115,26 @@ class LoginAddComponent extends Component {
                         {
                             (props) => (
                                 <Form>
-                                    <ErrorMessage name="login" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="username" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="password" component="div" className="alert alert-warning" />
                                     <fieldset className="form-group">
-                                        <div className="text-30px-white" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>Dodawanie konta</div>
-                                        <div className="text-30px-white" style={{ display: (this.state.id == -1 ? 'none' : 'block') }}>Zmiana hasla</div>
+                                        <div className="text-30px-white" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>Dodawanie konta</div>
+                                        <div className="text-30px-white" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>Zmiana hasla</div>
                                     </fieldset>
-                                    <fieldset className="form-group" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>
+                                    <fieldset className="form-group" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>
                                         <div className="text-20px-white">Login:</div>
-                                        <Field className="hb-form-control" type="text" name="login" />
+                                        <Field className="hb-form-control" type="text" name="username" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>Haslo:</div>
-                                        <div className="text-20px-white" style={{ display: (this.state.id == -1 ? 'none' : 'block') }}>Wpisz stare haslo:</div>
+                                        <div className="text-20px-white" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>Haslo:</div>
+                                        <div className="text-20px-white" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>Wpisz stare haslo:</div>
                                         <Field className="hb-form-control" type="password" name="password" />
                                     </fieldset>
-                                    <fieldset className="form-group" style={{ display: (this.state.id == -1 ? 'none' : 'block') }}>
+                                    <fieldset className="form-group" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>
                                         <div className="text-20px-white">Nowe haslo:</div>
                                         <Field className="hb-form-control" type="password" name="newpassword" />
                                     </fieldset>
-                                    <fieldset className="form-group" style={{ display: (this.state.id == -1 ? 'none' : 'block') }}>
+                                    <fieldset className="form-group" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>
                                         <div className="text-20px-white">Powtorz nowe haslo:</div>
                                         <Field className="hb-form-control" type="password" name="newpassword2" />
                                     </fieldset>

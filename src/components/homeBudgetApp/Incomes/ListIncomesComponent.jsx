@@ -51,8 +51,8 @@ class ListIncomesComponent extends Component {
     }
 
     refreshIncomes() {
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.retrieveAllIncomes(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveAllIncomes(usernameid)
             .then(
                 response => {
                     this.setState({ incomes: response.data })
@@ -60,9 +60,9 @@ class ListIncomesComponent extends Component {
             )
     }
 
-    deleteIncomeClicked(id) {
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.deleteIncome(username, id)
+    deleteIncomeClicked(incomeid) {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.deleteIncome(usernameid, incomeid)
             .then(
                 response => {
                     this.setState({ message: `Przychod usuniety` })
@@ -71,8 +71,8 @@ class ListIncomesComponent extends Component {
             )
     }
 
-    updateIncomeClicked(id) {
-        this.props.history.push(`/incomes/${id}`)
+    updateIncomeClicked(incomeid) {
+        this.props.history.push(`/incomes/${incomeid}`)
     }
 
     addIncomeClicked() {
@@ -97,8 +97,8 @@ class ListIncomesComponent extends Component {
 
     sortByDecs() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.retrieveAllIncomes(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveAllIncomes(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -119,14 +119,14 @@ class ListIncomesComponent extends Component {
 
     sortByDate() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.retrieveAllIncomes(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveAllIncomes(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
-                        response.data.sort((a, b) => (a.targetDate < b.targetDate) ? 1 : -1)
+                        response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
                     } else {
-                        response.data.sort((a, b) => (a.targetDate > b.targetDate) ? 1 : -1)
+                        response.data.sort((a, b) => (a.target_date > b.target_date) ? 1 : -1)
                     }
                     this.setState({ incomes: response.data })
                 }
@@ -135,8 +135,8 @@ class ListIncomesComponent extends Component {
 
     sortByAmount() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        IncomeDataService.retrieveAllIncomes(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveAllIncomes(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -162,14 +162,14 @@ class ListIncomesComponent extends Component {
             this.state.endDate = new Date("9999-12-31")
         }
 
-        function getMonthsBetweenTwoDates3(targetDate, finishDate, startDate, endDate, whatCycle, nazwa, cena) {
-            var targetDate = new Date(targetDate);
-            var finishDate = new Date(finishDate);
+        function getMonthsBetweenTwoDates3(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
+            var target_date = new Date(target_date);
+            var finish_date = new Date(finish_date);
             var startDate = new Date(startDate);
             var endDate = new Date(endDate);
 
-            var targetDate1 = changeDateFormat(targetDate);
-            var finishDate1 = changeDateFormat(finishDate);
+            var target_date1 = changeDateFormat(target_date);
+            var finish_date1 = changeDateFormat(finish_date);
             var startDate1 = changeDateFormat(startDate);
             var endDate1 = changeDateFormat(endDate);
 
@@ -178,43 +178,43 @@ class ListIncomesComponent extends Component {
 
             var monthsCount = 0;
 
-            if (targetDate1 <= startDate1 && finishDate1 >= endDate1) {
+            if (target_date1 <= startDate1 && finish_date1 >= endDate1) {
                 monthsCount = (endDate.getFullYear() - startDate.getFullYear()) * 12;
                 monthsCount -= startDate.getMonth();
                 monthsCount += endDate.getMonth();
                 if (endDate.getDate() - startDate.getDate() >= 0) {
                     monthsCount += 1
                 }
-            } else if (targetDate1 <= startDate1 && finishDate1 < endDate1 && finishDate1 >= startDate1) {
-                monthsCount = (finishDate.getFullYear() - startDate.getFullYear()) * 12;
+            } else if (target_date1 <= startDate1 && finish_date1 < endDate1 && finish_date1 >= startDate1) {
+                monthsCount = (finish_date.getFullYear() - startDate.getFullYear()) * 12;
                 monthsCount -= startDate.getMonth();
-                monthsCount += finishDate.getMonth();
-                if ((finishDate.getDate() - startDate.getDate() >= 0)) {
+                monthsCount += finish_date.getMonth();
+                if ((finish_date.getDate() - startDate.getDate() >= 0)) {
                     monthsCount += 1
                 }
-            } else if (targetDate1 > startDate1 && targetDate1 <= endDate1 && finishDate1 >= endDate1) {
-                monthsCount = (endDate.getFullYear() - targetDate.getFullYear()) * 12;
-                monthsCount -= targetDate.getMonth();
+            } else if (target_date1 > startDate1 && target_date1 <= endDate1 && finish_date1 >= endDate1) {
+                monthsCount = (endDate.getFullYear() - target_date.getFullYear()) * 12;
+                monthsCount -= target_date.getMonth();
                 monthsCount += endDate.getMonth();
-                if (endDate.getDate() - targetDate.getDate() >= 0) {
+                if (endDate.getDate() - target_date.getDate() >= 0) {
                     monthsCount += 1
                 }
-            } else if (targetDate1 > startDate1 && finishDate1 < endDate1) {
-                monthsCount = (finishDate.getFullYear() - targetDate.getFullYear()) * 12;
-                monthsCount -= targetDate.getMonth();
-                monthsCount += finishDate.getMonth();
-                if (finishDate.getDate() - targetDate.getDate() >= 0) {
+            } else if (target_date1 > startDate1 && finish_date1 < endDate1) {
+                monthsCount = (finish_date.getFullYear() - target_date.getFullYear()) * 12;
+                monthsCount -= target_date.getMonth();
+                monthsCount += finish_date.getMonth();
+                if (finish_date.getDate() - target_date.getDate() >= 0) {
                     monthsCount += 1
                 }
             } else { }
 
             if (whatCycle == "Co miesiac") {
                 if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (startDate.getMonth() == endDate.getMonth() && (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                } else if (startDate.getMonth() == endDate.getMonth() && (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
                     monthsCount -= 1;
                 } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
-                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
                 )) {
                     monthsCount -= 1;
                 } else { }
@@ -228,14 +228,14 @@ class ListIncomesComponent extends Component {
                 if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
 
                 } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
-                    (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                    (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
                     monthsCount -= 1;
                 } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
-                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
                 )) {
                     monthsCount -= 1;
-                } else if (targetDate1 < startDate1 & halfYearsCount <= 1) {
+                } else if (target_date1 < startDate1 & halfYearsCount <= 1) {
                     monthsCount -= 1;
                 } else { }
             }
@@ -247,14 +247,14 @@ class ListIncomesComponent extends Component {
                 if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
 
                 } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
-                    (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                    (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
                     monthsCount -= 1;
                 } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
-                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
                 )) {
                     monthsCount -= 1;
-                } else if (targetDate1 < startDate1 & yearsCount <= 1) {
+                } else if (target_date1 < startDate1 & yearsCount <= 1) {
                     monthsCount -= 1;
                 } else { }
             }
@@ -274,14 +274,14 @@ class ListIncomesComponent extends Component {
 
         let totalSingleIncome = (this.state.incomes.filter(income =>
             income.cycle == "Nie" &&
-            changeDateFormat(income.targetDate) >= changeDateFormat(this.state.startDate) &&
-            changeDateFormat(income.targetDate) <= changeDateFormat(this.state.endDate))
+            changeDateFormat(income.target_date) >= changeDateFormat(this.state.startDate) &&
+            changeDateFormat(income.target_date) <= changeDateFormat(this.state.endDate))
 
             .reduce((total, currentItem) => total = total + currentItem.amount, 0));
 
         let totalCyclical = (this.state.incomes.filter(income => income.cycle != "Nie")
             .reduce((total, currentItem) => total = total + (currentItem.amount *
-                getMonthsBetweenTwoDates3(currentItem.targetDate, currentItem.finishDate, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.amount)), 0));
+                getMonthsBetweenTwoDates3(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.amount)), 0));
 
         var formatter = new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -343,18 +343,18 @@ class ListIncomesComponent extends Component {
                         <tbody>
                             {
                                 this.state.incomes.filter(income =>
-                                    (changeDateFormat(income.targetDate) >= changeDateFormat(this.state.startDate) && changeDateFormat(income.targetDate) <= changeDateFormat(this.state.endDate) && income.cycle == "Nie")
+                                    (changeDateFormat(income.target_date) >= changeDateFormat(this.state.startDate) && changeDateFormat(income.target_date) <= changeDateFormat(this.state.endDate) && income.cycle == "Nie")
                                 ).map(income =>
-                                    <tr key={income.id}>
+                                    <tr key={income.incomeid}>
                                         <td><div className="text-20px-white">{income.description}</div>
                                             <tr></tr>
                                             {income.comment}
                                         </td>
-                                        <td>{moment(income.targetDate).format('DD-MM-YYYY')}</td>
+                                        <td>{moment(income.target_date).format('DD-MM-YYYY')}</td>
                                         <td>{formatter.format(income.amount)}</td>
                                         <td>
-                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateIncomeClicked(income.id)} />
-                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteIncomeClicked(income.id)} />
+                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateIncomeClicked(income.incomeid)} />
+                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteIncomeClicked(income.incomeid)} />
                                         </td>
                                     </tr>
                                 )
@@ -392,27 +392,27 @@ class ListIncomesComponent extends Component {
                                 this.state.incomes.filter(income =>
                                     income.cycle != "Nie" && ((changeDateFormat(this.state.endDate) >= changeDateFormat(this.state.startDate) &&
                                         (
-                                            (changeDateFormat(income.targetDate) <= changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(income.finishDate) >= changeDateFormat(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(income.targetDate, income.finishDate, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
+                                            (changeDateFormat(income.target_date) <= changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(income.finish_date) >= changeDateFormat(this.state.endDate)) &&
+                                            getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
 
-                                            (changeDateFormat(income.targetDate) > changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(income.finishDate) < changeDateFormat(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(income.targetDate, income.finishDate, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
+                                            (changeDateFormat(income.target_date) > changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(income.finish_date) < changeDateFormat(this.state.endDate)) &&
+                                            getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
 
-                                            (changeDateFormat(income.targetDate) <= changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(income.finishDate) < changeDateFormat(this.state.endDate) &&
-                                                changeDateFormat(income.finishDate) >= changeDateFormat(this.state.startDate)) &&
-                                            getMonthsBetweenTwoDates3(income.targetDate, income.finishDate, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
+                                            (changeDateFormat(income.target_date) <= changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(income.finish_date) < changeDateFormat(this.state.endDate) &&
+                                                changeDateFormat(income.finish_date) >= changeDateFormat(this.state.startDate)) &&
+                                            getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
 
-                                            (changeDateFormat(income.targetDate) > changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(income.targetDate) <= changeDateFormat(this.state.endDate) &&
-                                                changeDateFormat(income.finishDate) >= changeDateFormat(this.state.endDate) &&
-                                                getMonthsBetweenTwoDates3(income.targetDate, income.finishDate, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1)
+                                            (changeDateFormat(income.target_date) > changeDateFormat(this.state.startDate) &&
+                                                changeDateFormat(income.target_date) <= changeDateFormat(this.state.endDate) &&
+                                                changeDateFormat(income.finish_date) >= changeDateFormat(this.state.endDate) &&
+                                                getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1)
                                         )
                                     ))
                                 ).map(income =>
-                                    <tr key={income.id}>
+                                    <tr key={income.incomeid}>
 
                                         <td><div className="text-20px-white">{income.description}</div>
                                             <tr></tr>
@@ -422,14 +422,14 @@ class ListIncomesComponent extends Component {
                                         </td>
                                         <td>
                                             <tr></tr>
-                                            Od: {moment(income.targetDate).format('DD-MM-YYYY')}
+                                            Od: {moment(income.target_date).format('DD-MM-YYYY')}
                                             <tr></tr>
-                                            Do: {moment(income.finishDate).format('DD-MM-YYYY')}
+                                            Do: {moment(income.finish_date).format('DD-MM-YYYY')}
                                         </td>
                                         <td>{formatter.format(income.amount)}</td>
                                         <td>
-                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateIncomeClicked(income.id)} />
-                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteIncomeClicked(income.id)} />
+                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateIncomeClicked(income.incomeid)} />
+                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteIncomeClicked(income.incomeid)} />
                                         </td>
                                     </tr>
                                 )

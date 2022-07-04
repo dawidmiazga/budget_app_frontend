@@ -7,6 +7,8 @@ import btnEdit from '../../images/edit_button.png';
 import btnDel from '../../images/delete_button.png';
 import btnClear from '../../images/clear_button.png';
 import btnSort from '../../images/sort_button.png';
+import btnCopy from '../../images/copy_button.png';
+import CategoryDataService from "../../../api/HomeBudget/CategoryDataService";
 
 class ListExpensesComponent extends Component {
 
@@ -18,11 +20,13 @@ class ListExpensesComponent extends Component {
             expenses: [],
             message: null,
             sortAsc: 1,
+            categories: []
         }
 
         this.deleteExpenseClicked = this.deleteExpenseClicked.bind(this)
         this.updateExpenseClicked = this.updateExpenseClicked.bind(this)
         this.addExpenseClicked = this.addExpenseClicked.bind(this)
+        this.copyExpenseClicked = this.copyExpenseClicked.bind(this)
         this.refreshExpenses = this.refreshExpenses.bind(this)
         this.changeStartDateCal = this.changeStartDateCal.bind(this);
         this.changeEndDateCal = this.changeEndDateCal.bind(this);
@@ -35,10 +39,12 @@ class ListExpensesComponent extends Component {
         this.sortByAmountCycle = this.sortByAmountCycle.bind(this);
         this.sortByAmountNotCycle = this.sortByAmountNotCycle.bind(this);
         this.refreshDate = this.refreshDate.bind(this);
+        this.refreshCategories = this.refreshCategories.bind(this);
     }
 
     componentDidMount() {
         this.refreshExpenses()
+        this.refreshCategories()
         this.refreshDate()
     }
 
@@ -52,9 +58,14 @@ class ListExpensesComponent extends Component {
         this.setState({ endDate: currentEndDate, })
     }
 
+    refreshCategories() {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        CategoryDataService.retrieveAllCategories(usernameid).then(response => { this.setState({ categories: response.data }) })
+    }
+
     refreshExpenses() {
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     this.setState({ expenses: response.data })
@@ -62,9 +73,9 @@ class ListExpensesComponent extends Component {
             )
     }
 
-    deleteExpenseClicked(id) {
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.deleteExpense(username, id)
+    deleteExpenseClicked(expenseid) {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.deleteExpense(usernameid, expenseid)
             .then(
                 response => {
                     this.setState({ message: `Wydatek usuniety` })
@@ -73,12 +84,16 @@ class ListExpensesComponent extends Component {
             )
     }
 
-    updateExpenseClicked(id) {
-        this.props.history.push(`/expenses/${id}`)
+    updateExpenseClicked(expenseid) {
+        this.props.history.push(`/expenses/${expenseid}`)
     }
 
     addExpenseClicked() {
         this.props.history.push(`/expenses/-1`)
+    }
+
+    copyExpenseClicked(expenseid) {
+        this.props.history.push(`/expenses/${expenseid}/-1`)
     }
 
     changeStartDateCal() {
@@ -100,8 +115,8 @@ class ListExpensesComponent extends Component {
 
     sortByDecsNotCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -122,8 +137,8 @@ class ListExpensesComponent extends Component {
 
     sortByDecsCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -144,14 +159,14 @@ class ListExpensesComponent extends Component {
 
     sortByDateNotCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
-                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.targetDate < b.targetDate) ? 1 : -1)
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.target_date < b.target_date) ? 1 : -1)
                     } else {
-                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.targetDate > b.targetDate) ? 1 : -1)
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.target_date > b.target_date) ? 1 : -1)
                     }
                     this.setState({ expenses: response.data })
                 }
@@ -160,14 +175,14 @@ class ListExpensesComponent extends Component {
 
     sortByDateCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
-                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.targetDate < b.targetDate) ? 1 : -1)
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.target_date < b.target_date) ? 1 : -1)
                     } else {
-                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.targetDate > b.targetDate) ? 1 : -1)
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.target_date > b.target_date) ? 1 : -1)
                     }
                     this.setState({ expenses: response.data })
                 }
@@ -176,8 +191,8 @@ class ListExpensesComponent extends Component {
 
     sortByAmountNotCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -192,8 +207,8 @@ class ListExpensesComponent extends Component {
 
     sortByAmountCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
-        let username = AuthenticationService.getLoggedInUserName()
-        ExpenseDataService.retrieveAllExpenses(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     if (this.state.sortAsc == 1) {
@@ -212,6 +227,18 @@ class ListExpensesComponent extends Component {
 
     render() {
 
+        function categoryMap(id, categoryList) {
+            const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
+            // console.log(arrCat)
+            if (arrCat[1].includes(id)) {
+                var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
+                // console.log("tu " + idCurrentCat)
+                return idCurrentCat;
+            } else {
+                return "N/A";
+            }
+        }
+
         if (this.state.startDate == "") {
             this.state.startDate = new Date("1111-12-31")
         }
@@ -219,60 +246,60 @@ class ListExpensesComponent extends Component {
             this.state.endDate = new Date("9999-12-31")
         }
 
-        function getMonthsBetweenTwoDates3(targetDate, finishDate, startDate, endDate, whatCycle, nazwa, cena) {
+        function getMonthsBetweenTwoDates3(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
 
-            var targetDate = new Date(targetDate);
-            var finishDate = new Date(finishDate);
+            var target_date = new Date(target_date);
+            var finish_date = new Date(finish_date);
             var startDate = new Date(startDate);
             var endDate = new Date(endDate);
 
-            var targetDate1 = changeDateFormat(targetDate);
-            var finishDate1 = changeDateFormat(finishDate);
-            var startDate1 = changeDateFormat(startDate);
-            var endDate1 = changeDateFormat(endDate);
+            var target_date1 = newDateYYYYMMDD(target_date);
+            var finish_date1 = newDateYYYYMMDD(finish_date);
+            var startDate1 = newDateYYYYMMDD(startDate);
+            var endDate1 = newDateYYYYMMDD(endDate);
 
             var firstDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
             var lastDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
 
             var monthsCount = 0;
 
-            if (targetDate1 <= startDate1 && finishDate1 >= endDate1) {
+            if (target_date1 <= startDate1 && finish_date1 >= endDate1) {
                 monthsCount = (endDate.getFullYear() - startDate.getFullYear()) * 12;
                 monthsCount -= startDate.getMonth();
                 monthsCount += endDate.getMonth();
                 if (endDate.getDate() - startDate.getDate() >= 0) {
                     monthsCount += 1
                 }
-            } else if (targetDate1 <= startDate1 && finishDate1 < endDate1 && finishDate1 >= startDate1) {
-                monthsCount = (finishDate.getFullYear() - startDate.getFullYear()) * 12;
+            } else if (target_date1 <= startDate1 && finish_date1 < endDate1 && finish_date1 >= startDate1) {
+                monthsCount = (finish_date.getFullYear() - startDate.getFullYear()) * 12;
                 monthsCount -= startDate.getMonth();
-                monthsCount += finishDate.getMonth();
-                if ((finishDate.getDate() - startDate.getDate() >= 0)) {
+                monthsCount += finish_date.getMonth();
+                if ((finish_date.getDate() - startDate.getDate() >= 0)) {
                     monthsCount += 1
                 }
-            } else if (targetDate1 > startDate1 && targetDate1 <= endDate1 && finishDate1 >= endDate1) {
-                monthsCount = (endDate.getFullYear() - targetDate.getFullYear()) * 12;
-                monthsCount -= targetDate.getMonth();
+            } else if (target_date1 > startDate1 && target_date1 <= endDate1 && finish_date1 >= endDate1) {
+                monthsCount = (endDate.getFullYear() - target_date.getFullYear()) * 12;
+                monthsCount -= target_date.getMonth();
                 monthsCount += endDate.getMonth();
-                if (endDate.getDate() - targetDate.getDate() >= 0) {
+                if (endDate.getDate() - target_date.getDate() >= 0) {
                     monthsCount += 1
                 }
-            } else if (targetDate1 > startDate1 && finishDate1 < endDate1) {
-                monthsCount = (finishDate.getFullYear() - targetDate.getFullYear()) * 12;
-                monthsCount -= targetDate.getMonth();
-                monthsCount += finishDate.getMonth();
-                if (finishDate.getDate() - targetDate.getDate() >= 0) {
+            } else if (target_date1 > startDate1 && finish_date1 < endDate1) {
+                monthsCount = (finish_date.getFullYear() - target_date.getFullYear()) * 12;
+                monthsCount -= target_date.getMonth();
+                monthsCount += finish_date.getMonth();
+                if (finish_date.getDate() - target_date.getDate() >= 0) {
                     monthsCount += 1
                 }
             } else { }
 
             if (whatCycle == "Co miesiac") {
                 if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (startDate.getMonth() == endDate.getMonth() && (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                } else if (startDate.getMonth() == endDate.getMonth() && (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
                     monthsCount -= 1;
                 } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
-                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
                 )) {
                     monthsCount -= 1;
                 } else { }
@@ -285,15 +312,15 @@ class ListExpensesComponent extends Component {
 
                 monthsCount = halfYearsCount
                 if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
-                    (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                } else if (newDateYYYYMM(startDate) == newDateYYYYMM(endDate) &&
+                    (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
                     monthsCount -= 1;
                 } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
-                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
                 )) {
                     monthsCount -= 1;
-                } else if (targetDate1 < startDate1 & halfYearsCount <= 1) {
+                } else if (target_date1 < startDate1 & halfYearsCount <= 1) {
                     monthsCount -= 1;
                 } else { }
             }
@@ -305,15 +332,15 @@ class ListExpensesComponent extends Component {
 
                 monthsCount = yearsCount
                 if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
-                    (targetDate.getDate() < startDate.getDate() || targetDate.getDate() > endDate.getDate())) {
+                } else if (newDateYYYYMM(startDate) == newDateYYYYMM(endDate) &&
+                    (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
                     monthsCount -= 1;
                 } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (targetDate.getDate() >= startDate.getDate && targetDate.getDate() <= lastDayStartDate.getDate) ||
-                    (targetDate.getDate() >= firstDayEndDate.getDate && targetDate.getDate() <= endDate.getDate)
+                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
                 )) {
                     monthsCount -= 1;
-                } else if (targetDate1 < startDate1 & yearsCount <= 1) {
+                } else if (target_date1 < startDate1 & yearsCount <= 1) {
                     monthsCount -= 1;
                 } else { }
             }
@@ -321,26 +348,26 @@ class ListExpensesComponent extends Component {
             return monthsCount;
         }
 
-        function changeDateFormat(date1) {
+        function newDateYYYYMMDD(date1) {
             var datePrased = moment(Date.parse(date1)).format("YYYY-MM-DD");
             return datePrased;
         }
 
-        function changeDateFormatWithoutDays(date1) {
+        function newDateYYYYMM(date1) {
             var datePrased = moment(Date.parse(date1)).format("YYYY-MM");
             return datePrased;
         }
 
         let totalSingleExpense = (this.state.expenses.filter(expense =>
             expense.cycle == "Nie" &&
-            changeDateFormat(expense.targetDate) >= changeDateFormat(this.state.startDate) &&
-            changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.endDate))
+            newDateYYYYMMDD(expense.target_date) >= newDateYYYYMMDD(this.state.startDate) &&
+            newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.endDate))
 
             .reduce((total, currentItem) => total = total + currentItem.price, 0));
 
         let totalCyclical = (this.state.expenses.filter(expense => expense.cycle != "Nie")
             .reduce((total, currentItem) => total = total + (currentItem.price *
-                getMonthsBetweenTwoDates3(currentItem.targetDate, currentItem.finishDate, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.price)), 0));
+                getMonthsBetweenTwoDates3(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.price)), 0));
 
         var formatter = new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -401,24 +428,22 @@ class ListExpensesComponent extends Component {
                         <tbody>
                             {
                                 this.state.expenses.filter(expense =>
-                                (changeDateFormat(expense.targetDate) >= changeDateFormat(this.state.startDate) &&
-                                    changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.endDate) &&
+                                (newDateYYYYMMDD(expense.target_date) >= newDateYYYYMMDD(this.state.startDate) &&
+                                    newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.endDate) &&
                                     expense.cycle == "Nie")
                                 ).map(expense =>
-                                    <tr key={expense.id}>
+                                    <tr key={expense.expenseid}>
                                         <td><div className="text-20px-white">{expense.description}</div>
-                                            <tr></tr>Kategoria: {expense.category}
-                                            <tr></tr>{expense.comment}
+                                            Kategoria: {categoryMap(expense.category, this.state.categories)}
+                                            <br />
+                                            {expense.comment}
                                         </td>
-                                        <td>{moment(expense.targetDate).format('DD-MM-YYYY')}</td>
+                                        <td>{moment(expense.target_date).format('DD-MM-YYYY')}</td>
                                         <td>{formatter.format(expense.price)}</td>
                                         <td>
-                                            <img src={btnEdit}
-                                                width="40" height="40"
-                                                onClick={() => this.updateExpenseClicked(expense.id)} />
-                                            <img src={btnDel}
-                                                width="40" height="40"
-                                                onClick={() => this.deleteExpenseClicked(expense.id)} />
+                                            <img src={btnCopy} width="40" height="40" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
+                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateExpenseClicked(expense.expenseid)} />
+                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteExpenseClicked(expense.expenseid)} />
                                         </td>
                                     </tr>
                                 )
@@ -454,47 +479,46 @@ class ListExpensesComponent extends Component {
                         <tbody>
                             {
                                 this.state.expenses.filter(expense =>
-                                    expense.cycle != "Nie" && ((changeDateFormat(this.state.endDate) >= changeDateFormat(this.state.startDate) &&
+                                    expense.cycle != "Nie" && ((newDateYYYYMMDD(this.state.endDate) >= newDateYYYYMMDD(this.state.startDate) &&
                                         (
-                                            (changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(expense.finishDate) >= changeDateFormat(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
+                                            (newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.startDate) &&
+                                                newDateYYYYMMDD(expense.finish_date) >= newDateYYYYMMDD(this.state.endDate)) &&
+                                            getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
-                                            (changeDateFormat(expense.targetDate) > changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(expense.finishDate) < changeDateFormat(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
+                                            (newDateYYYYMMDD(expense.target_date) > newDateYYYYMMDD(this.state.startDate) &&
+                                                newDateYYYYMMDD(expense.finish_date) < newDateYYYYMMDD(this.state.endDate)) &&
+                                            getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
-                                            (changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(expense.finishDate) < changeDateFormat(this.state.endDate) &&
-                                                changeDateFormat(expense.finishDate) >= changeDateFormat(this.state.startDate)) &&
-                                            getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
+                                            (newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.startDate) &&
+                                                newDateYYYYMMDD(expense.finish_date) < newDateYYYYMMDD(this.state.endDate) &&
+                                                newDateYYYYMMDD(expense.finish_date) >= newDateYYYYMMDD(this.state.startDate)) &&
+                                            getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
-                                            (changeDateFormat(expense.targetDate) > changeDateFormat(this.state.startDate) &&
-                                                changeDateFormat(expense.targetDate) <= changeDateFormat(this.state.endDate) &&
-                                                changeDateFormat(expense.finishDate) >= changeDateFormat(this.state.endDate) &&
-                                                getMonthsBetweenTwoDates3(expense.targetDate, expense.finishDate, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1)
+                                            (newDateYYYYMMDD(expense.target_date) > newDateYYYYMMDD(this.state.startDate) &&
+                                                newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.endDate) &&
+                                                newDateYYYYMMDD(expense.finish_date) >= newDateYYYYMMDD(this.state.endDate) &&
+                                                getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1)
                                         )
                                     ))
                                 ).map(expense =>
-                                    <tr key={expense.id}>
+                                    <tr key={expense.expenseid}>
                                         <td><div className="text-20px-white">{expense.description}</div>
-                                            <tr></tr>
-                                            Kategoria: {expense.category}
-                                            <tr></tr>
+                                            Kategoria: {categoryMap(expense.category, this.state.categories)}
+                                            <br />
                                             {expense.cycle}
-                                            <tr></tr>
+                                            <br />
                                             {expense.comment}
                                         </td>
                                         <td>
-                                            <tr></tr>
-                                            Od: {moment(expense.targetDate).format('DD-MM-YYYY')}
-                                            <tr></tr>
-                                            Do: {moment(expense.finishDate).format('DD-MM-YYYY')}
+                                            Od: {moment(expense.target_date).format('DD-MM-YYYY')}
+                                            <br />
+                                            Do: {moment(expense.finish_date).format('DD-MM-YYYY')}
                                         </td>
                                         <td>{formatter.format(expense.price)}</td>
                                         <td>
-                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateExpenseClicked(expense.id)} />
-                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteExpenseClicked(expense.id)} />
+                                            <img src={btnCopy} width="40" height="40" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
+                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateExpenseClicked(expense.expenseid)} />
+                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteExpenseClicked(expense.expenseid)} />
                                         </td>
                                     </tr>
                                 )

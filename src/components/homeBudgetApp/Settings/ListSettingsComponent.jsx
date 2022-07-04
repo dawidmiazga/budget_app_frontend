@@ -8,8 +8,8 @@ class ListSettingsComponent extends Component {
         super(props)
         this.state = {
             users: [],
-            id: this.props.match.params.id,
-            login: '',
+            usernameid: this.props.match.params.id,
+            username: '',
             password: '',
             displayColorPicker: false,
             categoryNameMain: '',
@@ -25,8 +25,8 @@ class ListSettingsComponent extends Component {
             )
     }
 
-    updateLoginClicked(id) {
-        this.props.history.push(`/changepassword/${id}`)
+    updateLoginClicked(usernameid) {
+        this.props.history.push(`/changepassword/${usernameid}`)
     }
 
     render() {
@@ -47,14 +47,14 @@ class ListSettingsComponent extends Component {
                         </thead>
                         <tbody>
                             {
-                                this.state.users.filter(user => user.login == currentuser).map(
+                                this.state.users.filter(user => user.usernameid == currentuser).map(
                                     user =>
-                                        <tr key={user.id}>
+                                        <tr key={user.usernameid}>
                                             <td>
                                                 <div className="text-20px-white">Edytuj haslo</div>
                                             </td>
                                             <td>
-                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateLoginClicked(user.id)} />
+                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateLoginClicked(user.usernameid)} />
                                             </td>
                                         </tr>
                                 )

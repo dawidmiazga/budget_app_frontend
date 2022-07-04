@@ -10,8 +10,8 @@ class BudgetComponent extends Component {
         super(props)
         this.state = {
             budgets: [],
-            id: this.props.match.params.id,
-            targetMonth: moment(new Date()).format('YYYY-MM'),
+            budgetid: this.props.match.params.id,
+            target_month: moment(new Date()).format('YYYY-MM'),
             amount: '',
             comment: '',
         }
@@ -22,14 +22,14 @@ class BudgetComponent extends Component {
     }
 
     componentDidMount() {
-        if (this.state.id == -1) {
+        if (this.state.budgetid == -1) {
             this.refreshBudgets()
             return
         }
-        let username = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveBudget(username, this.state.id)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BudgetDataService.retrieveBudget(usernameid, this.state.budgetid)
             .then(response => this.setState({
-                targetMonth: moment(response.data.targetMonth).format('YYYY-MM'),
+                target_month: moment(response.data.target_month).format('YYYY-MM'),
                 amount: response.data.amount,
                 comment: response.data.comment,
             }))
@@ -37,43 +37,43 @@ class BudgetComponent extends Component {
     }
 
     refreshBudgets() {
-        let username = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BudgetDataService.retrieveAllBudgets(usernameid)
             .then(response => {
                 this.setState({ budgets: response.data })
             })
     }
 
     validate(values) {
-        const allPeriods = this.state.budgets.map(budget => moment(budget.targetMonth).format("YYYY-MM"));
+        const allPeriods = this.state.budgets.map(budget => moment(budget.target_month).format("YYYY-MM"));
         let errors = {}
-        if (!moment(values.targetMonth).isValid()) {
-            errors.targetMonth = 'Wybierz poprawna date'
+        if (!moment(values.target_month).isValid()) {
+            errors.target_month = 'Wybierz poprawna date'
         }
         if (values.amount == "dummy" || values.amount == "" || values.amount == null) {
             errors.amount = 'Wpisz kwote'
         }
-        if (this.state.id == -1 && allPeriods.includes(values.targetMonth) == true) {
-            errors.targetMonth = "Budzet na wybrany miesiac juz istnieje"
-        } else if (values.targetMonth != this.state.targetMonth && allPeriods.includes(values.targetMonth) == true) {
-            errors.targetMonth = "Budzet na wybrany miesiac juz istnieje"
+        if (this.state.budgetid == -1 && allPeriods.includes(values.target_month) == true) {
+            errors.target_month = "Budzet na wybrany miesiac juz istnieje"
+        } else if (values.target_month != this.state.target_month && allPeriods.includes(values.target_month) == true) {
+            errors.target_month = "Budzet na wybrany miesiac juz istnieje"
         }
         return errors
     }
 
     onSubmit(values) {
-        let username = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName()
         let budget = {
-            id: this.state.id,
-            targetMonth: moment(values.targetMonth).format("YYYY-MM-DD"),
-            username: username,
+            budgetid: this.state.budgetid,
+            target_month: moment(values.target_month).format("YYYY-MM-DD"),
+            usernameid: usernameid,
             amount: values.amount,
             comment: values.comment,
         }
-        if (this.state.id === -1) {
-            BudgetDataService.createBudget(username, budget).then(() => this.props.history.push('/budgets'))
+        if (this.state.budgetid === -1) {
+            BudgetDataService.createBudget(usernameid, budget).then(() => this.props.history.push('/budgets'))
         } else {
-            BudgetDataService.updateBudget(username, this.state.id, budget).then(() => this.props.history.push('/budgets'))
+            BudgetDataService.updateBudget(usernameid, this.state.budgetid, budget).then(() => this.props.history.push('/budgets'))
         }
     }
 
@@ -82,12 +82,12 @@ class BudgetComponent extends Component {
     }
 
     render() {
-        let { targetMonth, amount, comment } = this.state
+        let { target_month, amount, comment } = this.state
         return (
             <div className="background-color-all">
                 <div className="container">
                     <Formik
-                        initialValues={{ targetMonth, amount, comment }}
+                        initialValues={{ target_month, amount, comment }}
                         onSubmit={this.onSubmit}
                         validateOnChange={false}  //to i to ponizej zostawia nam wyswietlanie bledu "na zywo"
                         validateOnBlur={false}
@@ -97,13 +97,13 @@ class BudgetComponent extends Component {
                         {
                             (props) => (
                                 <Form>
-                                    <ErrorMessage name="targetMonth" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="target_month" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="amount" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>Dodaj budzet</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.id != -1 ? 'block' : 'none') }}>Edytuj budzet</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.budgetid == -1 ? 'block' : 'none') }}>Dodaj budzet</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.budgetid != -1 ? 'block' : 'none') }}>Edytuj budzet</div>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Miesiac</div>
-                                        <Field className="hb-form-control" type="month" name="targetMonth" />
+                                        <Field className="hb-form-control" type="month" name="target_month" />
                                     </fieldset>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Kwota</div>

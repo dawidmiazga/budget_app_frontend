@@ -2,20 +2,20 @@ import axios from 'axios'
 import { JPA_API_URL } from '../../Constants'
 
 class BudgetDataService {
-    retrieveAllBudgets(name) {
-        return axios.get(`${JPA_API_URL}/users/${name}/budgets`);
+    retrieveAllBudgets(usernameid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/budgets`);
     }
-    retrieveBudget(name, id) {
-        return axios.get(`${JPA_API_URL}/users/${name}/budgets/${id}`);
+    retrieveBudget(usernameid, budgetid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/budgets/${budgetid}`);
     }
-    deleteBudget(name, id) {
-        return axios.delete(`${JPA_API_URL}/users/${name}/budgets/${id}`);
+    deleteBudget(usernameid, budgetid) {
+        return axios.delete(`${JPA_API_URL}/users/${usernameid}/budgets/${budgetid}`);
     }
-    updateBudget(name, id, budget) {
-        return axios.put(`${JPA_API_URL}/users/${name}/budgets/${id}`, budget);
+    updateBudget(usernameid, budgetid, budget) {
+        return axios.put(`${JPA_API_URL}/users/${usernameid}/budgets/${budgetid}`, budget);
     }
-    createBudget(name, budget) {
-        return axios.post(`${JPA_API_URL}/users/${name}/budgets`, budget);
+    createBudget(usernameid, budget) {
+        return axios.post(`${JPA_API_URL}/users/${usernameid}/budgets`, budget);
     }
 }
 

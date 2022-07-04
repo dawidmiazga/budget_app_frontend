@@ -2,20 +2,20 @@ import axios from 'axios'
 import { JPA_API_URL } from '../../Constants'
 
 class CategoryDataService {
-    retrieveAllCategories(name) {
-        return axios.get(`${JPA_API_URL}/users/${name}/categories`);
+    retrieveAllCategories(usernameid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/categories`);
     }
-    retrieveCategory(name, id) {
-        return axios.get(`${JPA_API_URL}/users/${name}/categories/${id}`);
+    retrieveCategory(usernameid, categoryid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/categories/${categoryid}`);
     }
-    deleteCategory(name, id) {
-        return axios.delete(`${JPA_API_URL}/users/${name}/categories/${id}`);
+    deleteCategory(usernameid, categoryid) {
+        return axios.delete(`${JPA_API_URL}/users/${usernameid}/categories/${categoryid}`);
     }
-    updateCategory(name, id, category) {
-        return axios.put(`${JPA_API_URL}/users/${name}/categories/${id}`, category);
+    updateCategory(usernameid, categoryid, category) {
+        return axios.put(`${JPA_API_URL}/users/${usernameid}/categories/${categoryid}`, category);
     }
-    createCategory(name, category) {
-        return axios.post(`${JPA_API_URL}/users/${name}/categories`, category);
+    createCategory(usernameid, category) {
+        return axios.post(`${JPA_API_URL}/users/${usernameid}/categories`, category);
     }
 }
 

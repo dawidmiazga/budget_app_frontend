@@ -10,7 +10,7 @@ class CategoryComponent extends Component {
         super(props)
         this.state = {
             categories: [],
-            id: this.props.match.params.id,
+            categoryid: this.props.match.params.id,
             categoryname: '',
             displayColorPicker: false,
             hexcolor: '',
@@ -25,8 +25,8 @@ class CategoryComponent extends Component {
     }
 
     refreshCategories() {
-        let username = AuthenticationService.getLoggedInUserName()
-        CategoryDataService.retrieveAllCategories(username)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        CategoryDataService.retrieveAllCategories(usernameid)
             .then(
                 response => {
                     this.setState({ categories: response.data })
@@ -35,12 +35,12 @@ class CategoryComponent extends Component {
     }
 
     componentDidMount() {
-        if (this.state.id == -1) {
+        if (this.state.categoryid == -1) {
             this.refreshCategories()
             return
         }
-        let username = AuthenticationService.getLoggedInUserName()
-        CategoryDataService.retrieveCategory(username, this.state.id)
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        CategoryDataService.retrieveCategory(usernameid, this.state.categoryid)
             .then(response => this.setState({
                 categoryname: response.data.categoryname,
                 hexcolor: response.data.hexcolor
@@ -54,7 +54,7 @@ class CategoryComponent extends Component {
         if (!values.categoryname) {
             errors.categoryname = "Wpisz nazwe"
         }
-        if (this.state.id == -1 && allCategories.includes(values.categoryname) == true) {
+        if (this.state.categoryid == -1 && allCategories.includes(values.categoryname) == true) {
             errors.categoryname = "Taka kategoria juz istnieje"
         } else if (values.categoryname != this.state.categoryname && allCategories.includes(values.categoryname) == true) {
             errors.categoryname = "Taka kategoria juz istnieje"
@@ -66,17 +66,17 @@ class CategoryComponent extends Component {
     }
 
     onSubmit(values) {
-        let username = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName()
         let category = {
-            id: this.state.id,
+            categoryid: this.state.categoryid,
             categoryname: values.categoryname,
-            username: username,
+            usernameid: usernameid,
             hexcolor: (values.hexcolor),
         }
-        if (this.state.id == -1) {
-            CategoryDataService.createCategory(username, category).then(() => this.props.history.push('/categories'))
+        if (this.state.categoryid == -1) {
+            CategoryDataService.createCategory(usernameid, category).then(() => this.props.history.push('/categories'))
         } else {
-            CategoryDataService.updateCategory(username, this.state.id, category).then(() => this.props.history.push('/categories'))
+            CategoryDataService.updateCategory(usernameid, this.state.categoryid, category).then(() => this.props.history.push('/categories'))
         }
     }
 
@@ -152,8 +152,8 @@ class CategoryComponent extends Component {
                                 <Form>
                                     <ErrorMessage name="categoryname" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="hexcolor" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.id == -1 ? 'block' : 'none') }}>Dodaj kategorie</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.id != -1 ? 'block' : 'none') }}>Edytuj kategorie</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.categoryid == -1 ? 'block' : 'none') }}>Dodaj kategorie</div>
+                                    <div className="text-40px-white" style={{ display: (this.state.categoryid != -1 ? 'block' : 'none') }}>Edytuj kategorie</div>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Wybierz kolor</div>
                                         <div name="categoryname2">

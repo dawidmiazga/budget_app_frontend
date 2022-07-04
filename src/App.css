@@ -78,6 +78,26 @@
   display: inline-block;
 }
 
+.container-height-100 {
+  /* vertical-align:top;
+  margin-top: 1%;
+  margin-bottom: 1%;
+  width: 100%; */
+  min-height: 100px;
+  /* border: 1px solid #000; */
+  display: inline-block;
+}
+
+.container-welcome-top {
+  vertical-align:top;
+  margin-top: 1%;
+  margin-bottom: 1%;
+  width: 100%;
+  min-height: 100px;
+  /* border: 1px solid #000; */
+  display: inline-block;
+}
+
 .container-welcome-left {
   vertical-align:top;
   margin-top: 1%;

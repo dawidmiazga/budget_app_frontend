@@ -2,20 +2,20 @@ import axios from 'axios'
 import { JPA_API_URL } from '../../Constants'
 
 class ExpenseDataService {
-    retrieveAllExpenses(name) {
-        return axios.get(`${JPA_API_URL}/users/${name}/expenses`);
+    retrieveAllExpenses(usernameid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/expenses`);
     }
-    retrieveExpense(name, id) {
-        return axios.get(`${JPA_API_URL}/users/${name}/expenses/${id}`);
+    retrieveExpense(usernameid, expenseid) {
+        return axios.get(`${JPA_API_URL}/users/${usernameid}/expenses/${expenseid}`);
     }
-    deleteExpense(name, id) {
-        return axios.delete(`${JPA_API_URL}/users/${name}/expenses/${id}`);
+    deleteExpense(usernameid, expenseid) {
+        return axios.delete(`${JPA_API_URL}/users/${usernameid}/expenses/${expenseid}`);
     }
-    updateExpense(name, id, expense) {
-        return axios.put(`${JPA_API_URL}/users/${name}/expenses/${id}`, expense);
+    updateExpense(usernameid, expenseid, expense) {
+        return axios.put(`${JPA_API_URL}/users/${usernameid}/expenses/${expenseid}`, expense);
     }
-    createExpense(name, expense) {
-        return axios.post(`${JPA_API_URL}/users/${name}/expenses`, expense);
+    createExpense(usernameid, expense) {
+        return axios.post(`${JPA_API_URL}/users/${usernameid}/expenses`, expense);
     }
 }
 

@@ -44,12 +44,13 @@ class HeaderComponent extends Component {
                         {isUserLoggedIn && <li><Link className="hb-nav-link" to="/budgets">Budżety</Link></li>}
                         {isUserLoggedIn && <li><Link className="hb-nav-link" to="/statistics">Statystyki</Link></li>}
                         {isUserLoggedIn && <li><Link className="hb-nav-link" to="/settings">Ustawienia</Link></li>}
+                        {isUserLoggedIn && <li><Link className="hb-nav-link" to="/test">Test</Link></li>}
                     </ul>
 
                     <ul className="navbar-nav navbar-collapse justify-content-end">
                         {isUserLoggedIn && <button className="button-66" onClick={this.addExpenseClicked}>Dodaj wydatek</button>}
                         {isUserLoggedIn && <button className="button-66" onClick={this.addIncomeClicked}>Dodaj przychod</button>}
-                        {!isUserLoggedIn && <button className="button-77" onClick={this.AddUser}>Dodaj konto</button>}
+                        {(!isUserLoggedIn && !webAddress.includes("userslist")) && <button className="button-77" onClick={this.AddUser}>Dodaj konto</button>}
                         {(webAddress.includes("login") || !isUserLoggedIn) && <li><Link className="hb-nav-link" to="/login">Zaloguj</Link></li>}
                         {isUserLoggedIn && <li><Link className="hb-nav-link" to="/logout" onClick={AuthenticationService.logout}>Wyloguj</Link></li>}
                     </ul>
