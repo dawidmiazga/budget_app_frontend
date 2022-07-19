@@ -33,13 +33,13 @@ class ExpenseComponent extends Component {
     }
 
     componentDidMount() {
-        console.log("expenseid " + this.state.expenseid)
-        console.log("expenseid2 " + this.state.expenseid2)
-        if(this.state.expenseid2==null){
+        // console.log("expenseid " + this.state.expenseid)
+        // console.log("expenseid2 " + this.state.expenseid2)
+        if (this.state.expenseid2 == null) {
             console.log("null")
         }
 
-        if (this.state.expenseid == -1&&this.state.expenseid2 == null) {
+        if (this.state.expenseid == -1 && this.state.expenseid2 == null) {
             this.getPeriodicity()
             this.refreshCategories()
             return
@@ -64,28 +64,28 @@ class ExpenseComponent extends Component {
         // }
 
         let usernameid = AuthenticationService.getLoggedInUserName()
-        if (this.state.expenseid==-1){
-        ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid2)
-        .then(response => this.setState({
-            description: response.data.description,
-            target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
-            finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
-            price: response.data.price,
-            category: response.data.category,//categoryMap(response.data.category, this.state.categories),
-            comment: response.data.comment,
-            cycle: response.data.cycle,
-        }))
-    }else{
-        ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid)
-            .then(response => this.setState({
-                description: response.data.description,
-                target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
-                finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
-                price: response.data.price,
-                category: response.data.category,//categoryMap(response.data.category, this.state.categories),
-                comment: response.data.comment,
-                cycle: response.data.cycle,
-            }))
+        if (this.state.expenseid == -1) {
+            ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid2)
+                .then(response => this.setState({
+                    description: response.data.description,
+                    target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
+                    finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
+                    price: response.data.price,
+                    category: response.data.category,//categoryMap(response.data.category, this.state.categories),
+                    comment: response.data.comment,
+                    cycle: response.data.cycle,
+                }))
+        } else {
+            ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid)
+                .then(response => this.setState({
+                    description: response.data.description,
+                    target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
+                    finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
+                    price: response.data.price,
+                    category: response.data.category,//categoryMap(response.data.category, this.state.categories),
+                    comment: response.data.comment,
+                    cycle: response.data.cycle,
+                }))
         }
     }
 

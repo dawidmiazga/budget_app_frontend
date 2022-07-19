@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import AuthenticationService from "./AuthenticationService.js";
 import { withRouter } from 'react-router';
+import btnHome from '../images/home_button.png';
 import logo from '../images/edit_button.png';
 
 class HeaderComponent extends Component {

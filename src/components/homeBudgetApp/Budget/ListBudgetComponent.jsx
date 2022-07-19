@@ -8,6 +8,7 @@ import btnEdit from '../../images/edit_button.png';
 import btnDel from '../../images/delete_button.png';
 import btnClear from '../../images/clear_button.png';
 import btnSort from '../../images/sort_button.png';
+import btnCopy from '../../images/copy_button.png';
 
 class ListBudgetsComponent extends Component {
 
@@ -24,6 +25,7 @@ class ListBudgetsComponent extends Component {
 
         this.deleteBudgetClicked = this.deleteBudgetClicked.bind(this)
         this.updateBudgetClicked = this.updateBudgetClicked.bind(this)
+        this.copyBudgetClicked = this.copyBudgetClicked.bind(this)
         this.addBudgetClicked = this.addBudgetClicked.bind(this)
         this.refreshBudgets = this.refreshBudgets.bind(this)
         this.changeStartDateCal = this.changeStartDateCal.bind(this);
@@ -32,6 +34,7 @@ class ListBudgetsComponent extends Component {
         this.clearDates = this.clearDates.bind(this);
         this.sortByMonth = this.sortByMonth.bind(this);
         this.sortByAmount = this.sortByAmount.bind(this);
+        this.refreshLogins = this.refreshLogins.bind(this);
     }
 
     componentDidMount() {
@@ -54,10 +57,35 @@ class ListBudgetsComponent extends Component {
         BudgetDataService.retrieveAllBudgets(usernameid)
             .then(
                 response => {
+                    response.data.sort((a, b) => (a.target_month < b.target_month) ? 1 : -1)
                     this.setState({ budgets: response.data })
                 }
             )
     }
+
+    // sortTable(sortType) {
+    //     this.state.sortAsc = this.state.sortAsc * -1;
+    //     let usernameid = AuthenticationService.getLoggedInUserName()
+    //     BudgetDataService.retrieveAllBudgets(usernameid)
+    //         .then(
+    //             response => {
+    //                 if (this.state.sortAsc == 1) {
+    //                     if (sortType == "Month") {
+    //                         response.data.sort((a, b) => (a.target_month < b.target_month) ? 1 : -1)
+    //                     } else if (sortType == "Amount") {
+    //                         response.data.sort((a, b) => (a.amount < b.amount) ? 1 : -1)
+    //                     }
+    //                 } else {
+    //                     if (sortType == "Month") {
+    //                         response.data.sort((a, b) => (a.target_month > b.target_month) ? 1 : -1)
+    //                     } else if (sortType == "Amount") {
+    //                         response.data.sort((a, b) => (a.amount > b.amount) ? 1 : -1)
+    //                     }
+    //                 }
+    //                 this.setState({ budgets: response.data })
+    //             }
+    //         )
+    // }
 
     sortByMonth() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -104,6 +132,10 @@ class ListBudgetsComponent extends Component {
 
     updateBudgetClicked(budgetid) {
         this.props.history.push(`/budgets/${budgetid}`)
+    }
+
+    copyBudgetClicked(budgetid) {
+        this.props.history.push(`/budgets/${budgetid}/-1`)
     }
 
     addBudgetClicked() {
@@ -219,6 +251,7 @@ class ListBudgetsComponent extends Component {
                                                 </div>
                                             </td>
                                             <td>
+                                                <img src={btnCopy} width="40" height="40" onClick={() => this.copyBudgetClicked(budget.budgetid)} />
                                                 <img src={btnEdit} width="40" height="40" onClick={() => this.updateBudgetClicked(budget.budgetid)} />
                                                 <img src={btnDel} width="40" height="40" onClick={() => this.deleteBudgetClicked(budget.budgetid)} />
                                             </td>

@@ -11,6 +11,7 @@ class BudgetComponent extends Component {
         this.state = {
             budgets: [],
             budgetid: this.props.match.params.id,
+            budgetid2: this.props.match.params.id2,
             target_month: moment(new Date()).format('YYYY-MM'),
             amount: '',
             comment: '',
@@ -22,17 +23,27 @@ class BudgetComponent extends Component {
     }
 
     componentDidMount() {
-        if (this.state.budgetid == -1) {
+        if (this.state.budgetid == -1 && this.state.budgetid2 == null) {
             this.refreshBudgets()
             return
         }
         let usernameid = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveBudget(usernameid, this.state.budgetid)
-            .then(response => this.setState({
-                target_month: moment(response.data.target_month).format('YYYY-MM'),
-                amount: response.data.amount,
-                comment: response.data.comment,
-            }))
+
+        if (this.state.budgetid == -1) {
+            BudgetDataService.retrieveBudget(usernameid, this.state.budgetid2)
+                .then(response => this.setState({
+                    target_month: moment(response.data.target_month).format('YYYY-MM'),
+                    amount: response.data.amount,
+                    comment: response.data.comment,
+                }))
+        } else {
+            BudgetDataService.retrieveBudget(usernameid, this.state.budgetid)
+                .then(response => this.setState({
+                    target_month: moment(response.data.target_month).format('YYYY-MM'),
+                    amount: response.data.amount,
+                    comment: response.data.comment,
+                }))
+        }
         this.refreshBudgets()
     }
 

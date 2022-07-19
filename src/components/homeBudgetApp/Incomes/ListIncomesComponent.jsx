@@ -162,7 +162,7 @@ class ListIncomesComponent extends Component {
             this.state.endDate = new Date("9999-12-31")
         }
 
-        function getMonthsBetweenTwoDates3(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
+        function cycleCount(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
             var target_date = new Date(target_date);
             var finish_date = new Date(finish_date);
             var startDate = new Date(startDate);
@@ -281,7 +281,7 @@ class ListIncomesComponent extends Component {
 
         let totalCyclical = (this.state.incomes.filter(income => income.cycle != "Nie")
             .reduce((total, currentItem) => total = total + (currentItem.amount *
-                getMonthsBetweenTwoDates3(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.amount)), 0));
+                cycleCount(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.amount)), 0));
 
         var formatter = new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -394,21 +394,21 @@ class ListIncomesComponent extends Component {
                                         (
                                             (changeDateFormat(income.target_date) <= changeDateFormat(this.state.startDate) &&
                                                 changeDateFormat(income.finish_date) >= changeDateFormat(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
+                                            cycleCount(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
 
                                             (changeDateFormat(income.target_date) > changeDateFormat(this.state.startDate) &&
                                                 changeDateFormat(income.finish_date) < changeDateFormat(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
+                                            cycleCount(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
 
                                             (changeDateFormat(income.target_date) <= changeDateFormat(this.state.startDate) &&
                                                 changeDateFormat(income.finish_date) < changeDateFormat(this.state.endDate) &&
                                                 changeDateFormat(income.finish_date) >= changeDateFormat(this.state.startDate)) &&
-                                            getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
+                                            cycleCount(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1 ||
 
                                             (changeDateFormat(income.target_date) > changeDateFormat(this.state.startDate) &&
                                                 changeDateFormat(income.target_date) <= changeDateFormat(this.state.endDate) &&
                                                 changeDateFormat(income.finish_date) >= changeDateFormat(this.state.endDate) &&
-                                                getMonthsBetweenTwoDates3(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1)
+                                                cycleCount(income.target_date, income.finish_date, this.state.startDate, this.state.endDate, income.cycle, income.description, income.amount) >= 1)
                                         )
                                     ))
                                 ).map(income =>
@@ -446,3 +446,103 @@ class ListIncomesComponent extends Component {
 }
 
 export default ListIncomesComponent
+
+// function cycleCount(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
+//     var target_date = new Date(target_date);
+//     var finish_date = new Date(finish_date);
+//     var startDate = new Date(startDate);
+//     var endDate = new Date(endDate);
+
+//     var target_date1 = changeDateFormat(target_date);
+//     var finish_date1 = changeDateFormat(finish_date);
+//     var startDate1 = changeDateFormat(startDate);
+//     var endDate1 = changeDateFormat(endDate);
+
+//     var firstDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+//     var lastDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+
+//     var monthsCount = 0;
+
+//     if (target_date1 <= startDate1 && finish_date1 >= endDate1) {
+//         monthsCount = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+//         monthsCount -= startDate.getMonth();
+//         monthsCount += endDate.getMonth();
+//         if (endDate.getDate() - startDate.getDate() >= 0) {
+//             monthsCount += 1
+//         }
+//     } else if (target_date1 <= startDate1 && finish_date1 < endDate1 && finish_date1 >= startDate1) {
+//         monthsCount = (finish_date.getFullYear() - startDate.getFullYear()) * 12;
+//         monthsCount -= startDate.getMonth();
+//         monthsCount += finish_date.getMonth();
+//         if ((finish_date.getDate() - startDate.getDate() >= 0)) {
+//             monthsCount += 1
+//         }
+//     } else if (target_date1 > startDate1 && target_date1 <= endDate1 && finish_date1 >= endDate1) {
+//         monthsCount = (endDate.getFullYear() - target_date.getFullYear()) * 12;
+//         monthsCount -= target_date.getMonth();
+//         monthsCount += endDate.getMonth();
+//         if (endDate.getDate() - target_date.getDate() >= 0) {
+//             monthsCount += 1
+//         }
+//     } else if (target_date1 > startDate1 && finish_date1 < endDate1) {
+//         monthsCount = (finish_date.getFullYear() - target_date.getFullYear()) * 12;
+//         monthsCount -= target_date.getMonth();
+//         monthsCount += finish_date.getMonth();
+//         if (finish_date.getDate() - target_date.getDate() >= 0) {
+//             monthsCount += 1
+//         }
+//     } else { }
+
+//     if (whatCycle == "Co miesiac") {
+//         if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
+//         } else if (startDate.getMonth() == endDate.getMonth() && (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
+//             monthsCount -= 1;
+//         } else if (startDate.getMonth() != endDate.getMonth() && (
+//             (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+//             (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
+//         )) {
+//             monthsCount -= 1;
+//         } else { }
+//     }
+
+//     if (whatCycle == "Co pol roku") {
+//         var yearsCount = Math.floor(monthsCount / 12)
+//         var halfYearsCount = Math.ceil(monthsCount / 6)
+
+//         monthsCount = halfYearsCount
+//         if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
+
+//         } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
+//             (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
+//             monthsCount -= 1;
+//         } else if (startDate.getMonth() != endDate.getMonth() && (
+//             (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+//             (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
+//         )) {
+//             monthsCount -= 1;
+//         } else if (target_date1 < startDate1 & halfYearsCount <= 1) {
+//             monthsCount -= 1;
+//         } else { }
+//     }
+
+//     if (whatCycle == "Co rok") {
+//         var yearsCount = Math.ceil(monthsCount / 12)
+//         var halfYearsCount = Math.ceil(monthsCount / 6)
+//         monthsCount = yearsCount
+//         if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
+
+//         } else if (changeDateFormatWithoutDays(startDate) == changeDateFormatWithoutDays(endDate) &&
+//             (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
+//             monthsCount -= 1;
+//         } else if (startDate.getMonth() != endDate.getMonth() && (
+//             (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
+//             (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
+//         )) {
+//             monthsCount -= 1;
+//         } else if (target_date1 < startDate1 & yearsCount <= 1) {
+//             monthsCount -= 1;
+//         } else { }
+//     }
+//     if (monthsCount < 0) { monthsCount = 0 }
+//     return monthsCount;
+// }

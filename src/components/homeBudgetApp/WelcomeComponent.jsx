@@ -11,7 +11,8 @@ import btnBack from '../images/back_button.png';
 import btnNext from '../images/next_button.png';
 import btnToday from '../images/today_button.png';
 import LoginDataService from '../../api/HomeBudget/LoginDataService.js';
-import { toBeRequired } from "@testing-library/jest-dom/dist/matchers";
+
+//blue #044B8D
 
 class WelcomeComponent extends Component {
     constructor(props) {
@@ -69,7 +70,7 @@ class WelcomeComponent extends Component {
     }
 
     refreshMonth() {
-        var choosenMonth = "2022-07"//moment(Date()).format("YYYY-MM")
+        var choosenMonth = moment(Date()).format("YYYY-MM")
         document.getElementById("monthChoiceFilter").value = choosenMonth;
         document.getElementById("monthChoiceFilterAllFromMth").value = choosenMonth;
         document.getElementById("monthChoiceFilterAllToMth").value = choosenMonth;
@@ -132,7 +133,7 @@ class WelcomeComponent extends Component {
     }
 
     changeMth(type) {
-        console.log(type)
+        // console.log(type)
         var currMth;
         if (type == "curr") {
             currMth = moment(Date()).format("YYYY-MM")
@@ -201,8 +202,35 @@ class WelcomeComponent extends Component {
 
     render() {
 
+        if (this.state.dateMonthChoiceAllFromMth == "") {
+            this.state.dateMonthChoiceAllFromMth = new Date("1111-12-31")
+        }
+
+        if (this.state.dateMonthChoiceAllToMth == "") {
+            this.state.dateMonthChoiceAllToMth = new Date("9999-12-31")
+        }
+
+        var formatter = new Intl.NumberFormat('pl-PL', {
+            style: 'currency',
+            currency: 'PLN',
+        });
+
+        const formatPercentage = (value, locale = "en-GB") => {
+            return Intl.NumberFormat(locale, {
+                style: "percent",
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 2
+            }).format(value);
+        };
+
+        const arrMthEng = ["01-Jan", "02-Feb", "03-Mar", "04-Apr", "05-May", "06-Jun", "07-Jul", "08-Aug", "09-Sep", "10-Oct", "11-Nov", "12-Dec"]
+        const arrMthPol = ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paz", "Lis", "Gru"]
+
         function categoryMap(id, categoryList) {
-            const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
+            const arrCat = ([
+                (categoryList.map(category => category.categoryname)),
+                (categoryList.map(category => category.categoryid))
+            ]);
             if (arrCat[1].includes(id)) {
                 var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
                 return idCurrentCat;
@@ -222,61 +250,40 @@ class WelcomeComponent extends Component {
             }
         }
 
-        if (this.state.dateMonthChoiceAllFromMth == "") {
-            this.state.dateMonthChoiceAllFromMth = new Date("1111-12-31")
-        }
-
-        if (this.state.dateMonthChoiceAllToMth == "") {
-            this.state.dateMonthChoiceAllToMth = new Date("9999-12-31")
-        }
-
-        // function dateFormat(dateToChange, newForamt) {
-        //     var datePrased;
-        //     if (newForamt == "yyyymmdd") {
-        //         datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM-DD");
-        //     } else if (newForamt == "yyyymm") {
-        //         datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM");
-        //     } else if (newForamt == "yyyy") {
-        //         datePrased = moment(Date.parse(dateToChange)).format("YYYY");
-        //     } else if (newForamt == "mm") {
-        //         datePrased = moment(Date.parse(dateToChange)).format("MM");
-        //     } else if (newForamt == "m") {
-        //         datePrased = moment(Date.parse(dateToChange)).format("M");
-        //     }
-        //     return datePrased;
-        // }
 
         function newDateYYYYMMDD(dateToChange) {
             var datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM-DD");
             return datePrased;
         }
+
         function newDateYYYYMM(dateToChange) {
             var datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM");
             return datePrased;
         }
+
         function newDateYYYY(dateToChange) {
             var datePrased = moment(Date.parse(dateToChange)).format("YYYY");
             return datePrased;
         }
+
         function newDateMM(dateToChange) {
             var datePrased = moment(Date.parse(dateToChange)).format("MM");
             return datePrased;
         }
+
         function newDateM(dateToChange) {
             var datePrased = moment(Date.parse(dateToChange)).format("M");
             return datePrased;
         }
-
-        var formatter = new Intl.NumberFormat('pl-PL', {
-            style: 'currency',
-            currency: 'PLN',
-        });
 
         function cycleCount(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
             var target_date = new Date(target_date);
             var finish_date = new Date(finish_date);
             var startDate = new Date(startDate);
             var endDate = new Date(endDate);
+
+            var firstDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            var lastDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0);
 
             var mthCnt = 0;
             var mthCntPrep = 0;
@@ -290,8 +297,17 @@ class WelcomeComponent extends Component {
                 if (endDate > finish_date) {
                     endDate = finish_date
                 }
-
-                if (whatCycle == "Co miesiac") {
+                if (whatCycle == "Nie" &&
+                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) &&
+                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate)
+                ) {
+                    mthCnt += 1
+                } else if (whatCycle == "Nie" && (
+                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) ||
+                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate))
+                ) {
+                    mthCnt = 0
+                } else if (whatCycle == "Co miesiac") {
                     yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
                     mthCnt = yrCnt + endDate.getMonth() - startDate.getMonth() + 1
                 } else {
@@ -320,8 +336,6 @@ class WelcomeComponent extends Component {
                 }
             }
             if (mthCnt < 0) { mthCnt = 0 }
-            // if (whatCycle=="Co miesiac") {console.log(mthCnt)}
-            // console.log("================================")
             return mthCnt;
         }
 
@@ -350,18 +364,13 @@ class WelcomeComponent extends Component {
             } else { return false; }
 
         }
-        //daysLeftCount(this.state.dateMonthChoice)
+
         function daysLeftCount(choosenDate) {
             var todayDay = new Date()
             choosenDate = new Date(choosenDate);
             choosenDate = new Date(choosenDate.getFullYear(), choosenDate.getMonth() + 1, 0);
-
             return (choosenDate.getDate() - todayDay.getDate() + 1);
-
         }
-
-        const uniqueMonth = ["01-Jan", "02-Feb", "03-Mar", "04-Apr", "05-May", "06-Jun", "07-Jul", "08-Aug", "09-Sep", "10-Oct", "11-Nov", "12-Dec"]
-        const uniqueMonth2 = ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paz", "Lis", "Gru"]
 
         var totalExpenses;
         if (this.state.dateMonthChoice == "") {
@@ -381,44 +390,37 @@ class WelcomeComponent extends Component {
             )).reduce((total, currentItem) => total = total + currentItem.amount, 0));
         }
 
-        var totalCycleIncomesTillDate;
-        var totalSingleIncomesTillDate;
-        var totalIncomesTillDate;
+        var totalIncomesBetweendDates;
+
         if (this.state.dateMonthChoiceAllFromMth == "" || this.state.dateMonthChoiceAllToMth == "") {
-            totalIncomesTillDate = 0;
+            totalIncomesBetweendDates = 0;
         } else {
-            totalCycleIncomesTillDate = (this.state.incomes.filter(income => income.cycle != "Nie"
-            ).reduce((total, currentItem) => total = total + currentItem.amount *
-                cycleCount(currentItem.target_date, currentItem.finish_date, newDateYYYYMMDD(this.state.dateMonthChoiceAllFromMth), newDateYYYYMMDD(this.state.dateMonthChoiceAllToMth), currentItem.cycle, currentItem.description, currentItem.amount), 0));
-
-            totalSingleIncomesTillDate = (this.state.incomes.filter
-                (income =>
-                    income.cycle == "Nie" &&
-                    newDateYYYYMM(income.target_date) >= newDateYYYYMM(this.state.dateMonthChoiceAllFromMth) &&
-                    newDateYYYYMM(income.target_date) <= newDateYYYYMM(this.state.dateMonthChoiceAllToMth)
-                ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
-
-            totalIncomesTillDate = totalCycleIncomesTillDate + totalSingleIncomesTillDate
+            totalIncomesBetweendDates = (this.state.incomes.reduce((total, currentItem) => total = total + currentItem.amount *
+                cycleCount(
+                    currentItem.target_date,
+                    currentItem.finish_date,
+                    newDateYYYYMMDD(this.state.dateMonthChoiceAllFromMth),
+                    newDateYYYYMMDD(this.state.dateMonthChoiceAllToMth),
+                    currentItem.cycle,
+                    currentItem.description,
+                    currentItem.amount
+                ), 0));
         }
 
-        var totalCycleExpensesTillDate;
-        var totalSingleExpensesTillDate;
-        var totalExpensesTillDate;
+        var totalExpensesBetweendDates;
         if (this.state.dateMonthChoiceAllFromMth == "" || this.state.dateMonthChoiceAllToMth == "") {
-            totalExpensesTillDate = 0;
+            totalExpensesBetweendDates = 0;
         } else {
-            totalCycleExpensesTillDate = (this.state.expenses.filter(expense => expense.cycle != "Nie"
-            ).reduce((total, currentItem) => total = total + currentItem.price *
-                cycleCount(currentItem.target_date, currentItem.finish_date, newDateYYYYMMDD(this.state.dateMonthChoiceAllFromMth), newDateYYYYMMDD(this.state.dateMonthChoiceAllToMth), currentItem.cycle, currentItem.description, currentItem.price), 0));
-
-            totalSingleExpensesTillDate = (this.state.expenses.filter
-                (expense =>
-                    expense.cycle == "Nie" &&
-                    newDateYYYYMM(expense.target_date) >= newDateYYYYMM(this.state.dateMonthChoiceAllFromMth) &&
-                    newDateYYYYMM(expense.target_date) <= newDateYYYYMM(this.state.dateMonthChoiceAllToMth)
-                ).reduce((total, currentItem) => total = total + currentItem.price, 0));
-
-            totalExpensesTillDate = totalCycleExpensesTillDate + totalSingleExpensesTillDate
+            totalExpensesBetweendDates = (this.state.expenses.reduce((total, currentItem) => total = total + currentItem.price *
+                cycleCount(
+                    currentItem.target_date,
+                    currentItem.finish_date,
+                    newDateYYYYMMDD(this.state.dateMonthChoiceAllFromMth),
+                    newDateYYYYMMDD(this.state.dateMonthChoiceAllToMth),
+                    currentItem.cycle,
+                    currentItem.description,
+                    currentItem.price
+                ), 0));
         }
 
         var totalBudgets;
@@ -441,100 +443,61 @@ class WelcomeComponent extends Component {
             ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
         }
 
-        var monthNames = [];
-        var TotalValueByMonthExpenses = [];
-        var oneTimeValueForByMonthChartExpenses = [];
-        var byYearValueForByMonthChartExpenses = [];
-        var byMonthValueForByMonthChartExpenses = [];
-        var byHalfYearValueForByMonthChartExpenses = [];
-        var testDateCurrentYear = [];
-        var testDate2CurrentYear = [];
-        for (let i = 0; i < uniqueMonth.length; i++) {
-            monthNames[i] = uniqueMonth[i];
-            testDateCurrentYear[i] = new Date(monthNames[i])
-            testDate2CurrentYear[i] = newDateYYYYMM(new Date(moment(this.state.dateMonthChoice).format("YYYY"), testDateCurrentYear[i].getMonth()))
-            oneTimeValueForByMonthChartExpenses[i] = (this.state.expenses.filter
-                (expense => (
-                    expense.cycle == "Nie" &&
-                    newDateYYYYMM(expense.target_date) == testDate2CurrentYear[i] //&&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i]
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0));
+        var totalExpensesByMonth = [];
+        var totalIncomesByMonth = [];
+        var newDateParsed = [];
 
-            byYearValueForByMonthChartExpenses[i] = this.state.expenses.filter
-                (expense => (
-                    expense.cycle == "Co rok" &&
-                    newDateYYYYMM(expense.target_date) <= testDate2CurrentYear[i] &&
-                    newDateYYYYMM(expense.finish_date) >= testDate2CurrentYear[i] &&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i] &&
-                    newDateMM(expense.target_date) == newDateMM(monthNames[i])
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            byMonthValueForByMonthChartExpenses[i] = this.state.expenses.filter
-                (expense => (
-                    expense.cycle == "Co miesiac" &&
-                    newDateYYYYMM(expense.target_date) <= testDate2CurrentYear[i] &&
-                    newDateYYYYMM(expense.finish_date) >= testDate2CurrentYear[i]// &&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i]
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            byHalfYearValueForByMonthChartExpenses[i] = this.state.expenses.filter
-                (expense => (
-                    expense.cycle == "Co pol roku" &&
-                    (newDateM(monthNames[i]) - newDateM(expense.target_date)) % 6 == 0 &&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i] &&
-                    newDateYYYYMM(expense.target_date) <= newDateYYYYMM(testDate2CurrentYear[i]) &&
-                    newDateYYYY(expense.target_date) <= newDateYYYY(this.state.dateMonthChoice)
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            TotalValueByMonthExpenses[i] = byYearValueForByMonthChartExpenses[i] + byHalfYearValueForByMonthChartExpenses[i] + byMonthValueForByMonthChartExpenses[i] + oneTimeValueForByMonthChartExpenses[i]
+        function checkIfRecordIsInTheMonth(cycle, targetDate, finishDate, CurrMonth, ChoosenMonth) {
+            if (cycle == "Nie") {
+                if (newDateYYYYMM(targetDate) == CurrMonth) {
+                    return true;
+                } else { return false; }
+            } else if (cycle == "Co miesiac") {
+                if (newDateYYYYMM(targetDate) <= CurrMonth &&
+                    newDateYYYYMM(finishDate) >= CurrMonth) {
+                    return true;
+                } else { return false; }
+            } else if (cycle == "Co pol roku") {
+                if ((newDateM(CurrMonth) - newDateM(targetDate)) % 6 == 0 &&
+                    newDateYYYYMM(targetDate) <= newDateYYYYMM(CurrMonth) &&
+                    newDateYYYY(targetDate) <= newDateYYYY(ChoosenMonth)) {
+                    return true;
+                } else { return false; }
+            } else if (cycle == "Co rok") {
+                if (newDateYYYYMM(targetDate) <= CurrMonth &&
+                    newDateYYYYMM(finishDate) >= CurrMonth &&
+                    newDateMM(targetDate) == newDateMM(CurrMonth)) {
+                    return true;
+                } else { return false; }
+            }
         }
 
-        var monthNames = [];
-        var TotalValueByMonthIncomes = [];
-        var oneTimeValueForByMonthChartIncomes = [];
-        var byYearValueForByMonthChartIncomes = [];
-        var byMonthValueForByMonthChartIncomes = [];
-        var byHalfYearValueForByMonthChartIncomes = [];
-        var testDateCurrentYear = [];
-        var testDate2CurrentYear = [];
-        for (let i = 0; i < uniqueMonth.length; i++) {
-            monthNames[i] = uniqueMonth[i];
-            testDateCurrentYear[i] = new Date(monthNames[i])
-            testDate2CurrentYear[i] = newDateYYYYMM(new Date(moment(this.state.dateMonthChoice).format("YYYY"), testDateCurrentYear[i].getMonth()))
-            oneTimeValueForByMonthChartIncomes[i] = (this.state.incomes.filter
-                (income => (
-                    income.cycle == "Nie" &&
-                    newDateYYYYMM(income.target_date) == testDate2CurrentYear[i] //&&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i]
-                )).reduce((total, currentItem) => total = total + currentItem.amount, 0));
+        for (let i = 0; i < arrMthEng.length; i++) {
 
-            byYearValueForByMonthChartIncomes[i] = this.state.incomes.filter
-                (income => (
-                    income.cycle == "Co rok" &&
-                    newDateYYYYMM(income.target_date) <= testDate2CurrentYear[i] &&
-                    newDateYYYYMM(income.finish_date) >= testDate2CurrentYear[i] &&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i] &&
-                    newDateMM(income.target_date) >= newDateMM(monthNames[i])
-                )).reduce((total, currentItem) => total = total + currentItem.amount, 0);
+            newDateParsed[i] = newDateYYYYMM(
+                new Date(
+                    newDateYYYY(this.state.dateMonthChoice),
+                    new Date(arrMthEng[i]).getMonth()
+                )
+            )
+            totalExpensesByMonth[i] = this.state.expenses.filter
+                (expense => (checkIfRecordIsInTheMonth(expense.cycle, expense.target_date, expense.finish_date,
+                    newDateParsed[i], this.state.dateMonthChoice)) == true
+                ).reduce((total, currentItem) => total = total + currentItem.price, 0);
+        }
 
-            byMonthValueForByMonthChartIncomes[i] = this.state.incomes.filter
-                (income => (
-                    income.cycle == "Co miesiac" &&
-                    newDateYYYYMM(income.target_date) <= testDate2CurrentYear[i] &&
-                    newDateYYYYMM(income.finish_date) >= testDate2CurrentYear[i] //&&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i]
-                )).reduce((total, currentItem) => total = total + currentItem.amount, 0);
+        for (let i = 0; i < arrMthEng.length; i++) {
+            newDateParsed[i] = newDateYYYYMM(
+                new Date(
+                    newDateYYYY(this.state.dateMonthChoice),
+                    new Date(arrMthEng[i]).getMonth()
+                )
+            )
+            totalIncomesByMonth[i] = this.state.incomes.filter
+                (income => (checkIfRecordIsInTheMonth(income.cycle, income.target_date, income.finish_date,
+                    newDateParsed[i], this.state.dateMonthChoice)) == true
+                ).reduce((total, currentItem) => total = total + currentItem.amount, 0);
 
-            byHalfYearValueForByMonthChartIncomes[i] = this.state.incomes.filter
-                (income => (
-                    income.cycle == "Co pol roku" &&
-                    (newDateMM(monthNames[i]) - newDateMM(income.target_date)) % 6 == 0 &&
-                    // changeDateFormatWithoutDays(Date()) >= testDate2CurrentYear[i] &&
-                    newDateYYYYMM(income.target_date) <= newDateYYYYMM(testDate2CurrentYear[i]) &&
-                    newDateYYYY(income.target_date) <= newDateYYYY(this.state.dateMonthChoice)
-                )).reduce((total, currentItem) => total = total + currentItem.amount, 0);
-
-            TotalValueByMonthIncomes[i] = byYearValueForByMonthChartIncomes[i] + byHalfYearValueForByMonthChartIncomes[i] + byMonthValueForByMonthChartIncomes[i] + oneTimeValueForByMonthChartIncomes[i]
         }
 
         const allCategories = this.state.categories.map(category => category.categoryname);
@@ -542,54 +505,54 @@ class WelcomeComponent extends Component {
 
         var categoriesWithValues = [];
 
+        function forCategories(expCategory, allCategories, currCategory, cycle, choosenMth, targetDate, finishDate) {
+            if (cycle == "Nie") {
+                if (categoryMap(expCategory, allCategories) == currCategory &&
+                    newDateYYYYMM(targetDate) == newDateYYYYMM(choosenMth)) {
+                    return true;
+                } else { return false; }
+            } else if (cycle == "Co miesiac") {
+                if (categoryMap(expCategory, allCategories) == currCategory &&
+                    newDateYYYYMM(targetDate) <= newDateYYYYMM(choosenMth) &&
+                    newDateYYYYMM(finishDate) >= newDateYYYYMM(choosenMth)) {
+                    return true;
+                } else { return false; }
+            } else if (cycle == "Co pol roku") {
+                if (categoryMap(expCategory, allCategories) == currCategory &&
+                    (newDateMM(choosenMth) - newDateMM(targetDate)) % 6 == 0 &&
+                    newDateYYYYMM(targetDate) <= newDateYYYYMM(choosenMth) &&
+                    newDateYYYYMM(finishDate) >= newDateYYYYMM(choosenMth)) {
+                    return true;
+                } else { return false; }
+            } else if (cycle == "Co rok") {
+                if (categoryMap(expCategory, allCategories) == currCategory &&
+                    newDateYYYY(targetDate) <= newDateYYYY(choosenMth) &&
+                    newDateYYYY(finishDate) >= newDateYYYY(choosenMth) &&
+                    newDateMM(targetDate) == newDateMM(choosenMth)) {
+                    return true;
+                } else { return false; }
+            }
+        }
+
         var totalPriceByCat = [];
-        var categoryNames = [];
         var rgbColorByCategory = [];
-        var TotalValueByCategory = [];
-        var oneTimeValueForByCategoryChart = [];
-        var byYearValueForByCategoryChart = [];
-        var byMonthValueForByCategoryChart = [];
-        var byHalfYearValueForByCategoryChart = [];
+        var totalValueByCategory = [];
         var j = 0;
+        var checkValue = 0;
+        var checkValue2 = [];
+
         for (let i = 0; i < allCategories.length; i++) {
-            categoryNames[i] = allCategories[i];
-            oneTimeValueForByCategoryChart[i] = this.state.expenses.filter
+            checkValue2[i] = this.state.expenses.filter
                 (expense => (
-                    categoryMap(expense.category, this.state.categories) == allCategories[i] && expense.cycle == "Nie" &&
-                    newDateYYYYMM(expense.target_date) == newDateYYYYMM(this.state.dateMonthChoice)
+                    forCategories(expense.category, this.state.categories, allCategories[i], expense.cycle, this.state.dateMonthChoice,
+                        expense.target_date, expense.finish_date) == true
                 )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            byYearValueForByCategoryChart[i] = this.state.expenses.filter
-                (expense => (
-                    categoryMap(expense.category, this.state.categories) == allCategories[i] && expense.cycle == "Co rok" &&
-                    newDateYYYY(expense.target_date) <= newDateYYYY(this.state.dateMonthChoice) &&
-                    newDateYYYY(expense.finish_date) >= newDateYYYY(this.state.dateMonthChoice) &&
-                    newDateMM(expense.target_date) == newDateMM(this.state.dateMonthChoice)
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            byMonthValueForByCategoryChart[i] = this.state.expenses.filter
-                (expense => (
-                    categoryMap(expense.category, this.state.categories) == allCategories[i] && expense.cycle == "Co miesiac" &&
-                    newDateYYYYMM(expense.target_date) <= newDateYYYYMM(this.state.dateMonthChoice) &&
-                    newDateYYYYMM(expense.finish_date) >= newDateYYYYMM(this.state.dateMonthChoice)
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            byHalfYearValueForByCategoryChart[i] = this.state.expenses.filter
-                (expense => (
-                    categoryMap(expense.category, this.state.categories) == allCategories[i] && expense.cycle == "Co pol roku" &&
-                    (newDateMM(this.state.dateMonthChoice) - newDateMM(expense.target_date)) % 6 == 0 &&
-                    newDateYYYYMM(expense.target_date) <= newDateYYYYMM(this.state.dateMonthChoice) &&
-                    newDateYYYYMM(expense.finish_date) >= newDateYYYYMM(this.state.dateMonthChoice)
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-
-            var checkValue = 0;
-            checkValue = byYearValueForByCategoryChart[i] + byHalfYearValueForByCategoryChart[i] + byMonthValueForByCategoryChart[i] + oneTimeValueForByCategoryChart[i]
-
+            checkValue = checkValue2[i]
             if (checkValue != 0) {
                 rgbColorByCategory[j] = categoriesColor[i];
-                TotalValueByCategory[j] = byYearValueForByCategoryChart[i] + byHalfYearValueForByCategoryChart[i] + byMonthValueForByCategoryChart[i] + oneTimeValueForByCategoryChart[i]
-                totalPriceByCat[j] = categoryNames[i] + ": " + TotalValueByCategory[i]
-                categoriesWithValues[j] = categoryNames[i]
+                totalValueByCategory[j] = checkValue2[i]
+                totalPriceByCat[j] = allCategories[i] + ": " + totalValueByCategory[i]
+                categoriesWithValues[j] = allCategories[i]
                 j = j + 1
             }
         }
@@ -607,33 +570,57 @@ class WelcomeComponent extends Component {
         else { redBgForSavingsFromBudgets = true; }
 
         let redBgForSavingsFromIncomes1;
-        if ((totalIncomesTillDate - totalExpensesTillDate) >= 0) { redBgForSavingsFromIncomes1 = false; }
+        if ((totalIncomesBetweendDates - totalExpensesBetweendDates) >= 0) { redBgForSavingsFromIncomes1 = false; }
         else { redBgForSavingsFromIncomes1 = true; }
 
         let redBgForSavingsFromBudgets1;
-        if ((totalBudgetsTillDate - totalExpensesTillDate) >= 0) { redBgForSavingsFromBudgets1 = false; }
+        if ((totalBudgetsTillDate - totalExpensesBetweendDates) >= 0) { redBgForSavingsFromBudgets1 = false; }
         else { redBgForSavingsFromBudgets1 = true; }
 
         const dataByMonth = {
-            labels: monthNames,
+            labels: arrMthPol,
             datasets: [{
                 label: 'Wydatki',
-                data: TotalValueByMonthExpenses,
+                data: totalExpensesByMonth,
                 backgroundColor: '#2177ef',
             },
             {
                 label: 'Przychody',
-                data: TotalValueByMonthIncomes,
+                data: totalIncomesByMonth,
                 backgroundColor: '#333',
             }]
         };
         const dataByCategory = {
             labels: categoriesWithValues,
             datasets: [{
-                data: TotalValueByCategory,
+                hoverOffset: 20,
+                data: totalValueByCategory,
                 backgroundColor: rgbColorByCategory,
             }]
         };
+        const dataExpToBud = {
+            labels: ["Wydano: ", "Pozostało: "],
+            datasets: [{
+                borderWidth: 0,
+                cutout: 130,
+                circumference: 180,
+                rotation: -90,
+                data: [totalExpenses, totalBudgets - totalExpenses],
+                backgroundColor: ['#2177ef', '#4a4a4a'],
+            }]
+        };
+        const dataExpToInc = {
+            labels: ["Wydano: ", "Pozostało: "],
+            datasets: [{
+                borderWidth: 0,
+                cutout: 130,
+                circumference: 180,
+                rotation: -90,
+                data: [totalExpenses, totalIncomes - totalExpenses],
+                backgroundColor: ['#2177ef', '#4a4a4a'],
+            }]
+        };
+
         const optionsBar = {
             responsive: true,
             maintainAspectRatio: false,
@@ -654,6 +641,15 @@ class WelcomeComponent extends Component {
                 }
             },
         }
+        const optionsDonNoLabels = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false,
+                }
+            },
+        }
 
         return (
             <>
@@ -665,10 +661,10 @@ class WelcomeComponent extends Component {
                                 Wybierz miesiac
                             </div>
                             <div>
-                                <img src={btnBack} width="30" height="30" onClick={this.changeToPrevMonth} />
+                                <img src={btnBack} onClick={this.changeToPrevMonth} />
                                 <input type="month" id="monthChoiceFilter" onChange={this.filterDataMonth} data-date-format="MM YYYY"></input>
-                                <img src={btnNext} width="30" height="30" onClick={this.changeToNextMonth} />
-                                <img src={btnToday} width="30" height="30" onClick={this.changeToCurrMonth} />
+                                <img src={btnNext} onClick={this.changeToNextMonth} />
+                                <img src={btnToday} width="50" height="50" onClick={this.changeToCurrMonth} />
                             </div>
                         </div>
                         <div className="container-container-middle2">
@@ -748,6 +744,9 @@ class WelcomeComponent extends Component {
                                 options={optionsBar}
                             />
                         </div>
+                        
+                       
+
                     </div>
                     <div className="container-data-right">
                         <div className="text-20px-white">
@@ -763,7 +762,7 @@ class WelcomeComponent extends Component {
                         </div>
 
                         <div className={redBgForSavingsFromBudgets1 ? "container-savings-right-red" : "container-savings-right-green"}>
-                            {totalBudgetsTillDate} / {totalExpensesTillDate}
+                            {formatter.format(totalBudgetsTillDate)} / {formatter.format(totalExpensesBetweendDates)}
                         </div>
 
                         <div className="container-savings-left">
@@ -771,11 +770,45 @@ class WelcomeComponent extends Component {
                         </div>
 
                         <div className={redBgForSavingsFromIncomes1 ? "container-savings-right-red" : "container-savings-right-green"}>
-                            {totalIncomesTillDate} / {totalExpensesTillDate}
-                            {/* {formatter.format(totalIncomesTillDate - totalExpensesTillDate)} */}
+                            {formatter.format(totalIncomesBetweendDates)} / {formatter.format(totalExpensesBetweendDates)}
+                            {/* {formatter.format(totalIncomesBetweendDates - totalExpensesBetweendDates)} */}
+                        </div>
+                        {/* <div className="container-data-middle-insideleft"> */}
+
+                        <div className="chart-bar" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
+                            <Bar
+                                title={{ display: false }}
+                                data={dataByCategory}
+                                height={300}
+                                options={optionsBar}
+                            />
                         </div>
 
-                        <div className="container-container-middle">5 ostatnich transakcji z wybranego miesiaca</div>
+                        <div className="chart-doughnut">
+                            <Doughnut
+                                data={dataExpToBud}
+                                height={300}
+                                options={optionsDonNoLabels}
+                            />
+                        </div>
+                        <div className="text-25px-white">
+                            {formatPercentage(totalExpenses / totalBudgets)}
+                        </div>
+
+                        {/* </div> */}
+                        {/* <div className="container-data-middle-insideright"> */}
+                        <div className="chart-doughnut">
+                            <Doughnut
+                                data={dataExpToInc}
+                                height={300}
+                                options={optionsDonNoLabels}
+                            />
+                        </div>
+                        <div className="text-25px-white">
+                            {formatPercentage(totalExpenses / totalIncomes)}
+                        </div>
+                        {/* </div> */}
+                        {/* <div className="container-container-middle">5 ostatnich transakcji z wybranego miesiaca</div>
                         <div className="text-25px-white">Wydatki</div>
                         <table className="hb-table-red">
                             <thead>
@@ -808,44 +841,7 @@ class WelcomeComponent extends Component {
                                 }
                             </tbody>
                         </table>
-                        <div className="text-25px-white">Przychody</div>
-                        <table className="hb-table-green">
-                            <thead>
-                                <tr>
-                                    <th>Opis</th>
-                                    <th>Kwota</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    this.state.incomes.filter(
-                                        income =>
-                                            this.state.dateMonthChoice != "" &&
-                                            (
-                                                ((
-                                                    income.cycle == "Nie" &&
-                                                    newDateYYYYMM(income.target_date) == newDateYYYYMM(this.state.dateMonthChoice)))
-                                                || (
-                                                    income.cycle == "Co miesiac" ||
-                                                    (income.cycle == "Co pol roku" && (newDateMM(this.state.dateMonthChoice) - newDateMM(income.target_date)) % 6 == 0) ||
-                                                    (income.cycle == "Co rok" && (newDateMM(this.state.dateMonthChoice) - newDateMM(income.target_date)) % 12 == 0)
-                                                ) &&
-                                                (
-                                                    (newDateYYYYMM(income.target_date) == newDateYYYYMM(this.state.dateMonthChoice)) ||
-                                                    (newDateYYYYMM(income.finish_date) == newDateYYYYMM(this.state.dateMonthChoice)) ||
-                                                    (newDateYYYYMM(income.target_date) < newDateYYYYMM(this.state.dateMonthChoice) && newDateYYYYMM(income.finish_date) > newDateYYYYMM(this.state.dateMonthChoice))
-                                                )
-                                            )
-                                    ).slice(0, 5).map(
-                                        income =>
-                                            <tr key={income.incomeid}>
-                                                <td>{income.description}</td>
-                                                <td>{formatter.format(income.amount)}</td>
-                                            </tr>
-                                    )
-                                }
-                            </tbody>
-                        </table>
+                            */}
                     </div>
                     {/* </div> */}
                     <div className="container-data-left"></div>

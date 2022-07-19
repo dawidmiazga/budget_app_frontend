@@ -66,11 +66,10 @@ class ListExpensesComponent extends Component {
     refreshExpenses() {
         let usernameid = AuthenticationService.getLoggedInUserName()
         ExpenseDataService.retrieveAllExpenses(usernameid)
-            .then(
-                response => {
-                    this.setState({ expenses: response.data })
-                }
-            )
+            .then(response => {
+                response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
+                this.setState({ expenses: response.data })
+            })
     }
 
     deleteExpenseClicked(expenseid) {
@@ -229,10 +228,8 @@ class ListExpensesComponent extends Component {
 
         function categoryMap(id, categoryList) {
             const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
-            // console.log(arrCat)
             if (arrCat[1].includes(id)) {
                 var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
-                // console.log("tu " + idCurrentCat)
                 return idCurrentCat;
             } else {
                 return "N/A";
@@ -246,106 +243,67 @@ class ListExpensesComponent extends Component {
             this.state.endDate = new Date("9999-12-31")
         }
 
-        function getMonthsBetweenTwoDates3(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
-
+        function cycleCount(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
             var target_date = new Date(target_date);
             var finish_date = new Date(finish_date);
             var startDate = new Date(startDate);
             var endDate = new Date(endDate);
 
-            var target_date1 = newDateYYYYMMDD(target_date);
-            var finish_date1 = newDateYYYYMMDD(finish_date);
-            var startDate1 = newDateYYYYMMDD(startDate);
-            var endDate1 = newDateYYYYMMDD(endDate);
+            var firstDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            var lastDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0);
 
-            var firstDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-            var lastDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+            var mthCnt = 0;
+            var mthCntPrep = 0;
+            var yrCnt = 0;
 
-            var monthsCount = 0;
+            if (startDate <= endDate) {
+                if (startDate < target_date) {
+                    startDate = target_date
+                }
 
-            if (target_date1 <= startDate1 && finish_date1 >= endDate1) {
-                monthsCount = (endDate.getFullYear() - startDate.getFullYear()) * 12;
-                monthsCount -= startDate.getMonth();
-                monthsCount += endDate.getMonth();
-                if (endDate.getDate() - startDate.getDate() >= 0) {
-                    monthsCount += 1
+                if (endDate > finish_date) {
+                    endDate = finish_date
                 }
-            } else if (target_date1 <= startDate1 && finish_date1 < endDate1 && finish_date1 >= startDate1) {
-                monthsCount = (finish_date.getFullYear() - startDate.getFullYear()) * 12;
-                monthsCount -= startDate.getMonth();
-                monthsCount += finish_date.getMonth();
-                if ((finish_date.getDate() - startDate.getDate() >= 0)) {
-                    monthsCount += 1
-                }
-            } else if (target_date1 > startDate1 && target_date1 <= endDate1 && finish_date1 >= endDate1) {
-                monthsCount = (endDate.getFullYear() - target_date.getFullYear()) * 12;
-                monthsCount -= target_date.getMonth();
-                monthsCount += endDate.getMonth();
-                if (endDate.getDate() - target_date.getDate() >= 0) {
-                    monthsCount += 1
-                }
-            } else if (target_date1 > startDate1 && finish_date1 < endDate1) {
-                monthsCount = (finish_date.getFullYear() - target_date.getFullYear()) * 12;
-                monthsCount -= target_date.getMonth();
-                monthsCount += finish_date.getMonth();
-                if (finish_date.getDate() - target_date.getDate() >= 0) {
-                    monthsCount += 1
-                }
-            } else { }
+                if (whatCycle == "Nie" &&
+                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) &&
+                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate)
+                ) {
+                    mthCnt += 1
+                } else if (whatCycle == "Nie" && (
+                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) ||
+                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate))
+                ) {
+                    mthCnt = 0
+                } else if (whatCycle == "Co miesiac") {
+                    yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+                    mthCnt = yrCnt + endDate.getMonth() - startDate.getMonth() + 1
+                } else {
+                    var divideNr
+                    if (whatCycle == "Co pol roku") {
+                        divideNr = 6
+                    } else if (whatCycle == "Co rok") {
+                        divideNr = 12
+                    }
 
-            if (whatCycle == "Co miesiac") {
-                if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (startDate.getMonth() == endDate.getMonth() && (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
-                    monthsCount -= 1;
-                } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
-                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
-                )) {
-                    monthsCount -= 1;
-                } else { }
+                    if ((startDate.getMonth() - target_date.getMonth()) % divideNr != 0) {
+                        if (startDate.getMonth() < target_date.getMonth()) {
+                            startDate = new Date(startDate.setMonth(target_date.getMonth()))
+                        } else {
+                            startDate = new Date(startDate.setMonth(target_date.getMonth() + divideNr))
+                        }
+                    }
+
+                    yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+                    mthCntPrep = yrCnt + endDate.getMonth() - startDate.getMonth()
+                    mthCnt += Math.ceil(mthCntPrep / divideNr)
+
+                    if ((endDate.getMonth() - target_date.getMonth()) % divideNr == 0) {
+                        mthCnt += 1
+                    }
+                }
             }
-
-            if (whatCycle == "Co pol roku") {
-
-                var yearsCount = Math.floor(monthsCount / 12)
-                var halfYearsCount = Math.ceil(monthsCount / 6)
-
-                monthsCount = halfYearsCount
-                if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (newDateYYYYMM(startDate) == newDateYYYYMM(endDate) &&
-                    (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
-                    monthsCount -= 1;
-                } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
-                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
-                )) {
-                    monthsCount -= 1;
-                } else if (target_date1 < startDate1 & halfYearsCount <= 1) {
-                    monthsCount -= 1;
-                } else { }
-            }
-
-            if (whatCycle == "Co rok") {
-
-                var yearsCount = Math.ceil(monthsCount / 12)
-                var halfYearsCount = Math.ceil(monthsCount / 6)
-
-                monthsCount = yearsCount
-                if (startDate.getFullYear() == "1111" && endDate.getFullYear() == "9999") {
-                } else if (newDateYYYYMM(startDate) == newDateYYYYMM(endDate) &&
-                    (target_date.getDate() < startDate.getDate() || target_date.getDate() > endDate.getDate())) {
-                    monthsCount -= 1;
-                } else if (startDate.getMonth() != endDate.getMonth() && (
-                    (target_date.getDate() >= startDate.getDate && target_date.getDate() <= lastDayStartDate.getDate) ||
-                    (target_date.getDate() >= firstDayEndDate.getDate && target_date.getDate() <= endDate.getDate)
-                )) {
-                    monthsCount -= 1;
-                } else if (target_date1 < startDate1 & yearsCount <= 1) {
-                    monthsCount -= 1;
-                } else { }
-            }
-            if (monthsCount < 0) { monthsCount = 0 }
-            return monthsCount;
+            if (mthCnt < 0) { mthCnt = 0 }
+            return mthCnt;
         }
 
         function newDateYYYYMMDD(date1) {
@@ -367,7 +325,7 @@ class ListExpensesComponent extends Component {
 
         let totalCyclical = (this.state.expenses.filter(expense => expense.cycle != "Nie")
             .reduce((total, currentItem) => total = total + (currentItem.price *
-                getMonthsBetweenTwoDates3(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.price)), 0));
+                cycleCount(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.price)), 0));
 
         var formatter = new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -384,7 +342,7 @@ class ListExpensesComponent extends Component {
                     <input type="date" id="startDateIdField" onChange={this.changeStartDateCal}></input>
                     <input type="date" id="endDateIdField" onChange={this.changeEndDateCal}></input>
                     <div className="inline-button-clear">
-                        <img src={btnClear} width="30" height="30" onClick={this.clearDates} />
+                        <img src={btnClear} width="50" height="50" onClick={this.clearDates} />
                     </div>
                 </div>
 
@@ -483,21 +441,21 @@ class ListExpensesComponent extends Component {
                                         (
                                             (newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.startDate) &&
                                                 newDateYYYYMMDD(expense.finish_date) >= newDateYYYYMMDD(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
+                                            cycleCount(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
                                             (newDateYYYYMMDD(expense.target_date) > newDateYYYYMMDD(this.state.startDate) &&
                                                 newDateYYYYMMDD(expense.finish_date) < newDateYYYYMMDD(this.state.endDate)) &&
-                                            getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
+                                            cycleCount(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
                                             (newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.startDate) &&
                                                 newDateYYYYMMDD(expense.finish_date) < newDateYYYYMMDD(this.state.endDate) &&
                                                 newDateYYYYMMDD(expense.finish_date) >= newDateYYYYMMDD(this.state.startDate)) &&
-                                            getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
+                                            cycleCount(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1 ||
 
                                             (newDateYYYYMMDD(expense.target_date) > newDateYYYYMMDD(this.state.startDate) &&
                                                 newDateYYYYMMDD(expense.target_date) <= newDateYYYYMMDD(this.state.endDate) &&
                                                 newDateYYYYMMDD(expense.finish_date) >= newDateYYYYMMDD(this.state.endDate) &&
-                                                getMonthsBetweenTwoDates3(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1)
+                                                cycleCount(expense.target_date, expense.finish_date, this.state.startDate, this.state.endDate, expense.cycle, expense.description, expense.price) >= 1)
                                         )
                                     ))
                                 ).map(expense =>

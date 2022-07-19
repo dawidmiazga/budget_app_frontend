@@ -48,6 +48,7 @@ class BudgetApp extends Component {
                         <AuthenticatedRoute path="/categories/:id" exact component={CategoryComponent} />
                         <AuthenticatedRoute path="/budgets" exact component={ListBudgetsComponent} />
                         <AuthenticatedRoute path="/budgets/:id" exact component={BudgetComponent} />
+                        <AuthenticatedRoute path="/budgets/:id2/:id" exact component={BudgetComponent} />
                         <AuthenticatedRoute path="/userslist/:id" exact component={AddUserComponent} />
                         <AuthenticatedRoute path="/logout" exact component={LogoutComponent} />
                         <AuthenticatedRoute path="/settings" exact component={ListSettingsComponent} />
