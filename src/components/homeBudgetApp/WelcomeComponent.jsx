@@ -11,6 +11,11 @@ import btnBack from '../images/back_button.png';
 import btnNext from '../images/next_button.png';
 import btnToday from '../images/today_button.png';
 import LoginDataService from '../../api/HomeBudget/LoginDataService.js';
+import {
+    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    newDateM, newDateMM, categoryMap, dateFilter, daysLeftCount, arrMthEng, arrMthPol, formatter, formatPercentage,
+    checkIfRecordIsInTheMonth, sortFunction, arrayColumn, getCatTotals
+} from './CommonFunctions.js'
 
 //blue #044B8D
 
@@ -30,7 +35,7 @@ class WelcomeComponent extends Component {
             selectYear: "All",
             shchild1: false,
             welcomeMessage: '',
-        }
+        };
 
         this.handleSuccesfulResponse = this.handleSuccesfulResponse.bind(this)
         this.handleError = this.handleError.bind(this)
@@ -49,7 +54,7 @@ class WelcomeComponent extends Component {
         this.changeToCurrMonth = this.changeToCurrMonth.bind(this)
         this.changeMth = this.changeMth.bind(this)
         this.refreshUsers = this.refreshUsers.bind(this)
-    }
+    };
 
     componentDidMount() {
         this.refreshExpenses()
@@ -58,7 +63,7 @@ class WelcomeComponent extends Component {
         this.refreshCategories()
         this.refreshMonth()
         this.refreshUsers()
-    }
+    };
 
     refreshUsers() {
         LoginDataService.retrieveAllLogins()
@@ -67,7 +72,7 @@ class WelcomeComponent extends Component {
                     this.setState({ users: response.data })
                 }
             )
-    }
+    };
 
     refreshMonth() {
         var choosenMonth = moment(Date()).format("YYYY-MM")
@@ -77,13 +82,13 @@ class WelcomeComponent extends Component {
         this.setState({ dateMonthChoice: choosenMonth, })
         this.setState({ dateMonthChoiceAllFromMth: choosenMonth, })
         this.setState({ dateMonthChoiceAllToMth: choosenMonth, })
-    }
+    };
 
     refreshYear() {
         var choosenYear = moment(Date()).format("YYYY");
         document.getElementById("yearChoiceFilter").value = choosenYear;
         this.setState({ dateMonthChoice: choosenYear, })
-    }
+    };
 
     refreshExpenses() {
         let usernameid = AuthenticationService.getLoggedInUserName()
@@ -94,7 +99,7 @@ class WelcomeComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     refreshIncomes() {
         let usernameid = AuthenticationService.getLoggedInUserName()
@@ -105,35 +110,35 @@ class WelcomeComponent extends Component {
                     this.setState({ incomes: response.data })
                 }
             )
-    }
+    };
 
     refreshBudgets() {
         let usernameid = AuthenticationService.getLoggedInUserName()
         BudgetDataService.retrieveAllBudgets(usernameid).then(response => { this.setState({ budgets: response.data }) })
-    }
+    };
 
     refreshCategories() {
         let usernameid = AuthenticationService.getLoggedInUserName()
         CategoryDataService.retrieveAllCategories(usernameid).then(response => { this.setState({ categories: response.data }) })
-    }
+    };
 
     filterDataMonth() {
         const dataMonth = document.getElementById('monthChoiceFilter').value;
         this.setState({ dateMonthChoice: dataMonth, })
-    }
+    };
 
     filterDataMonthAllFromMth() {
         const dataMonth = document.getElementById('monthChoiceFilterAllFromMth').value;
         this.setState({ dateMonthChoiceAllFromMth: dataMonth, })
-    }
+    };
 
     filterDataMonthAllToMth() {
         const dataMonth = document.getElementById('monthChoiceFilterAllToMth').value;
         this.setState({ dateMonthChoiceAllToMth: dataMonth, })
-    }
+    };
 
     changeMth(type) {
-        // console.log(type)
+
         var currMth;
         if (type == "curr") {
             currMth = moment(Date()).format("YYYY-MM")
@@ -151,7 +156,7 @@ class WelcomeComponent extends Component {
         }
         document.getElementById('monthChoiceFilter').value = newMth;
         this.setState({ dateMonthChoice: newMth, })
-    }
+    };
 
     changeToPrevMonth() {
         const currMth = document.getElementById('monthChoiceFilter').value
@@ -162,13 +167,13 @@ class WelcomeComponent extends Component {
         prevMth = moment(prevMth).format("YYYY-MM")
         document.getElementById('monthChoiceFilter').value = prevMth;
         this.setState({ dateMonthChoice: prevMth, })
-    }
+    };
 
     changeToCurrMonth() {
         const currMth = moment(Date()).format("YYYY-MM")
         document.getElementById('monthChoiceFilter').value = currMth;
         this.setState({ dateMonthChoice: currMth, })
-    }
+    };
 
     changeToNextMonth() {
         const currMth = document.getElementById('monthChoiceFilter').value;
@@ -179,16 +184,16 @@ class WelcomeComponent extends Component {
         nextMth = moment(nextMth).format("YYYY-MM")
         document.getElementById('monthChoiceFilter').value = nextMth;
         this.setState({ dateMonthChoice: nextMth, })
-    }
+    };
 
     filterDataYear() {
         const dataYear = document.getElementById('yearChoiceFilter').value;
         this.setState({ dateYearChoice: dataYear, })
-    }
+    };
 
     handleSuccesfulResponse(response) {
         this.setState({ welcomeMessage: response.data.message })
-    }
+    };
 
     handleError(error) {
         let errorMessage = '';
@@ -198,179 +203,17 @@ class WelcomeComponent extends Component {
             errorMessage += error.response.data.message
         }
         this.setState({ welcomeMessage: errorMessage })
-    }
+    };
 
     render() {
 
         if (this.state.dateMonthChoiceAllFromMth == "") {
             this.state.dateMonthChoiceAllFromMth = new Date("1111-12-31")
-        }
+        };
 
         if (this.state.dateMonthChoiceAllToMth == "") {
             this.state.dateMonthChoiceAllToMth = new Date("9999-12-31")
-        }
-
-        var formatter = new Intl.NumberFormat('pl-PL', {
-            style: 'currency',
-            currency: 'PLN',
-        });
-
-        const formatPercentage = (value, locale = "en-GB") => {
-            return Intl.NumberFormat(locale, {
-                style: "percent",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 2
-            }).format(value);
         };
-
-        const arrMthEng = ["01-Jan", "02-Feb", "03-Mar", "04-Apr", "05-May", "06-Jun", "07-Jul", "08-Aug", "09-Sep", "10-Oct", "11-Nov", "12-Dec"]
-        const arrMthPol = ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paz", "Lis", "Gru"]
-
-        function categoryMap(id, categoryList) {
-            const arrCat = ([
-                (categoryList.map(category => category.categoryname)),
-                (categoryList.map(category => category.categoryid))
-            ]);
-            if (arrCat[1].includes(id)) {
-                var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
-                return idCurrentCat;
-            } else {
-                return "N/A";
-            }
-        }
-
-        function userMap(id, userList) {
-            const arrUser = ([(userList.map(user => user.username)), (userList.map(user => user.usernameid))]);
-            var newID = Number(id)
-            if (arrUser[1].includes(newID)) {
-                var idCurrentUser = arrUser[0][arrUser[1].indexOf(newID)]
-                return idCurrentUser;
-            } else {
-                return "N/A";
-            }
-        }
-
-
-        function newDateYYYYMMDD(dateToChange) {
-            var datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM-DD");
-            return datePrased;
-        }
-
-        function newDateYYYYMM(dateToChange) {
-            var datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM");
-            return datePrased;
-        }
-
-        function newDateYYYY(dateToChange) {
-            var datePrased = moment(Date.parse(dateToChange)).format("YYYY");
-            return datePrased;
-        }
-
-        function newDateMM(dateToChange) {
-            var datePrased = moment(Date.parse(dateToChange)).format("MM");
-            return datePrased;
-        }
-
-        function newDateM(dateToChange) {
-            var datePrased = moment(Date.parse(dateToChange)).format("M");
-            return datePrased;
-        }
-
-        function cycleCount(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
-            var target_date = new Date(target_date);
-            var finish_date = new Date(finish_date);
-            var startDate = new Date(startDate);
-            var endDate = new Date(endDate);
-
-            var firstDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-            var lastDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0);
-
-            var mthCnt = 0;
-            var mthCntPrep = 0;
-            var yrCnt = 0;
-
-            if (startDate <= endDate) {
-                if (startDate < target_date) {
-                    startDate = target_date
-                }
-
-                if (endDate > finish_date) {
-                    endDate = finish_date
-                }
-                if (whatCycle == "Nie" &&
-                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) &&
-                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate)
-                ) {
-                    mthCnt += 1
-                } else if (whatCycle == "Nie" && (
-                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) ||
-                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate))
-                ) {
-                    mthCnt = 0
-                } else if (whatCycle == "Co miesiac") {
-                    yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
-                    mthCnt = yrCnt + endDate.getMonth() - startDate.getMonth() + 1
-                } else {
-                    var divideNr
-                    if (whatCycle == "Co pol roku") {
-                        divideNr = 6
-                    } else if (whatCycle == "Co rok") {
-                        divideNr = 12
-                    }
-
-                    if ((startDate.getMonth() - target_date.getMonth()) % divideNr != 0) {
-                        if (startDate.getMonth() < target_date.getMonth()) {
-                            startDate = new Date(startDate.setMonth(target_date.getMonth()))
-                        } else {
-                            startDate = new Date(startDate.setMonth(target_date.getMonth() + divideNr))
-                        }
-                    }
-
-                    yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
-                    mthCntPrep = yrCnt + endDate.getMonth() - startDate.getMonth()
-                    mthCnt += Math.ceil(mthCntPrep / divideNr)
-
-                    if ((endDate.getMonth() - target_date.getMonth()) % divideNr == 0) {
-                        mthCnt += 1
-                    }
-                }
-            }
-            if (mthCnt < 0) { mthCnt = 0 }
-            return mthCnt;
-        }
-
-        function dateFilter(targetDate, finishDate, choosenDate, expType) {
-
-            targetDate = newDateYYYYMM(targetDate)
-            finishDate = newDateYYYYMM(finishDate)
-
-            if (choosenDate < targetDate || choosenDate > finishDate) { return false }
-            if (expType == "Nie") {
-                if (newDateYYYYMM(targetDate) == newDateYYYYMM(choosenDate)) {
-                    return true;
-                } else { return false; }
-            } else if ((newDateYYYYMM(targetDate) == newDateYYYYMM(choosenDate)) || (newDateYYYYMM(finishDate) == newDateYYYYMM(choosenDate)) || (newDateYYYYMM(targetDate) < newDateYYYYMM(choosenDate) && (finishDate) > newDateYYYYMM(choosenDate)) == true) {
-                if (expType == "Co miesiac") {
-                    return true;
-                } else if (expType == "Co pol roku") {
-                    if (((newDateMM(choosenDate) - newDateMM(targetDate)) % 6) == 0) {
-                        return true;
-                    } else { return false; }
-                } else if (expType == "Co rok") {
-                    if (((newDateMM(choosenDate) - newDateMM(targetDate)) % 12) == 0) {
-                        return true;
-                    } else { return false; }
-                }
-            } else { return false; }
-
-        }
-
-        function daysLeftCount(choosenDate) {
-            var todayDay = new Date()
-            choosenDate = new Date(choosenDate);
-            choosenDate = new Date(choosenDate.getFullYear(), choosenDate.getMonth() + 1, 0);
-            return (choosenDate.getDate() - todayDay.getDate() + 1);
-        }
 
         var totalExpenses;
         if (this.state.dateMonthChoice == "") {
@@ -391,7 +234,6 @@ class WelcomeComponent extends Component {
         }
 
         var totalIncomesBetweendDates;
-
         if (this.state.dateMonthChoiceAllFromMth == "" || this.state.dateMonthChoiceAllToMth == "") {
             totalIncomesBetweendDates = 0;
         } else {
@@ -447,33 +289,7 @@ class WelcomeComponent extends Component {
         var totalIncomesByMonth = [];
         var newDateParsed = [];
 
-        function checkIfRecordIsInTheMonth(cycle, targetDate, finishDate, CurrMonth, ChoosenMonth) {
-            if (cycle == "Nie") {
-                if (newDateYYYYMM(targetDate) == CurrMonth) {
-                    return true;
-                } else { return false; }
-            } else if (cycle == "Co miesiac") {
-                if (newDateYYYYMM(targetDate) <= CurrMonth &&
-                    newDateYYYYMM(finishDate) >= CurrMonth) {
-                    return true;
-                } else { return false; }
-            } else if (cycle == "Co pol roku") {
-                if ((newDateM(CurrMonth) - newDateM(targetDate)) % 6 == 0 &&
-                    newDateYYYYMM(targetDate) <= newDateYYYYMM(CurrMonth) &&
-                    newDateYYYY(targetDate) <= newDateYYYY(ChoosenMonth)) {
-                    return true;
-                } else { return false; }
-            } else if (cycle == "Co rok") {
-                if (newDateYYYYMM(targetDate) <= CurrMonth &&
-                    newDateYYYYMM(finishDate) >= CurrMonth &&
-                    newDateMM(targetDate) == newDateMM(CurrMonth)) {
-                    return true;
-                } else { return false; }
-            }
-        }
-
         for (let i = 0; i < arrMthEng.length; i++) {
-
             newDateParsed[i] = newDateYYYYMM(
                 new Date(
                     newDateYYYY(this.state.dateMonthChoice),
@@ -503,79 +319,30 @@ class WelcomeComponent extends Component {
         const allCategories = this.state.categories.map(category => category.categoryname);
         const categoriesColor = this.state.categories.map(category => category.hexcolor);
 
-        var categoriesWithValues = [];
-
-        function forCategories(expCategory, allCategories, currCategory, cycle, choosenMth, targetDate, finishDate) {
-            if (cycle == "Nie") {
-                if (categoryMap(expCategory, allCategories) == currCategory &&
-                    newDateYYYYMM(targetDate) == newDateYYYYMM(choosenMth)) {
-                    return true;
-                } else { return false; }
-            } else if (cycle == "Co miesiac") {
-                if (categoryMap(expCategory, allCategories) == currCategory &&
-                    newDateYYYYMM(targetDate) <= newDateYYYYMM(choosenMth) &&
-                    newDateYYYYMM(finishDate) >= newDateYYYYMM(choosenMth)) {
-                    return true;
-                } else { return false; }
-            } else if (cycle == "Co pol roku") {
-                if (categoryMap(expCategory, allCategories) == currCategory &&
-                    (newDateMM(choosenMth) - newDateMM(targetDate)) % 6 == 0 &&
-                    newDateYYYYMM(targetDate) <= newDateYYYYMM(choosenMth) &&
-                    newDateYYYYMM(finishDate) >= newDateYYYYMM(choosenMth)) {
-                    return true;
-                } else { return false; }
-            } else if (cycle == "Co rok") {
-                if (categoryMap(expCategory, allCategories) == currCategory &&
-                    newDateYYYY(targetDate) <= newDateYYYY(choosenMth) &&
-                    newDateYYYY(finishDate) >= newDateYYYY(choosenMth) &&
-                    newDateMM(targetDate) == newDateMM(choosenMth)) {
-                    return true;
-                } else { return false; }
-            }
-        }
-
-        var totalPriceByCat = [];
-        var rgbColorByCategory = [];
-        var totalValueByCategory = [];
-        var j = 0;
-        var checkValue = 0;
-        var checkValue2 = [];
-
-        for (let i = 0; i < allCategories.length; i++) {
-            checkValue2[i] = this.state.expenses.filter
-                (expense => (
-                    forCategories(expense.category, this.state.categories, allCategories[i], expense.cycle, this.state.dateMonthChoice,
-                        expense.target_date, expense.finish_date) == true
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0);
-            checkValue = checkValue2[i]
-            if (checkValue != 0) {
-                rgbColorByCategory[j] = categoriesColor[i];
-                totalValueByCategory[j] = checkValue2[i]
-                totalPriceByCat[j] = allCategories[i] + ": " + totalValueByCategory[i]
-                categoriesWithValues[j] = allCategories[i]
-                j = j + 1
-            }
-        }
-
-        const listAmountsByCat = totalPriceByCat.map((link) =>
-            <div className="listByCategory">{link} zł</div>
-        );
+        var catData = [];
+        catData = getCatTotals(
+            allCategories,
+            this.state.expenses,
+            this.state.categories,
+            newDateYYYYMMDD(this.state.dateMonthChoice),
+            newDateYYYYMMDD(this.state.dateMonthChoice),
+            categoriesColor);
 
         let redBgForSavingsFromIncomes;
         if ((totalIncomes - totalExpenses) >= 0) { redBgForSavingsFromIncomes = false; }
-        else { redBgForSavingsFromIncomes = true; }
+        else { redBgForSavingsFromIncomes = true; };
 
         let redBgForSavingsFromBudgets;
         if ((totalBudgets - totalExpenses) >= 0) { redBgForSavingsFromBudgets = false; }
-        else { redBgForSavingsFromBudgets = true; }
+        else { redBgForSavingsFromBudgets = true; };
 
         let redBgForSavingsFromIncomes1;
         if ((totalIncomesBetweendDates - totalExpensesBetweendDates) >= 0) { redBgForSavingsFromIncomes1 = false; }
-        else { redBgForSavingsFromIncomes1 = true; }
+        else { redBgForSavingsFromIncomes1 = true; };
 
         let redBgForSavingsFromBudgets1;
         if ((totalBudgetsTillDate - totalExpensesBetweendDates) >= 0) { redBgForSavingsFromBudgets1 = false; }
-        else { redBgForSavingsFromBudgets1 = true; }
+        else { redBgForSavingsFromBudgets1 = true; };
 
         const dataByMonth = {
             labels: arrMthPol,
@@ -590,14 +357,25 @@ class WelcomeComponent extends Component {
                 backgroundColor: '#333',
             }]
         };
+
         const dataByCategory = {
-            labels: categoriesWithValues,
+            labels: arrayColumn(catData, 1),
             datasets: [{
                 hoverOffset: 20,
-                data: totalValueByCategory,
-                backgroundColor: rgbColorByCategory,
+                data: arrayColumn(catData, 0),
+                backgroundColor: arrayColumn(catData, 2),
             }]
         };
+
+        // const dataByCategory_2 = {
+        //     labels: arrayColumn(catData_2, 1),
+        //     datasets: [{
+        //         hoverOffset: 20,
+        //         data: arrayColumn(catData_2, 0),
+        //         backgroundColor: arrayColumn(catData_2, 2),
+        //     }]
+        // };
+
         const dataExpToBud = {
             labels: ["Wydano: ", "Pozostało: "],
             datasets: [{
@@ -609,6 +387,7 @@ class WelcomeComponent extends Component {
                 backgroundColor: ['#2177ef', '#4a4a4a'],
             }]
         };
+
         const dataExpToInc = {
             labels: ["Wydano: ", "Pozostało: "],
             datasets: [{
@@ -630,7 +409,8 @@ class WelcomeComponent extends Component {
                     position: "top",
                 }
             },
-        }
+        };
+
         const optionsDon = {
             responsive: true,
             maintainAspectRatio: false,
@@ -640,7 +420,8 @@ class WelcomeComponent extends Component {
                     position: "left",
                 }
             },
-        }
+        };
+
         const optionsDonNoLabels = {
             responsive: true,
             maintainAspectRatio: false,
@@ -649,7 +430,7 @@ class WelcomeComponent extends Component {
                     display: false,
                 }
             },
-        }
+        };
 
         return (
             <>
@@ -701,6 +482,22 @@ class WelcomeComponent extends Component {
                                 options={optionsDon}
                             />
                         </div>
+
+                        <div className="chart-bar" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
+                            <Bar
+                                title={{ display: false }}
+                                data={dataByCategory}
+                                // height={300}
+                                options={optionsBar}
+                            />
+                        </div>
+                        {/* <div className="chart-doughnut">
+                            <Doughnut
+                                data={dataByCategory_2}
+                                height={300}
+                                options={optionsDon}
+                            />
+                        </div> */}
                     </div>
                     <div className="container-data-middle" >
                         <div className="container-height-100">
@@ -744,8 +541,8 @@ class WelcomeComponent extends Component {
                                 options={optionsBar}
                             />
                         </div>
-                        
-                       
+
+
 
                     </div>
                     <div className="container-data-right">
@@ -773,41 +570,33 @@ class WelcomeComponent extends Component {
                             {formatter.format(totalIncomesBetweendDates)} / {formatter.format(totalExpensesBetweendDates)}
                             {/* {formatter.format(totalIncomesBetweendDates - totalExpensesBetweendDates)} */}
                         </div>
-                        {/* <div className="container-data-middle-insideleft"> */}
+                        {/* <div className="container-data-middle-insideleft">
 
-                        <div className="chart-bar" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            <Bar
-                                title={{ display: false }}
-                                data={dataByCategory}
-                                height={300}
-                                options={optionsBar}
-                            />
-                        </div>
 
-                        <div className="chart-doughnut">
-                            <Doughnut
-                                data={dataExpToBud}
-                                height={300}
-                                options={optionsDonNoLabels}
-                            />
-                        </div>
-                        <div className="text-25px-white">
-                            {formatPercentage(totalExpenses / totalBudgets)}
-                        </div>
+                            <div className="chart-doughnut">
+                                <Doughnut
+                                    data={dataExpToBud}
+                                    // height={70}
+                                    options={optionsDonNoLabels}
+                                />
+                            </div>
+                            <div className="text-25px-white">
+                                {formatPercentage(totalExpenses / totalBudgets)}
+                            </div>
 
-                        {/* </div> */}
-                        {/* <div className="container-data-middle-insideright"> */}
-                        <div className="chart-doughnut">
-                            <Doughnut
-                                data={dataExpToInc}
-                                height={300}
-                                options={optionsDonNoLabels}
-                            />
                         </div>
-                        <div className="text-25px-white">
-                            {formatPercentage(totalExpenses / totalIncomes)}
-                        </div>
-                        {/* </div> */}
+                        <div className="container-data-middle-insideright">
+                            <div className="chart-doughnut">
+                                <Doughnut
+                                    data={dataExpToInc}
+                                    // height={300}
+                                    options={optionsDonNoLabels}
+                                />
+                            </div>
+                            <div className="text-25px-white">
+                                {formatPercentage(totalExpenses / totalIncomes)}
+                            </div>
+                        </div> */}
                         {/* <div className="container-container-middle">5 ostatnich transakcji z wybranego miesiaca</div>
                         <div className="text-25px-white">Wydatki</div>
                         <table className="hb-table-red">

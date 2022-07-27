@@ -5,6 +5,10 @@ import ExpenseDataService from '../../../api/HomeBudget/ExpenseDataService.js'
 import CategoryDataService from '../../../api/HomeBudget/CategoryDataService.js'
 import AuthenticationService from '../AuthenticationService.js';
 import "../../../App.css"
+import {
+    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    newDateM, newDateMM, arrMthEng, arrMthPol, formatter, categoryMap
+} from '../../homeBudgetApp/CommonFunctions.js'
 
 class ExpenseComponent extends Component {
     constructor(props) {
@@ -22,7 +26,7 @@ class ExpenseComponent extends Component {
             comment: '',
             cycle: '',
             cycleValue: '',
-        }
+        };
 
         this.onSubmit = this.onSubmit.bind(this)
         this.validate = this.validate.bind(this)
@@ -30,11 +34,9 @@ class ExpenseComponent extends Component {
         this.refreshCategories = this.refreshCategories.bind(this)
         this.updateCycle = this.updateCycle.bind(this)
         this.getPeriodicity = this.getPeriodicity.bind(this)
-    }
+    };
 
     componentDidMount() {
-        // console.log("expenseid " + this.state.expenseid)
-        // console.log("expenseid2 " + this.state.expenseid2)
         if (this.state.expenseid2 == null) {
             console.log("null")
         }
@@ -47,21 +49,6 @@ class ExpenseComponent extends Component {
 
         this.refreshExpenses()
         this.refreshCategories()
-
-        // let usernameid = AuthenticationService.getLoggedInUserName()
-        // CategoryDataService.retrieveAllCategories(usernameid)
-        //     .then(response => { this.setState({ categories: response.data }) })
-
-        // function categoryMap(id, categoryList) {
-        //     const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
-        //     console.log(arrCat)
-        //     if (arrCat[1].includes(id)) {
-        //         var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
-        //         return idCurrentCat;
-        //     } else {
-        //         return "N/A";
-        //     }
-        // }
 
         let usernameid = AuthenticationService.getLoggedInUserName()
         if (this.state.expenseid == -1) {
@@ -87,25 +74,25 @@ class ExpenseComponent extends Component {
                     cycle: response.data.cycle,
                 }))
         }
-    }
+    };
 
     getPeriodicity() {
         document.getElementById("periodicity").value = "Nie";
         this.setState({ cycleValue: "Nie", })
-    }
+    };
 
     refreshExpenses() {
         let usernameid = AuthenticationService.getLoggedInUserName()
         ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(response => { this.setState({ expenses: response.data }) })
 
-    }
+    };
 
     refreshCategories() {
         let usernameid = AuthenticationService.getLoggedInUserName()
         CategoryDataService.retrieveAllCategories(usernameid)
             .then(response => { this.setState({ categories: response.data }) })
-    }
+    };
 
     validate(values) {
         let errors = {}
@@ -128,7 +115,7 @@ class ExpenseComponent extends Component {
             errors.category = 'Wybierz kategorie'
         }
         return errors
-    }
+    };
 
     onSubmit(values) {
 
@@ -163,29 +150,19 @@ class ExpenseComponent extends Component {
         } else {
             ExpenseDataService.updateExpense(usernameid, this.state.expenseid, expense).then(() => this.props.history.push('/expenses'))
         }
-    }
+    };
 
     updateCycle(event) {
         if (event.target.value != "dummy") {
             this.setState({ cycleValue: event.target.value });
         }
-    }
+    };
 
     cancelButton() {
         this.props.history.push(`/expenses`)
-    }
+    };
 
     render() {
-
-        function categoryMap(id, categoryList) {
-            const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
-            if (arrCat[1].includes(id)) {
-                var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
-                return idCurrentCat;
-            } else {
-                return "N/A";
-            }
-        }
 
         let { description, target_date, finish_date, price, comment, cycle } = this.state
         let category = categoryMap(this.state.category, this.state.categories)

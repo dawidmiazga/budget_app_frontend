@@ -74,8 +74,6 @@ class LoginComponent extends Component {
             (this.state.users.map(user => user.usernameid)),
             (this.state.users.map(user => user.useremail))
         ]);
-
-        console.log(arrUsers)
         
     }
     

@@ -9,6 +9,11 @@ import btnClear from '../../images/clear_button.png';
 import btnSort from '../../images/sort_button.png';
 import btnCopy from '../../images/copy_button.png';
 import CategoryDataService from "../../../api/HomeBudget/CategoryDataService";
+import {
+    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    newDateM, newDateMM, arrMthEng, arrMthPol, formatter, categoryMap
+} from '../../homeBudgetApp/CommonFunctions.js'
+// import Select from 'react-select'
 
 class ListExpensesComponent extends Component {
 
@@ -21,7 +26,7 @@ class ListExpensesComponent extends Component {
             message: null,
             sortAsc: 1,
             categories: []
-        }
+        };
 
         this.deleteExpenseClicked = this.deleteExpenseClicked.bind(this)
         this.updateExpenseClicked = this.updateExpenseClicked.bind(this)
@@ -40,13 +45,13 @@ class ListExpensesComponent extends Component {
         this.sortByAmountNotCycle = this.sortByAmountNotCycle.bind(this);
         this.refreshDate = this.refreshDate.bind(this);
         this.refreshCategories = this.refreshCategories.bind(this);
-    }
+    };
 
     componentDidMount() {
         this.refreshExpenses()
         this.refreshCategories()
         this.refreshDate()
-    }
+    };
 
     refreshDate() {
         var todayDay = new Date()
@@ -56,12 +61,12 @@ class ListExpensesComponent extends Component {
         document.getElementById("endDateIdField").value = currentEndDate;
         this.setState({ startDate: currentStartDate, })
         this.setState({ endDate: currentEndDate, })
-    }
+    };
 
     refreshCategories() {
         let usernameid = AuthenticationService.getLoggedInUserName()
         CategoryDataService.retrieveAllCategories(usernameid).then(response => { this.setState({ categories: response.data }) })
-    }
+    };
 
     refreshExpenses() {
         let usernameid = AuthenticationService.getLoggedInUserName()
@@ -70,7 +75,7 @@ class ListExpensesComponent extends Component {
                 response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
                 this.setState({ expenses: response.data })
             })
-    }
+    };
 
     deleteExpenseClicked(expenseid) {
         let usernameid = AuthenticationService.getLoggedInUserName()
@@ -81,36 +86,36 @@ class ListExpensesComponent extends Component {
                     this.refreshExpenses()
                 }
             )
-    }
+    };
 
     updateExpenseClicked(expenseid) {
         this.props.history.push(`/expenses/${expenseid}`)
-    }
+    };
 
     addExpenseClicked() {
         this.props.history.push(`/expenses/-1`)
-    }
+    };
 
     copyExpenseClicked(expenseid) {
         this.props.history.push(`/expenses/${expenseid}/-1`)
-    }
+    };
 
     changeStartDateCal() {
         const datatest = document.getElementById('startDateIdField').value
         this.setState({ startDate: datatest, })
-    }
+    };
 
     changeEndDateCal() {
         const datatest = document.getElementById('endDateIdField').value
         this.setState({ endDate: datatest, })
-    }
+    };
 
     clearDates() {
         this.setState({ startDate: "", })
         this.setState({ endDate: "", })
         document.getElementById('startDateIdField').value = ""
         document.getElementById('endDateIdField').value = ""
-    }
+    };
 
     sortByDecsNotCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -132,7 +137,7 @@ class ListExpensesComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     sortByDecsCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -154,7 +159,7 @@ class ListExpensesComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     sortByDateNotCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -170,7 +175,7 @@ class ListExpensesComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     sortByDateCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -186,7 +191,7 @@ class ListExpensesComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     sortByAmountNotCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -202,7 +207,7 @@ class ListExpensesComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     sortByAmountCycle() {
         this.state.sortAsc = this.state.sortAsc * -1;
@@ -218,103 +223,21 @@ class ListExpensesComponent extends Component {
                     this.setState({ expenses: response.data })
                 }
             )
-    }
+    };
 
     onFormSubmit(e) {
         e.preventDefault();
-    }
+    };
 
     render() {
 
-        function categoryMap(id, categoryList) {
-            const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
-            if (arrCat[1].includes(id)) {
-                var idCurrentCat = arrCat[0][arrCat[1].indexOf(id)]
-                return idCurrentCat;
-            } else {
-                return "N/A";
-            }
-        }
-
         if (this.state.startDate == "") {
             this.state.startDate = new Date("1111-12-31")
-        }
+        };
+
         if (this.state.endDate == "") {
             this.state.endDate = new Date("9999-12-31")
-        }
-
-        function cycleCount(target_date, finish_date, startDate, endDate, whatCycle, nazwa, cena) {
-            var target_date = new Date(target_date);
-            var finish_date = new Date(finish_date);
-            var startDate = new Date(startDate);
-            var endDate = new Date(endDate);
-
-            var firstDayStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-            var lastDayEndDate = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0);
-
-            var mthCnt = 0;
-            var mthCntPrep = 0;
-            var yrCnt = 0;
-
-            if (startDate <= endDate) {
-                if (startDate < target_date) {
-                    startDate = target_date
-                }
-
-                if (endDate > finish_date) {
-                    endDate = finish_date
-                }
-                if (whatCycle == "Nie" &&
-                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) &&
-                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate)
-                ) {
-                    mthCnt += 1
-                } else if (whatCycle == "Nie" && (
-                    newDateYYYYMMDD(target_date) >= newDateYYYYMMDD(firstDayStartDate) ||
-                    newDateYYYYMMDD(target_date) <= newDateYYYYMMDD(lastDayEndDate))
-                ) {
-                    mthCnt = 0
-                } else if (whatCycle == "Co miesiac") {
-                    yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
-                    mthCnt = yrCnt + endDate.getMonth() - startDate.getMonth() + 1
-                } else {
-                    var divideNr
-                    if (whatCycle == "Co pol roku") {
-                        divideNr = 6
-                    } else if (whatCycle == "Co rok") {
-                        divideNr = 12
-                    }
-
-                    if ((startDate.getMonth() - target_date.getMonth()) % divideNr != 0) {
-                        if (startDate.getMonth() < target_date.getMonth()) {
-                            startDate = new Date(startDate.setMonth(target_date.getMonth()))
-                        } else {
-                            startDate = new Date(startDate.setMonth(target_date.getMonth() + divideNr))
-                        }
-                    }
-
-                    yrCnt = (endDate.getFullYear() - startDate.getFullYear()) * 12;
-                    mthCntPrep = yrCnt + endDate.getMonth() - startDate.getMonth()
-                    mthCnt += Math.ceil(mthCntPrep / divideNr)
-
-                    if ((endDate.getMonth() - target_date.getMonth()) % divideNr == 0) {
-                        mthCnt += 1
-                    }
-                }
-            }
-            if (mthCnt < 0) { mthCnt = 0 }
-            return mthCnt;
-        }
-
-        function newDateYYYYMMDD(date1) {
-            var datePrased = moment(Date.parse(date1)).format("YYYY-MM-DD");
-            return datePrased;
-        }
-
-        function newDateYYYYMM(date1) {
-            var datePrased = moment(Date.parse(date1)).format("YYYY-MM");
-            return datePrased;
-        }
+        };
 
         let totalSingleExpense = (this.state.expenses.filter(expense =>
             expense.cycle == "Nie" &&
@@ -325,12 +248,15 @@ class ListExpensesComponent extends Component {
 
         let totalCyclical = (this.state.expenses.filter(expense => expense.cycle != "Nie")
             .reduce((total, currentItem) => total = total + (currentItem.price *
-                cycleCount(currentItem.target_date, currentItem.finish_date, this.state.startDate, this.state.endDate, currentItem.cycle, currentItem.description, currentItem.price)), 0));
-
-        var formatter = new Intl.NumberFormat('pl-PL', {
-            style: 'currency',
-            currency: 'PLN',
-        });
+                cycleCount(
+                    currentItem.target_date,
+                    currentItem.finish_date,
+                    this.state.startDate,
+                    this.state.endDate,
+                    currentItem.cycle,
+                    currentItem.description,
+                    currentItem.price
+                )), 0));
 
         return (
             <div className="background-color-all">
