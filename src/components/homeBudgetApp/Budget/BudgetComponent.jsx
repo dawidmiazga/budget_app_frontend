@@ -2,17 +2,24 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import BudgetDataService from '../../../api/HomeBudget/BudgetDataService.js'
+import IncomeDataService from "../../../api/HomeBudget/IncomeDataService.js";
 import AuthenticationService from '../AuthenticationService.js';
 import "../../../App.css"
+import {
+    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    newDateM, newDateMM, categoryMap, dateFilter, daysLeftCount, arrMthEng, arrMthPol, formatter, formatPercentage,
+    checkIfRecordIsInTheMonth, sortFunction, arrayColumn, getCatTotals
+} from '../CommonFunctions.js'
 
 class BudgetComponent extends Component {
     constructor(props) {
         super(props)
         this.state = {
             budgets: [],
+            incomes: [],
             budgetid: this.props.match.params.id,
             budgetid2: this.props.match.params.id2,
-            target_month: moment(new Date()).format('YYYY-MM'),
+            target_month: newDateYYYYMM(new Date()),
             amount: '',
             comment: '',
         }
@@ -20,26 +27,28 @@ class BudgetComponent extends Component {
         this.validate = this.validate.bind(this)
         this.cancelButton = this.cancelButton.bind(this)
         this.refreshBudgets = this.refreshBudgets.bind(this)
+        this.refreshIncomes = this.refreshIncomes.bind(this)
+        this.changeMth = this.changeMth.bind(this)
     }
 
     componentDidMount() {
+        this.refreshIncomes()
         if (this.state.budgetid == -1 && this.state.budgetid2 == null) {
             this.refreshBudgets()
             return
         }
         let usernameid = AuthenticationService.getLoggedInUserName()
-
         if (this.state.budgetid == -1) {
             BudgetDataService.retrieveBudget(usernameid, this.state.budgetid2)
                 .then(response => this.setState({
-                    target_month: moment(response.data.target_month).format('YYYY-MM'),
+                    target_month: newDateYYYYMM(response.data.target_month),
                     amount: response.data.amount,
                     comment: response.data.comment,
                 }))
         } else {
             BudgetDataService.retrieveBudget(usernameid, this.state.budgetid)
                 .then(response => this.setState({
-                    target_month: moment(response.data.target_month).format('YYYY-MM'),
+                    target_month: newDateYYYYMM(response.data.target_month),
                     amount: response.data.amount,
                     comment: response.data.comment,
                 }))
@@ -55,8 +64,24 @@ class BudgetComponent extends Component {
             })
     }
 
+    refreshIncomes() {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        IncomeDataService.retrieveAllIncomes(usernameid)
+            .then(
+                response => {
+                    response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
+                    this.setState({ incomes: response.data })
+                }
+            )
+    };
+
+    changeMth() {
+        var choosenMth = document.getElementById("choosenMth").value;
+        this.setState({ target_month: choosenMth, })
+    }
+
     validate(values) {
-        const allPeriods = this.state.budgets.map(budget => moment(budget.target_month).format("YYYY-MM"));
+        const allPeriods = this.state.budgets.map(budget => newDateYYYYMM(budget.target_month));
         let errors = {}
         if (!moment(values.target_month).isValid()) {
             errors.target_month = 'Wybierz poprawna date'
@@ -76,7 +101,7 @@ class BudgetComponent extends Component {
         let usernameid = AuthenticationService.getLoggedInUserName()
         let budget = {
             budgetid: this.state.budgetid,
-            target_month: moment(values.target_month).format("YYYY-MM-DD"),
+            target_month: newDateYYYYMMDD(values.target_month),
             usernameid: usernameid,
             amount: values.amount,
             comment: values.comment,
@@ -93,7 +118,16 @@ class BudgetComponent extends Component {
     }
 
     render() {
-        let { target_month, amount, comment } = this.state
+        let { target_month, amount, comment } = this.state;
+        var savings = 1750;
+        var totalIncomes;
+        if (this.state.target_month == "") {
+            totalIncomes = 0;
+        } else {
+            totalIncomes = (this.state.incomes.filter(income => (
+                dateFilter(income.target_date, income.finish_date, this.state.target_month, income.cycle)
+            )).reduce((total, currentItem) => total = total + currentItem.amount, 0));
+        }
         return (
             <div className="background-color-all">
                 <div className="container">
@@ -114,10 +148,10 @@ class BudgetComponent extends Component {
                                     <div className="text-40px-white" style={{ display: (this.state.budgetid != -1 ? 'block' : 'none') }}>Edytuj budzet</div>
                                     <fieldset className="form-group">
                                         <div className="text-20px-white">Miesiac</div>
-                                        <Field className="hb-form-control" type="month" name="target_month" />
+                                        <Field className="hb-form-control" id="choosenMth" type="month" name="target_month" onChange={this.changeMth} />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Kwota</div>
+                                        <div className="text-20px-white">Kwota {"("}Suma przychodów: {totalIncomes}, sugerowany budżet: {totalIncomes - savings}{")"}</div>
                                         <Field className="hb-form-control" type="number" name="amount" />
                                     </fieldset>
                                     <fieldset className="form-group">

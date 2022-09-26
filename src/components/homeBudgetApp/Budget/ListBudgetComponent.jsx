@@ -9,6 +9,7 @@ import btnDel from '../../images/delete_button.png';
 import btnClear from '../../images/clear_button.png';
 import btnSort from '../../images/sort_button.png';
 import btnCopy from '../../images/copy_button.png';
+import { newDateYYYYMM } from "../CommonFunctions.js";
 
 class ListBudgetsComponent extends Component {
 
@@ -162,7 +163,7 @@ class ListBudgetsComponent extends Component {
 
     render() {
         function changeDateFormatWithoutDays(date1) {
-            var datePrased = moment(Date.parse(date1)).format("YYYY-MM");
+            var datePrased = newDateYYYYMM(Date.parse(date1));
             return datePrased;
         }
 

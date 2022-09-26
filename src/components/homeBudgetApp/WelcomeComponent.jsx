@@ -52,7 +52,7 @@ class WelcomeComponent extends Component {
         this.changeToPrevMonth = this.changeToPrevMonth.bind(this)
         this.changeToNextMonth = this.changeToNextMonth.bind(this)
         this.changeToCurrMonth = this.changeToCurrMonth.bind(this)
-        this.changeMth = this.changeMth.bind(this)
+        // this.changeMth = this.changeMth.bind(this)
         this.refreshUsers = this.refreshUsers.bind(this)
     };
 
@@ -75,7 +75,7 @@ class WelcomeComponent extends Component {
     };
 
     refreshMonth() {
-        var choosenMonth = moment(Date()).format("YYYY-MM")
+        var choosenMonth = newDateYYYYMM(Date()) 
         document.getElementById("monthChoiceFilter").value = choosenMonth;
         document.getElementById("monthChoiceFilterAllFromMth").value = choosenMonth;
         document.getElementById("monthChoiceFilterAllToMth").value = choosenMonth;
@@ -85,7 +85,7 @@ class WelcomeComponent extends Component {
     };
 
     refreshYear() {
-        var choosenYear = moment(Date()).format("YYYY");
+        var choosenYear = newDateYYYY(Date()) 
         document.getElementById("yearChoiceFilter").value = choosenYear;
         this.setState({ dateMonthChoice: choosenYear, })
     };
@@ -137,26 +137,26 @@ class WelcomeComponent extends Component {
         this.setState({ dateMonthChoiceAllToMth: dataMonth, })
     };
 
-    changeMth(type) {
+    // changeMth(type) {
 
-        var currMth;
-        if (type == "curr") {
-            currMth = moment(Date()).format("YYYY-MM")
-        } else {
-            currMth = document.getElementById('monthChoiceFilter').value
-            if (currMth == "") { return }
-            var newMth = new Date(currMth);
-            newMth.setDate(1);
-            if (type == "prev") {
-                newMth.setMonth(newMth.getMonth() - 1);
-            } else if (type = "next") {
-                newMth.setMonth(newMth.getMonth() + 1);
-            }
-            newMth = moment(newMth).format("YYYY-MM")
-        }
-        document.getElementById('monthChoiceFilter').value = newMth;
-        this.setState({ dateMonthChoice: newMth, })
-    };
+    //     var currMth;
+    //     if (type == "curr") {
+    //         currMth = moment(Date()).format("YYYY-MM")
+    //     } else {
+    //         currMth = document.getElementById('monthChoiceFilter').value
+    //         if (currMth == "") { return }
+    //         var newMth = new Date(currMth);
+    //         newMth.setDate(1);
+    //         if (type == "prev") {
+    //             newMth.setMonth(newMth.getMonth() - 1);
+    //         } else if (type = "next") {
+    //             newMth.setMonth(newMth.getMonth() + 1);
+    //         }
+    //         newMth = moment(newMth).format("YYYY-MM")
+    //     }
+    //     document.getElementById('monthChoiceFilter').value = newMth;
+    //     this.setState({ dateMonthChoice: newMth, })
+    // };
 
     changeToPrevMonth() {
         const currMth = document.getElementById('monthChoiceFilter').value
@@ -164,13 +164,13 @@ class WelcomeComponent extends Component {
         var prevMth = new Date(currMth);
         prevMth.setDate(1);
         prevMth.setMonth(prevMth.getMonth() - 1);
-        prevMth = moment(prevMth).format("YYYY-MM")
+        prevMth = newDateYYYYMM(prevMth) //moment(prevMth).format("YYYY-MM")
         document.getElementById('monthChoiceFilter').value = prevMth;
         this.setState({ dateMonthChoice: prevMth, })
     };
 
     changeToCurrMonth() {
-        const currMth = moment(Date()).format("YYYY-MM")
+        const currMth = newDateYYYYMM(Date()) //moment(Date()).format("YYYY-MM")
         document.getElementById('monthChoiceFilter').value = currMth;
         this.setState({ dateMonthChoice: currMth, })
     };
@@ -181,7 +181,7 @@ class WelcomeComponent extends Component {
         var nextMth = new Date(currMth);
         nextMth.setDate(1);
         nextMth.setMonth(nextMth.getMonth() + 1);
-        nextMth = moment(nextMth).format("YYYY-MM")
+        nextMth = newDateYYYYMM(nextMth) //moment(nextMth).format("YYYY-MM")
         document.getElementById('monthChoiceFilter').value = nextMth;
         this.setState({ dateMonthChoice: nextMth, })
     };
@@ -516,7 +516,6 @@ class WelcomeComponent extends Component {
                             {formatter.format(totalExpenses)}/{formatter.format(totalIncomes)}<br />
                             Pozostało: {formatter.format(totalIncomes - totalExpenses)}
                             {" ("}Na dzień: {formatter.format((totalIncomes - totalExpenses) / daysLeftCount(this.state.dateMonthChoice))}{")"}
-
                         </div>
                         <div className={'container-container-middle-black'} style={{ display: (totalExpenses == 0 && totalIncomes != 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
                             Brak wydatkow w wybranym miesiacu
@@ -531,7 +530,8 @@ class WelcomeComponent extends Component {
                             Miesiac nie zostal wybrany
                         </div>
                         <div className="text-25px-white" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Wydatki i przychody w {moment(this.state.dateMonthChoice).format("YYYY")} roku
+                            {/* Wydatki i przychody w {moment(this.state.dateMonthChoice).format("YYYY")} roku */}
+                            Wydatki i przychody w {newDateYYYY(this.state.dateMonthChoice)} roku
                         </div>
                         <div className="chart-bar" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
                             <Bar
@@ -556,10 +556,12 @@ class WelcomeComponent extends Component {
 
                         <div className="container-savings-left">
                             Oszczednosci zalozone: <br />
+                            Pozostało do wydania: <br />
                         </div>
 
                         <div className={redBgForSavingsFromBudgets1 ? "container-savings-right-red" : "container-savings-right-green"}>
-                            {formatter.format(totalBudgetsTillDate)} / {formatter.format(totalExpensesBetweendDates)}
+                            {formatter.format(totalIncomesBetweendDates-totalBudgetsTillDate)}<br />
+                            {formatter.format(totalBudgetsTillDate - totalExpensesBetweendDates)}
                         </div>
 
                         <div className="container-savings-left">
@@ -567,8 +569,8 @@ class WelcomeComponent extends Component {
                         </div>
 
                         <div className={redBgForSavingsFromIncomes1 ? "container-savings-right-red" : "container-savings-right-green"}>
-                            {formatter.format(totalIncomesBetweendDates)} / {formatter.format(totalExpensesBetweendDates)}
-                            {/* {formatter.format(totalIncomesBetweendDates - totalExpensesBetweendDates)} */}
+                            {/* {formatter.format(totalIncomesBetweendDates)} / {formatter.format(totalExpensesBetweendDates)}<br /> */}
+                            {formatter.format(totalIncomesBetweendDates - totalExpensesBetweendDates)}
                         </div>
                         {/* <div className="container-data-middle-insideleft">
 

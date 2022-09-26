@@ -95,7 +95,7 @@ class ChartsComponent extends Component {
     };
 
     changeToCurrYear() {
-        const currYr = moment(Date()).format("YYYY");
+        const currYr = newDateYYYY(Date());
         document.getElementById('choosenYear').value = currYr;
         this.setState({ choosenYear: currYr, });
     };
@@ -208,7 +208,7 @@ class ChartsComponent extends Component {
 
             }
         };
-      
+
         var startdatenew = getFirstDayOfYear(this.state.choosenYear, 0);
         if (this.state.displayValue == "tilldate") {
             var enddatenew = getLastDayOfYear(this.state.choosenYear, today.getMonth())

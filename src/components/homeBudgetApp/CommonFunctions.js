@@ -1,5 +1,10 @@
 import moment from "moment";
 
+export function newDateDDMMYYYY(dateToChange) {
+    var datePrased = moment(Date.parse(dateToChange)).format("DD-MM-YYYY");
+    return datePrased;
+};
+
 export function newDateYYYYMMDD(dateToChange) {
     var datePrased = moment(Date.parse(dateToChange)).format("YYYY-MM-DD");
     return datePrased;
@@ -33,7 +38,7 @@ export function cycleCount(tDate, fDate, sDate, eDate, whatCycle, nazwa, cena) {
 
     var firstDayStartDate = new Date(sDate.getFullYear(), sDate.getMonth(), 1);
     var lastDayEndDate = new Date(eDate.getFullYear(), eDate.getMonth() + 1, 0);
-    
+
     var mthCnt = 0;
     var mthCntPrep = 0;
     var yrCnt = 0;
@@ -84,12 +89,12 @@ export function cycleCount(tDate, fDate, sDate, eDate, whatCycle, nazwa, cena) {
     return mthCnt;
 };
 
-export function getFirstDayOfYear(year,month) {
-    return new Date(year,month, 1);
+export function getFirstDayOfYear(year, month) {
+    return new Date(year, month, 1);
 };
 
-export function getLastDayOfYear(year,month) {
-    return new Date(year,month, 31);
+export function getLastDayOfYear(year, month) {
+    return new Date(year, month + 1, 0);
 };
 
 export function categoryMap(id, categoryList) {
@@ -106,10 +111,10 @@ export function categoryMap(id, categoryList) {
 };
 
 export function dateFilter(targetDate, finishDate, choosenDate, expType) {
-
+    
     targetDate = newDateYYYYMM(targetDate)
     finishDate = newDateYYYYMM(finishDate)
-
+    
     if (choosenDate < targetDate || choosenDate > finishDate) { return false }
     if (expType == "Nie") {
         if (newDateYYYYMM(targetDate) == newDateYYYYMM(choosenDate)) {
@@ -134,8 +139,15 @@ export function dateFilter(targetDate, finishDate, choosenDate, expType) {
 export function daysLeftCount(choosenDate) {
     var todayDay = new Date()
     choosenDate = new Date(choosenDate);
-    choosenDate = new Date(choosenDate.getFullYear(), choosenDate.getMonth() + 1, 0);
-    return (choosenDate.getDate() - todayDay.getDate() + 1);
+    choosenDate = getLastDayOfYear(choosenDate.getFullYear(), choosenDate.getMonth());
+    var firstDayChoosenDate = getFirstDayOfYear(choosenDate.getFullYear(), choosenDate.getMonth())
+    var lastDayChoosenDate = getLastDayOfYear(choosenDate.getFullYear(), choosenDate.getMonth())
+
+    if (todayDay < firstDayChoosenDate || todayDay > lastDayChoosenDate) {
+        return (lastDayChoosenDate.getDate());
+    } else {
+        return (choosenDate.getDate() - todayDay.getDate() + 1);
+    }
 };
 
 export function checkIfRecordIsInTheMonth(cycle, targetDate, finishDate, CurrMonth, ChoosenMonth) {
@@ -202,9 +214,9 @@ export function sortFunction(a, b) {
     }
 };
 
-export function getCatTotals(allCategories,expenses,categories,startdatenew,enddatenew,categoriesColor){
+export function getCatTotals(allCategories, expenses, categories, startdatenew, enddatenew, categoriesColor) {
     var catData = [];
-    var tempSum=[]
+    var tempSum = []
     for (let i = 0; i < allCategories.length; i++) {
         var checkValueCurrentYear = 0
         tempSum[i] =

@@ -19,8 +19,8 @@ class ExpenseComponent extends Component {
             expenseid: this.props.match.params.id,
             expenseid2: this.props.match.params.id2,
             description: '',
-            target_date: moment(new Date()).format('YYYY-MM-DD'),
-            finish_date: moment(new Date()).format('YYYY-MM-DD'),
+            target_date: newDateYYYYMMDD(new Date()),
+            finish_date: newDateYYYYMMDD(new Date()),
             price: '',
             category: '',
             comment: '',
@@ -55,8 +55,8 @@ class ExpenseComponent extends Component {
             ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid2)
                 .then(response => this.setState({
                     description: response.data.description,
-                    target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
-                    finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
+                    target_date: newDateYYYYMMDD(response.data.target_date),
+                    finish_date: newDateYYYYMMDD(response.data.finish_date),
                     price: response.data.price,
                     category: response.data.category,//categoryMap(response.data.category, this.state.categories),
                     comment: response.data.comment,
@@ -66,8 +66,8 @@ class ExpenseComponent extends Component {
             ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid)
                 .then(response => this.setState({
                     description: response.data.description,
-                    target_date: moment(response.data.target_date).format('YYYY-MM-DD'),
-                    finish_date: moment(response.data.finish_date).format('YYYY-MM-DD'),
+                    target_date: newDateYYYYMMDD(response.data.target_date),
+                    finish_date: newDateYYYYMMDD(response.data.finish_date),
                     price: response.data.price,
                     category: response.data.category,//categoryMap(response.data.category, this.state.categories),
                     comment: response.data.comment,

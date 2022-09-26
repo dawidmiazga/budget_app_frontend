@@ -7,6 +7,7 @@ import btnEdit from '../../images/edit_button.png';
 import btnDel from '../../images/delete_button.png';
 import btnClear from '../../images/clear_button.png';
 import btnSort from '../../images/sort_button.png';
+import { newDateYYYYMMDD,newDateDDMMYYYY } from "../CommonFunctions.js";
 
 class ListIncomesComponent extends Component {
 
@@ -42,8 +43,8 @@ class ListIncomesComponent extends Component {
 
     refreshDate() {
         var todayDay = new Date()
-        var currentStartDate = moment(new Date(todayDay.getFullYear(), todayDay.getMonth(), 1)).format("YYYY-MM-DD");
-        var currentEndDate = moment(new Date(todayDay.getFullYear(), todayDay.getMonth() + 1, 0)).format("YYYY-MM-DD");
+        var currentStartDate = newDateYYYYMMDD(new Date(todayDay.getFullYear(), todayDay.getMonth(), 1));
+        var currentEndDate = newDateYYYYMMDD(new Date(todayDay.getFullYear(), todayDay.getMonth() + 1, 0));
         document.getElementById("startDateIdField").value = currentStartDate;
         document.getElementById("endDateIdField").value = currentEndDate;
         this.setState({ startDate: currentStartDate, })
@@ -422,9 +423,11 @@ class ListIncomesComponent extends Component {
                                         </td>
                                         <td>
                                             <tr></tr>
-                                            Od: {moment(income.target_date).format('DD-MM-YYYY')}
+                                            Od: {newDateDDMMYYYY(income.target_date)}
+                                            {/* Od: {moment(income.target_date).format('DD-MM-YYYY')} */}
                                             <tr></tr>
-                                            Do: {moment(income.finish_date).format('DD-MM-YYYY')}
+                                            Do: {newDateDDMMYYYY(income.finish_date)}
+                                            {/* Do: {moment(income.finish_date).format('DD-MM-YYYY')} */}
                                         </td>
                                         <td>{formatter.format(income.amount)}</td>
                                         <td>

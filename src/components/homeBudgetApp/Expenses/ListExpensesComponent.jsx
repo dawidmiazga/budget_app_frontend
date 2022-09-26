@@ -10,7 +10,7 @@ import btnSort from '../../images/sort_button.png';
 import btnCopy from '../../images/copy_button.png';
 import CategoryDataService from "../../../api/HomeBudget/CategoryDataService";
 import {
-    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,newDateDDMMYYYY,
     newDateM, newDateMM, arrMthEng, arrMthPol, formatter, categoryMap
 } from '../../homeBudgetApp/CommonFunctions.js'
 // import Select from 'react-select'
@@ -43,6 +43,8 @@ class ListExpensesComponent extends Component {
         this.sortByDateNotCycle = this.sortByDateNotCycle.bind(this);
         this.sortByAmountCycle = this.sortByAmountCycle.bind(this);
         this.sortByAmountNotCycle = this.sortByAmountNotCycle.bind(this);
+        this.sortByCatCycle = this.sortByCatCycle.bind(this);
+        this.sortByCatNotCycle = this.sortByCatNotCycle.bind(this);
         this.refreshDate = this.refreshDate.bind(this);
         this.refreshCategories = this.refreshCategories.bind(this);
     };
@@ -55,8 +57,8 @@ class ListExpensesComponent extends Component {
 
     refreshDate() {
         var todayDay = new Date()
-        var currentStartDate = moment(new Date(todayDay.getFullYear(), todayDay.getMonth(), 1)).format("YYYY-MM-DD");
-        var currentEndDate = moment(new Date(todayDay.getFullYear(), todayDay.getMonth() + 1, 0)).format("YYYY-MM-DD");
+        var currentStartDate = newDateYYYYMMDD(new Date(todayDay.getFullYear(), todayDay.getMonth(), 1));
+        var currentEndDate = newDateYYYYMMDD(new Date(todayDay.getFullYear(), todayDay.getMonth() + 1, 0));
         document.getElementById("startDateIdField").value = currentStartDate;
         document.getElementById("endDateIdField").value = currentEndDate;
         this.setState({ startDate: currentStartDate, })
@@ -225,6 +227,38 @@ class ListExpensesComponent extends Component {
             )
     };
 
+    sortByCatNotCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.category < b.category) ? 1 : -1)
+                    } else {
+                        response.data.sort((a, b) => (a.cycle == "Nie" && b.cycle == "Nie" && a.category > b.category) ? 1 : -1)
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    };
+
+    sortByCatCycle() {
+        this.state.sortAsc = this.state.sortAsc * -1;
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.retrieveAllExpenses(usernameid)
+            .then(
+                response => {
+                    if (this.state.sortAsc == 1) {
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.category < b.category) ? 1 : -1)
+                    } else {
+                        response.data.sort((a, b) => (a.cycle != "Nie" && b.cycle != "Nie" && a.category > b.category) ? 1 : -1)
+                    }
+                    this.setState({ expenses: response.data })
+                }
+            )
+    };
+
     onFormSubmit(e) {
         e.preventDefault();
     };
@@ -299,6 +333,10 @@ class ListExpensesComponent extends Component {
                                     <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsNotCycle} /></div>
                                 </th>
                                 <th>
+                                    Kategoria
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByCatNotCycle} /></div>
+                                </th>
+                                <th>
                                     Data
                                     <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDateNotCycle} /></div>
                                 </th>
@@ -318,11 +356,16 @@ class ListExpensesComponent extends Component {
                                 ).map(expense =>
                                     <tr key={expense.expenseid}>
                                         <td><div className="text-20px-white">{expense.description}</div>
-                                            Kategoria: {categoryMap(expense.category, this.state.categories)}
-                                            <br />
+                                            {/* Kategoria: {categoryMap(expense.category, this.state.categories)}
+                                            <br /> */}
                                             {expense.comment}
                                         </td>
-                                        <td>{moment(expense.target_date).format('DD-MM-YYYY')}</td>
+                                        <td>
+                                            {/* <div className="text-20px-white"> */}
+                                                {categoryMap(expense.category, this.state.categories)}
+                                            {/* </div> */}
+                                        </td>
+                                        <td>{newDateDDMMYYYY(expense.target_date)}</td>
                                         <td>{formatter.format(expense.price)}</td>
                                         <td>
                                             <img src={btnCopy} width="40" height="40" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
@@ -348,6 +391,10 @@ class ListExpensesComponent extends Component {
                                 <th>
                                     Opis
                                     <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsCycle} /></div>
+                                </th>
+                                <th>
+                                    Kategoria
+                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByCatCycle} /></div>
                                 </th>
                                 <th>
                                     Data
@@ -386,17 +433,23 @@ class ListExpensesComponent extends Component {
                                     ))
                                 ).map(expense =>
                                     <tr key={expense.expenseid}>
-                                        <td><div className="text-20px-white">{expense.description}</div>
-                                            Kategoria: {categoryMap(expense.category, this.state.categories)}
-                                            <br />
+                                        <td>
+                                            <div className="text-20px-white">{expense.description}</div>
+                                            {/* Kategoria: {categoryMap(expense.category, this.state.categories)}
+                                            <br /> */}
                                             {expense.cycle}
                                             <br />
                                             {expense.comment}
                                         </td>
                                         <td>
-                                            Od: {moment(expense.target_date).format('DD-MM-YYYY')}
+                                            {/* <div className="text-20px-white"> */}
+                                                {categoryMap(expense.category, this.state.categories)}
+                                            {/* </div> */}
+                                        </td>
+                                        <td>
+                                            Od: {newDateDDMMYYYY(expense.target_date)}
                                             <br />
-                                            Do: {moment(expense.finish_date).format('DD-MM-YYYY')}
+                                            Do: {newDateDDMMYYYY(expense.finish_date)}
                                         </td>
                                         <td>{formatter.format(expense.price)}</td>
                                         <td>

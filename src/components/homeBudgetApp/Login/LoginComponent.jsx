@@ -1,6 +1,9 @@
-import React, { Component } from "react";
+import React, { useRef, Component } from "react";
 import AuthenticationService from "../AuthenticationService.js";
 import LoginDataService from '../../../api/HomeBudget/LoginDataService.js';
+// import React, { useRef } from 'react';
+import emailjs from '@emailjs/browser';
+// import emailjs from 'emailjs-com';
 
 class LoginComponent extends Component {
     constructor(props) {
@@ -15,7 +18,8 @@ class LoginComponent extends Component {
         this.handleChange = this.handleChange.bind(this)
         this.LoginClick = this.LoginClick.bind(this)
         this.AddUser = this.AddUser.bind(this)
-        this.PasswordReciever=this.PasswordReciever.bind(this)
+        this.PasswordReciever = this.PasswordReciever.bind(this)
+        this.SendEmail = this.SendEmail.bind(this)
     }
 
     componentDidMount() {
@@ -74,13 +78,17 @@ class LoginComponent extends Component {
             (this.state.users.map(user => user.usernameid)),
             (this.state.users.map(user => user.useremail))
         ]);
-        
+
     }
-    
+
     AddUser() {
         this.props.history.push(`/userslist/-1`)
     }
 
+
+    SendEmail() {
+        console.log("Send")
+    }
     render() {
         return (
             <div className="background-color-all">
@@ -100,6 +108,7 @@ class LoginComponent extends Component {
                 <div className="container-welcome-middle">
                     <button className="button-66" onClick={this.LoginClick}>Zaloguj</button>
                     <button className="button-77" onClick={this.PasswordReciever}>Zapomnialem Hasla</button>
+                    <button className="button-66" onClick={this.SendEmail}>x</button>
                 </div>
             </div>
         )
