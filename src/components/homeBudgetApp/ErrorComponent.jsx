@@ -2,7 +2,7 @@ import React from "react";
 
 function ErrorComponent() {
     return <div className="background-color-all">
-        <div className="text-20px-white">
+        <div className="text-h5-white">
             An error occurred.
         </div>
     </div>

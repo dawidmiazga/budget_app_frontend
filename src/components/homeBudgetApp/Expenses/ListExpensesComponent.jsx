@@ -1,4 +1,3 @@
-import moment from "moment";
 import React, { Component } from "react";
 import ExpenseDataService from '../../../api/HomeBudget/ExpenseDataService.js';
 import AuthenticationService from '../AuthenticationService.js';
@@ -10,10 +9,8 @@ import btnSort from '../../images/sort_button.png';
 import btnCopy from '../../images/copy_button.png';
 import CategoryDataService from "../../../api/HomeBudget/CategoryDataService";
 import {
-    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,newDateDDMMYYYY,
-    newDateM, newDateMM, arrMthEng, arrMthPol, formatter, categoryMap
+    cycleCount, newDateYYYYMMDD, newDateDDMMYYYY, formatter, categoryMap
 } from '../../homeBudgetApp/CommonFunctions.js'
-// import Select from 'react-select'
 
 class ListExpensesComponent extends Component {
 
@@ -25,14 +22,16 @@ class ListExpensesComponent extends Component {
             expenses: [],
             message: null,
             sortAsc: 1,
-            categories: []
+            categories: [],
+            expenseCatch: []
         };
 
-        this.deleteExpenseClicked = this.deleteExpenseClicked.bind(this)
-        this.updateExpenseClicked = this.updateExpenseClicked.bind(this)
-        this.addExpenseClicked = this.addExpenseClicked.bind(this)
-        this.copyExpenseClicked = this.copyExpenseClicked.bind(this)
-        this.refreshExpenses = this.refreshExpenses.bind(this)
+        this.deleteExpenseClicked = this.deleteExpenseClicked.bind(this);
+        this.updateExpenseClicked = this.updateExpenseClicked.bind(this);
+        this.addExpenseClicked = this.addExpenseClicked.bind(this);
+        this.copyExpenseClicked = this.copyExpenseClicked.bind(this);
+        this.getBackDeletedRecored = this.getBackDeletedRecored.bind(this);
+        this.refreshExpenses = this.refreshExpenses.bind(this);
         this.changeStartDateCal = this.changeStartDateCal.bind(this);
         this.changeEndDateCal = this.changeEndDateCal.bind(this);
         this.onFormSubmit = this.onFormSubmit.bind(this);
@@ -79,13 +78,20 @@ class ListExpensesComponent extends Component {
             })
     };
 
-    deleteExpenseClicked(expenseid) {
+    deleteExpenseClicked(expenseid, expenseName, targetDate, price, expense) {
         let usernameid = AuthenticationService.getLoggedInUserName()
         ExpenseDataService.deleteExpense(usernameid, expenseid)
             .then(
                 response => {
-                    this.setState({ message: `Wydatek usuniety` })
+                    this.setState({
+                        message:
+                            `Wydatek usuniety: ` +
+                            expenseName + ` z dnia ` +
+                            targetDate + ` na kwotę ` +
+                            formatter.format(price)
+                    })
                     this.refreshExpenses()
+                    this.setState({ expenseCatch: expense })
                 }
             )
     };
@@ -100,6 +106,17 @@ class ListExpensesComponent extends Component {
 
     copyExpenseClicked(expenseid) {
         this.props.history.push(`/expenses/${expenseid}/-1`)
+    };
+
+    getBackDeletedRecored() {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        ExpenseDataService.createExpense(usernameid, this.state.expenseCatch).then(() => this.props.history.push('/expenses'))
+        this.setState({
+            message: null
+        })
+        this.refreshExpenses()
+        this.refreshExpenses()
+        this.refreshExpenses()
     };
 
     changeStartDateCal() {
@@ -294,9 +311,10 @@ class ListExpensesComponent extends Component {
 
         return (
             <div className="background-color-all">
-                {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
-                <div className="container-exp-inc-left">
-                    <div className="text-20px-white">
+                {this.state.message && <div className="alert alert-success">{this.state.message} <button className="button-88" onClick={this.getBackDeletedRecored}> Cofnij </button> </div>}
+
+                <div className="container-exp-inc-left-26">
+                    <div className="text-h5-white">
                         Wybierz zakres dat:
                     </div>
                     <input type="date" id="startDateIdField" onChange={this.changeStartDateCal}></input>
@@ -306,23 +324,23 @@ class ListExpensesComponent extends Component {
                     </div>
                 </div>
 
-                <div className="container-exp-inc-middle">
-                    <div className="text-40px-white">
+                <div className="container-exp-inc-middle-41">
+                    <div className="text-h1-white">
                         Wydatki
                     </div>
-                    <div className="text-25px-white">
+                    <div className="text-h4-white">
                         Suma wydatkow w wybranym okresie: {formatter.format(totalSingleExpense + totalCyclical)}
                     </div>
                 </div>
-                <div className="container-exp-inc-right">
+                <div className="container-exp-inc-right-26">
                 </div>
 
                 <form onSubmit={this.onFormSubmit}></form>
 
-                <div className="container-expenses-left">
+                <div className="container-exp-inc-left-45">
                     <div>
-                        <div className="text-25px-white">Wydatki pojedyńcze</div>
-                        <div className="text-20px-white">Suma w wybranym okresie: {formatter.format(totalSingleExpense)}</div>
+                        <div className="text-h4-white">Wydatki pojedyńcze</div>
+                        <div className="text-h5-white">Suma w wybranym okresie: {formatter.format(totalSingleExpense)}</div>
                     </div>
 
                     <table className="hb-table">
@@ -330,19 +348,19 @@ class ListExpensesComponent extends Component {
                             <tr>
                                 <th>
                                     Opis
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsNotCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsNotCycle} /></div>
                                 </th>
                                 <th>
                                     Kategoria
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByCatNotCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByCatNotCycle} /></div>
                                 </th>
                                 <th>
                                     Data
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDateNotCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByDateNotCycle} /></div>
                                 </th>
                                 <th>
                                     Kwota
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByAmountNotCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByAmountNotCycle} /></div>
                                 </th>
                                 <th></th>
                             </tr>
@@ -355,22 +373,25 @@ class ListExpensesComponent extends Component {
                                     expense.cycle == "Nie")
                                 ).map(expense =>
                                     <tr key={expense.expenseid}>
-                                        <td><div className="text-20px-white">{expense.description}</div>
+                                        <td>
+                                            {/* <div className="text-h5-white"> */}
+                                            {expense.description}
+                                            {/* </div> */}
                                             {/* Kategoria: {categoryMap(expense.category, this.state.categories)}
-                                            <br /> */}
+                                            */}<br />
                                             {expense.comment}
                                         </td>
                                         <td>
-                                            {/* <div className="text-20px-white"> */}
-                                                {categoryMap(expense.category, this.state.categories)}
+                                            {/* <div className="text-h5-white"> */}
+                                            {categoryMap(expense.category, this.state.categories)}
                                             {/* </div> */}
                                         </td>
                                         <td>{newDateDDMMYYYY(expense.target_date)}</td>
                                         <td>{formatter.format(expense.price)}</td>
                                         <td>
-                                            <img src={btnCopy} width="40" height="40" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
-                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateExpenseClicked(expense.expenseid)} />
-                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteExpenseClicked(expense.expenseid)} />
+                                            <img src={btnCopy} width="32" height="32" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
+                                            <img src={btnEdit} width="32" height="32" onClick={() => this.updateExpenseClicked(expense.expenseid)} />
+                                            <img src={btnDel} width="32" height="32" onClick={() => this.deleteExpenseClicked(expense.expenseid, expense.description, newDateDDMMYYYY(expense.target_date), expense.price, expense)} />
                                         </td>
                                     </tr>
                                 )
@@ -380,29 +401,29 @@ class ListExpensesComponent extends Component {
                         </tfoot>
                     </table>
                 </div>
-                <div className="container-expenses-right">
+                <div className="container-exp-inc-right-45">
                     <div>
-                        <div className="text-25px-white">Wydatki cykliczne</div>
-                        <div className="text-20px-white">Suma w wybranym okresie: {formatter.format(totalCyclical)}</div>
+                        <div className="text-h4-white">Wydatki cykliczne</div>
+                        <div className="text-h5-white">Suma w wybranym okresie: {formatter.format(totalCyclical)}</div>
                     </div>
                     <table className="hb-table">
                         <thead>
                             <tr>
                                 <th>
                                     Opis
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsCycle} /></div>
                                 </th>
                                 <th>
                                     Kategoria
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByCatCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByCatCycle} /></div>
                                 </th>
                                 <th>
                                     Data
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByDateCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByDateCycle} /></div>
                                 </th>
                                 <th>
                                     Kwota
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByAmountCycle} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByAmountCycle} /></div>
                                 </th>
                                 <th></th>
                             </tr>
@@ -434,16 +455,18 @@ class ListExpensesComponent extends Component {
                                 ).map(expense =>
                                     <tr key={expense.expenseid}>
                                         <td>
-                                            <div className="text-20px-white">{expense.description}</div>
+                                            {/* <div className="text-h5-white"> */}
+                                            {expense.description}
+                                            {/* </div> */}
                                             {/* Kategoria: {categoryMap(expense.category, this.state.categories)}
-                                            <br /> */}
+                                             */}<br />
                                             {expense.cycle}
                                             <br />
                                             {expense.comment}
                                         </td>
                                         <td>
-                                            {/* <div className="text-20px-white"> */}
-                                                {categoryMap(expense.category, this.state.categories)}
+                                            {/* <div className="text-h5-white"> */}
+                                            {categoryMap(expense.category, this.state.categories)}
                                             {/* </div> */}
                                         </td>
                                         <td>
@@ -453,9 +476,9 @@ class ListExpensesComponent extends Component {
                                         </td>
                                         <td>{formatter.format(expense.price)}</td>
                                         <td>
-                                            <img src={btnCopy} width="40" height="40" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
-                                            <img src={btnEdit} width="40" height="40" onClick={() => this.updateExpenseClicked(expense.expenseid)} />
-                                            <img src={btnDel} width="40" height="40" onClick={() => this.deleteExpenseClicked(expense.expenseid)} />
+                                            <img src={btnCopy} width="32" height="32" onClick={() => this.copyExpenseClicked(expense.expenseid)} />
+                                            <img src={btnEdit} width="32" height="32" onClick={() => this.updateExpenseClicked(expense.expenseid)} />
+                                            <img src={btnDel} width="32" height="32" onClick={() => this.deleteExpenseClicked(expense.expenseid, expense.description, newDateDDMMYYYY(expense.target_date), expense.price, expense)} />
                                         </td>
                                     </tr>
                                 )

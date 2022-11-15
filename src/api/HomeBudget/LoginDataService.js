@@ -18,10 +18,6 @@ class LoginDataService {
         return axios.post(`${JPA_API_URL}/users/userslist`, login);
     }
 
-    // testretrieve(usernameid,yearnumber) {
-    //     return axios.get(`${JPA_API_URL}/users/userslist/${usernameid}/year/${yearnumber}`);
-    // }
-
 }
 
 export default new LoginDataService

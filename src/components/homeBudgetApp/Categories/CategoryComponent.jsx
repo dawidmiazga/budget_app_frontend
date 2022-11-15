@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import { ErrorMessage, Field, Form, Formik } from 'formik'
-import CategoryDataService from '../../../api/HomeBudget/CategoryDataService.js'
-import AuthenticationService from '../AuthenticationService.js';
-import reactCSS from 'reactcss'
-import { SketchPicker, PhotoshopPicker, SwatchesPicker } from 'react-color'
+import React, { Component } from "react"
+import { ErrorMessage, Field, Form, Formik } from "formik"
+import CategoryDataService from "../../../api/HomeBudget/CategoryDataService.js"
+import AuthenticationService from "../AuthenticationService.js";
+import reactCSS from "reactcss"
+import { SketchPicker } from "react-color"
 
 class CategoryComponent extends Component {
     constructor(props) {
@@ -11,10 +11,10 @@ class CategoryComponent extends Component {
         this.state = {
             categories: [],
             categoryid: this.props.match.params.id,
-            categoryname: '',
+            categoryname: "",
             displayColorPicker: false,
-            hexcolor: '',
-            categoryNameMain: '',
+            hexcolor: "",
+            categoryNameMain: "",
         }
         this.onSubmit = this.onSubmit.bind(this)
         this.validate = this.validate.bind(this)
@@ -39,6 +39,7 @@ class CategoryComponent extends Component {
             this.refreshCategories()
             return
         }
+        
         let usernameid = AuthenticationService.getLoggedInUserName()
         CategoryDataService.retrieveCategory(usernameid, this.state.categoryid)
             .then(response => this.setState({
@@ -59,7 +60,7 @@ class CategoryComponent extends Component {
         } else if (values.categoryname != this.state.categoryname && allCategories.includes(values.categoryname) == true) {
             errors.categoryname = "Taka kategoria juz istnieje"
         }
-        if (values.hexcolor == '') {
+        if (values.hexcolor == "") {
             errors.hexcolor = "Wybierz kolor"
         }
         return errors
@@ -74,9 +75,9 @@ class CategoryComponent extends Component {
             hexcolor: (values.hexcolor),
         }
         if (this.state.categoryid == -1) {
-            CategoryDataService.createCategory(usernameid, category).then(() => this.props.history.push('/categories'))
+            CategoryDataService.createCategory(usernameid, category).then(() => this.props.history.push("/categories"))
         } else {
-            CategoryDataService.updateCategory(usernameid, this.state.categoryid, category).then(() => this.props.history.push('/categories'))
+            CategoryDataService.updateCategory(usernameid, this.state.categoryid, category).then(() => this.props.history.push("/categories"))
         }
     }
 
@@ -85,9 +86,9 @@ class CategoryComponent extends Component {
     };
 
     handleClose = () => {
-        if (this.state.hexcolor == '' || this.state.hexcolor == null) {
+        if (this.state.hexcolor == "" || this.state.hexcolor == null) {
             this.setState({
-                hexcolor: '',
+                hexcolor: "",
                 displayColorPicker: !this.state.displayColorPicker
             })
         } else {
@@ -107,30 +108,30 @@ class CategoryComponent extends Component {
 
     render() {
         const styles = reactCSS({
-            'default': {
+            "default": {
                 hexcolor: {
-                    width: '136px',
-                    height: '44px',
-                    borderRadius: '22px',
+                    width: "136px",
+                    height: "44px",
+                    borderRadius: "22px",
                     background: this.state.hexcolor,
                 },
                 swatch: {
-                    borderRadius: '22px',
-                    boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-                    display: 'inline-block',
-                    cursor: 'pointer',
+                    borderRadius: "22px",
+                    boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
+                    display: "inline-block",
+                    cursor: "pointer",
                 },
                 popover: {
-                    position: 'fixed',
-                    right: '50%',
-                    zIndex: '2',
+                    position: "fixed",
+                    right: "50%",
+                    zIndex: "2",
                 },
                 cover: {
-                    position: 'fixed',
-                    top: '0px',
-                    right: '0px',
-                    bottom: '0px',
-                    left: '0px',
+                    position: "fixed",
+                    top: "0px",
+                    right: "0px",
+                    bottom: "0px",
+                    left: "0px",
                 },
             },
         });
@@ -152,10 +153,10 @@ class CategoryComponent extends Component {
                                 <Form>
                                     <ErrorMessage name="categoryname" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="hexcolor" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.categoryid == -1 ? 'block' : 'none') }}>Dodaj kategorie</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.categoryid != -1 ? 'block' : 'none') }}>Edytuj kategorie</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.categoryid == -1 ? "block" : "none") }}>Dodaj kategorie</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.categoryid != -1 ? "block" : "none") }}>Edytuj kategorie</div>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Wybierz kolor</div>
+                                        <div className="text-h5-white">Wybierz kolor</div>
                                         <div name="categoryname2">
                                             <div style={styles.swatch} onClick={this.handleClick}>
                                                 <div style={styles.hexcolor} />
@@ -168,7 +169,7 @@ class CategoryComponent extends Component {
                                         </div>
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Nazwa</div>
+                                        <div className="text-h5-white">Nazwa</div>
                                         <Field className="hb-form-control" type="text" name="categoryname" id="categorynameid" />
                                     </fieldset>
                                     <div className="jc-center">

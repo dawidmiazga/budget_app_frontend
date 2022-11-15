@@ -1,14 +1,13 @@
-import moment from "moment";
 import React, { Component } from "react";
-import BudgetDataService from '../../../api/HomeBudget/BudgetDataService.js';
-import LoginDataService from '../../../api/HomeBudget/LoginDataService.js';
-import AuthenticationService from '../AuthenticationService.js';
+import BudgetDataService from "../../../api/HomeBudget/BudgetDataService.js";
+import LoginDataService from "../../../api/HomeBudget/LoginDataService.js";
+import AuthenticationService from "../AuthenticationService.js";
 import "../../../App.css"
-import btnEdit from '../../images/edit_button.png';
-import btnDel from '../../images/delete_button.png';
-import btnClear from '../../images/clear_button.png';
-import btnSort from '../../images/sort_button.png';
-import btnCopy from '../../images/copy_button.png';
+import btnEdit from "../../images/edit_button.png";
+import btnDel from "../../images/delete_button.png";
+import btnClear from "../../images/clear_button.png";
+import btnSort from "../../images/sort_button.png";
+import btnCopy from "../../images/copy_button.png";
 import { newDateYYYYMM } from "../CommonFunctions.js";
 
 class ListBudgetsComponent extends Component {
@@ -64,30 +63,6 @@ class ListBudgetsComponent extends Component {
             )
     }
 
-    // sortTable(sortType) {
-    //     this.state.sortAsc = this.state.sortAsc * -1;
-    //     let usernameid = AuthenticationService.getLoggedInUserName()
-    //     BudgetDataService.retrieveAllBudgets(usernameid)
-    //         .then(
-    //             response => {
-    //                 if (this.state.sortAsc == 1) {
-    //                     if (sortType == "Month") {
-    //                         response.data.sort((a, b) => (a.target_month < b.target_month) ? 1 : -1)
-    //                     } else if (sortType == "Amount") {
-    //                         response.data.sort((a, b) => (a.amount < b.amount) ? 1 : -1)
-    //                     }
-    //                 } else {
-    //                     if (sortType == "Month") {
-    //                         response.data.sort((a, b) => (a.target_month > b.target_month) ? 1 : -1)
-    //                     } else if (sortType == "Amount") {
-    //                         response.data.sort((a, b) => (a.amount > b.amount) ? 1 : -1)
-    //                     }
-    //                 }
-    //                 this.setState({ budgets: response.data })
-    //             }
-    //         )
-    // }
-
     sortByMonth() {
         this.state.sortAsc = this.state.sortAsc * -1;
         let usernameid = AuthenticationService.getLoggedInUserName()
@@ -120,12 +95,12 @@ class ListBudgetsComponent extends Component {
             )
     }
 
-    deleteBudgetClicked(budgetid) {
+    deleteBudgetClicked(budgetid, budgetmonth) {
         let usernameid = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.deleteBudget(usernameid, budgetid)
+        BudgetDataService.deleteBudget(usernameid, budgetid, budgetmonth)
             .then(
                 response => {
-                    this.setState({ message: `Budget usuniety` })
+                    this.setState({ message: `Budżet usunięty z miesiąca: ` + newDateYYYYMM(budgetmonth) })
                     this.refreshBudgets()
                 }
             )
@@ -144,29 +119,24 @@ class ListBudgetsComponent extends Component {
     }
 
     changeStartDateCal() {
-        const datatest = document.getElementById('startDateIdField').value
+        const datatest = document.getElementById("startDateIdField").value
         this.setState({ startDate: datatest, })
     }
     changeEndDateCal() {
-        const datatest = document.getElementById('endDateIdField').value
+        const datatest = document.getElementById("endDateIdField").value
         this.setState({ endDate: datatest, })
     }
     clearDates() {
         this.setState({ startDate: "", })
         this.setState({ endDate: "", })
-        document.getElementById('startDateIdField').value = ""
-        document.getElementById('endDateIdField').value = ""
+        document.getElementById("startDateIdField").value = ""
+        document.getElementById("endDateIdField").value = ""
     }
     onFormSubmit(e) {
         e.preventDefault();
     }
 
     render() {
-        function changeDateFormatWithoutDays(date1) {
-            var datePrased = newDateYYYYMM(Date.parse(date1));
-            return datePrased;
-        }
-
         if (this.state.startDate == "") {
             this.state.startDate = new Date("1111-12-31")
         }
@@ -176,40 +146,38 @@ class ListBudgetsComponent extends Component {
 
         let totalBudget;
         totalBudget = (this.state.budgets.filter(budget =>
-            changeDateFormatWithoutDays(budget.target_month) >= changeDateFormatWithoutDays(this.state.startDate) &&
-            changeDateFormatWithoutDays(budget.target_month) <= changeDateFormatWithoutDays(this.state.endDate))
+            newDateYYYYMM(budget.target_month) >= newDateYYYYMM(this.state.startDate) &&
+            newDateYYYYMM(budget.target_month) <= newDateYYYYMM(this.state.endDate))
 
             .reduce((total, currentItem) => total = total + currentItem.amount, 0));
 
-        var formatter = new Intl.NumberFormat('pl-PL', {
-            style: 'currency',
-            currency: 'PLN',
+        var formatter = new Intl.NumberFormat("pl-PL", {
+            style: "currency",
+            currency: "PLN",
         });
 
         return (
             <div className="background-color-all">
                 {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
-                <div className="container-middle">
-                    <div className="text-40px-white">
-                        Moje budżety
-                    </div>
+                <div className="text-h1-white">
+                    Moje budżety
+                </div>
 
-                    <div className="text-20px-white">
-                        Wybierz zakres dat:
-                    </div>
+                <div className="text-h5-white">
+                    Wybierz zakres dat:
+                </div>
 
-                    <input type="month" id="startDateIdField" onChange={this.changeStartDateCal}></input>
-                    <input type="month" id="endDateIdField" onChange={this.changeEndDateCal}></input>
+                <input type="month" id="startDateIdField" onChange={this.changeStartDateCal}></input>
+                <input type="month" id="endDateIdField" onChange={this.changeEndDateCal}></input>
 
-                    <div className="inline-button-clear">
-                        <img src={btnClear} width="30" height="30" onClick={this.clearDates} />
-                    </div>
+                <div className="inline-button-clear">
+                    <img src={btnClear} width="30" height="30" onClick={this.clearDates} />
                 </div>
 
                 <form onSubmit={this.onFormSubmit}></form>
 
-                <div className="container-categories">
-                    <div className="text-25px-white">
+                <div className="container-bud-cat">
+                    <div className="text-h4-white">
                         Suma w wybranym okresie: {formatter.format(totalBudget)}
                     </div>
                     <table className="hb-table">
@@ -217,11 +185,11 @@ class ListBudgetsComponent extends Component {
                             <tr>
                                 <th >
                                     Data transakcji
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByMonth} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByMonth} /></div>
                                 </th>
                                 <th>
                                     Kwota
-                                    <div className="sortButton"><img src={btnSort} width="20" height="20" onClick={this.sortByAmount} /></div>
+                                    <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByAmount} /></div>
                                 </th>
                                 <th>Komentarz</th>
                                 <th></th>
@@ -229,32 +197,32 @@ class ListBudgetsComponent extends Component {
                         </thead>
                         <tbody>
                             {
-                                this.state.budgets.filter(budget =>
-                                (changeDateFormatWithoutDays(budget.target_month) >= changeDateFormatWithoutDays(this.state.startDate) &&
-                                    changeDateFormatWithoutDays(budget.target_month) <= changeDateFormatWithoutDays(this.state.endDate))
-                                ).map(
+                                this.state.budgets.filter(budget => (
+                                    newDateYYYYMM(budget.target_month) >= newDateYYYYMM(this.state.startDate) &&
+                                    newDateYYYYMM(budget.target_month) <= newDateYYYYMM(this.state.endDate)
+                                )).map(
                                     budget =>
 
                                         <tr key={budget.budgetid}>
                                             <td>
-                                                <div className="text-20px-white">
-                                                    {changeDateFormatWithoutDays(budget.target_month)}
-                                                </div>
+                                                {/* <div className="text-h5-white"> */}
+                                                {newDateYYYYMM(budget.target_month)}
+                                                {/* </div> */}
                                             </td>
                                             <td>
-                                                <div className="text-20px-white">
-                                                    {formatter.format(budget.amount)}
-                                                </div>
+                                                {/* <div className="text-h5-white"> */}
+                                                {formatter.format(budget.amount)}
+                                                {/* </div> */}
                                             </td>
                                             <td>
-                                                <div className="text-20px-white">
-                                                    {budget.comment}
-                                                </div>
+                                                {/* <div className="text-h5-white"> */}
+                                                {budget.comment}
+                                                {/* </div> */}
                                             </td>
                                             <td>
-                                                <img src={btnCopy} width="40" height="40" onClick={() => this.copyBudgetClicked(budget.budgetid)} />
-                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateBudgetClicked(budget.budgetid)} />
-                                                <img src={btnDel} width="40" height="40" onClick={() => this.deleteBudgetClicked(budget.budgetid)} />
+                                                <img src={btnCopy} width="32" height="32" onClick={() => this.copyBudgetClicked(budget.budgetid)} />
+                                                <img src={btnEdit} width="32" height="32" onClick={() => this.updateBudgetClicked(budget.budgetid)} />
+                                                <img src={btnDel} width="32" height="32" onClick={() => this.deleteBudgetClicked(budget.budgetid, budget.target_month)} />
                                             </td>
                                         </tr>
                                 )

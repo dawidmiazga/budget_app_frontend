@@ -118,24 +118,24 @@ class LoginAddComponent extends Component {
                                     <ErrorMessage name="username" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="password" component="div" className="alert alert-warning" />
                                     <fieldset className="form-group">
-                                        <div className="text-30px-white" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>Dodawanie konta</div>
-                                        <div className="text-30px-white" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>Zmiana hasla</div>
+                                        <div className="text-h3-white" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>Dodawanie konta</div>
+                                        <div className="text-h3-white" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>Zmiana hasla</div>
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>
-                                        <div className="text-20px-white">Login:</div>
+                                        <div className="text-h5-white">Login:</div>
                                         <Field className="hb-form-control" type="text" name="username" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>Haslo:</div>
-                                        <div className="text-20px-white" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>Wpisz stare haslo:</div>
+                                        <div className="text-h5-white" style={{ display: (this.state.usernameid == -1 ? 'block' : 'none') }}>Haslo:</div>
+                                        <div className="text-h5-white" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>Wpisz stare haslo:</div>
                                         <Field className="hb-form-control" type="password" name="password" />
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>
-                                        <div className="text-20px-white">Nowe haslo:</div>
+                                        <div className="text-h5-white">Nowe haslo:</div>
                                         <Field className="hb-form-control" type="password" name="newpassword" />
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.usernameid == -1 ? 'none' : 'block') }}>
-                                        <div className="text-20px-white">Powtorz nowe haslo:</div>
+                                        <div className="text-h5-white">Powtorz nowe haslo:</div>
                                         <Field className="hb-form-control" type="password" name="newpassword2" />
                                     </fieldset>
                                     <div className="jc-center">

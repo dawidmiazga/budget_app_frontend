@@ -70,6 +70,7 @@ class LoginComponent extends Component {
     }
 
     PasswordReciever() {
+        this.setState({ message: `Funkcja odzyskiwania hasłą w trakcie realizacji. Będzie dostępna w najbliższym czasie` })
         var usernamechoice = this.state.username
         var usernamepassword = this.state.password
         const arrUsers = ([
@@ -89,26 +90,28 @@ class LoginComponent extends Component {
     SendEmail() {
         console.log("Send")
     }
+    
     render() {
         return (
             <div className="background-color-all">
-                <div className="text-20px-white">
+                {this.state.message && <div className="alert alert-light">{this.state.message}</div>}
+                <div className="text-h5-white">
                     {this.state.hasLoginFailed && <div className="alert alert-warning">Zly login lub haslo</div>}
                     Login:
                 </div>
                 <div className="container">
                     <input type='text' className='margines' name='username' value={this.state.username} onChange={this.handleChange} />
                 </div>
-                <div className="text-20px-white">
+                <div className="text-h5-white">
                     Haslo:
                 </div>
                 <div className="container">
                     <input type='password' className='margines' name='password' value={this.state.password} onChange={this.handleChange} />
                 </div>
-                <div className="container-welcome-middle">
+                <div className="container-middle-41">
                     <button className="button-66" onClick={this.LoginClick}>Zaloguj</button>
                     <button className="button-77" onClick={this.PasswordReciever}>Zapomnialem Hasla</button>
-                    <button className="button-66" onClick={this.SendEmail}>x</button>
+                    {/* <button className="button-66" onClick={this.SendEmail}>x</button> */}
                 </div>
             </div>
         )

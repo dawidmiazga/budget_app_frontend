@@ -1,11 +1,10 @@
 import { Component } from "react";
 import "../../../App.css"
-import CategoryDataService from '../../../api/HomeBudget/CategoryDataService.js'
+import CategoryDataService from "../../../api/HomeBudget/CategoryDataService.js"
 import AuthenticationService from "../AuthenticationService";
-import btnEdit from '../../images/edit_button.png';
-import btnDel from '../../images/delete_button.png';
-import reactCSS from 'reactcss'
-import ExpenseDataService from '../../../api/HomeBudget/ExpenseDataService.js';
+import btnEdit from "../../images/edit_button.png";
+import btnDel from "../../images/delete_button.png";
+import ExpenseDataService from "../../../api/HomeBudget/ExpenseDataService.js";
 
 class ListCategoriesComponent extends Component {
 
@@ -58,7 +57,8 @@ class ListCategoriesComponent extends Component {
             let categoryClicked = arrCat[0][arrCat[1].indexOf(categoryid)]
             this.setState({
                 errormessage: `Nie mozna usunac kategorii "` + categoryClicked + `". Kategoria jest przypisana do ktoregos wydatku. 
-                                        Aby usunac te kategorie, zmien ja na inna przy wszystkich tych wydatkach` })
+                                        Aby usunac te kategorie, zmien ja na inna przy wszystkich tych wydatkach`
+            })
             this.setState({ message: null })
         } else {
             let usernameid = AuthenticationService.getLoggedInUserName()
@@ -88,10 +88,10 @@ class ListCategoriesComponent extends Component {
             <div className="background-color-all">
                 {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
                 {this.state.errormessage && <div className="alert alert-warning">{this.state.errormessage}</div>}
-                <div className="text-40px-white">
+                <div className="text-h1-white">
                     Kategorie
                 </div>
-                <div className="container-categories">
+                <div className="container-bud-cat">
                     <table className="hb-table">
                         <thead>
                             <tr>
@@ -106,13 +106,15 @@ class ListCategoriesComponent extends Component {
                                     category =>
                                         <tr key={category.id}>
                                             <td>
-                                                <div className="text-20px-white">{category.categoryname}</div>
+                                                {/* <div className="text-h5-white"> */}
+                                                {category.categoryname}
+                                                {/* </div> */}
                                                 {/* <tr></tr> */}
                                                 {category.comment}
                                             </td>
                                             <td>
-                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateCategoryClicked(category.id)} />
-                                                <img src={btnDel} width="40" height="40" onClick={() => this.deleteCategoryClicked(category.id)} />
+                                                <img src={btnEdit} width="32" height="32" onClick={() => this.updateCategoryClicked(category.id)} />
+                                                <img src={btnDel} width="32" height="32" onClick={() => this.deleteCategoryClicked(category.id)} />
                                             </td>
                                         </tr>
                                 )

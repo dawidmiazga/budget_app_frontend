@@ -1,15 +1,15 @@
-import React, { Component } from 'react'
-import moment from 'moment'
-import { ErrorMessage, Field, Form, Formik } from 'formik'
-import BudgetDataService from '../../../api/HomeBudget/BudgetDataService.js'
+import React, { Component } from "react"
+import moment from "moment"
+import { ErrorMessage, Field, Form, Formik } from "formik"
+import BudgetDataService from "../../../api/HomeBudget/BudgetDataService.js"
 import IncomeDataService from "../../../api/HomeBudget/IncomeDataService.js";
-import AuthenticationService from '../AuthenticationService.js';
+import AuthenticationService from "../AuthenticationService.js";
 import "../../../App.css"
 import {
-    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
-    newDateM, newDateMM, categoryMap, dateFilter, daysLeftCount, arrMthEng, arrMthPol, formatter, formatPercentage,
-    checkIfRecordIsInTheMonth, sortFunction, arrayColumn, getCatTotals
-} from '../CommonFunctions.js'
+    newDateYYYYMM,
+    newDateYYYYMMDD,
+    dateFilter
+} from "../CommonFunctions.js"
 
 class BudgetComponent extends Component {
     constructor(props) {
@@ -20,8 +20,8 @@ class BudgetComponent extends Component {
             budgetid: this.props.match.params.id,
             budgetid2: this.props.match.params.id2,
             target_month: newDateYYYYMM(new Date()),
-            amount: '',
-            comment: '',
+            amount: "",
+            comment: "",
         }
         this.onSubmit = this.onSubmit.bind(this)
         this.validate = this.validate.bind(this)
@@ -84,10 +84,10 @@ class BudgetComponent extends Component {
         const allPeriods = this.state.budgets.map(budget => newDateYYYYMM(budget.target_month));
         let errors = {}
         if (!moment(values.target_month).isValid()) {
-            errors.target_month = 'Wybierz poprawna date'
+            errors.target_month = "Wybierz poprawna date"
         }
         if (values.amount == "dummy" || values.amount == "" || values.amount == null) {
-            errors.amount = 'Wpisz kwote'
+            errors.amount = "Wpisz kwote"
         }
         if (this.state.budgetid == -1 && allPeriods.includes(values.target_month) == true) {
             errors.target_month = "Budzet na wybrany miesiac juz istnieje"
@@ -107,9 +107,9 @@ class BudgetComponent extends Component {
             comment: values.comment,
         }
         if (this.state.budgetid === -1) {
-            BudgetDataService.createBudget(usernameid, budget).then(() => this.props.history.push('/budgets'))
+            BudgetDataService.createBudget(usernameid, budget).then(() => this.props.history.push("/budgets"))
         } else {
-            BudgetDataService.updateBudget(usernameid, this.state.budgetid, budget).then(() => this.props.history.push('/budgets'))
+            BudgetDataService.updateBudget(usernameid, this.state.budgetid, budget).then(() => this.props.history.push("/budgets"))
         }
     }
 
@@ -134,7 +134,7 @@ class BudgetComponent extends Component {
                     <Formik
                         initialValues={{ target_month, amount, comment }}
                         onSubmit={this.onSubmit}
-                        validateOnChange={false}  //to i to ponizej zostawia nam wyswietlanie bledu "na zywo"
+                        validateOnChange={false}
                         validateOnBlur={false}
                         validate={this.validate}
                         enableReinitialize={true}
@@ -144,18 +144,18 @@ class BudgetComponent extends Component {
                                 <Form>
                                     <ErrorMessage name="target_month" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="amount" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.budgetid == -1 ? 'block' : 'none') }}>Dodaj budzet</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.budgetid != -1 ? 'block' : 'none') }}>Edytuj budzet</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.budgetid == -1 ? "block" : "none") }}>Dodaj budzet</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.budgetid != -1 ? "block" : "none") }}>Edytuj budzet</div>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Miesiac</div>
+                                        <div className="text-h5-white">Miesiac</div>
                                         <Field className="hb-form-control" id="choosenMth" type="month" name="target_month" onChange={this.changeMth} />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Kwota {"("}Suma przychodów: {totalIncomes}, sugerowany budżet: {totalIncomes - savings}{")"}</div>
+                                        <div className="text-h5-white">Kwota {"("}Suma przychodów: {totalIncomes}, sugerowany budżet: {totalIncomes - savings}{")"}</div>
                                         <Field className="hb-form-control" type="number" name="amount" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Komentarz</div>
+                                        <div className="text-h5-white">Komentarz</div>
                                         <Field className="hb-form-control" type="text" name="comment" />
                                     </fieldset>
                                     <button className="button-save" type="submit">Zapisz</button>

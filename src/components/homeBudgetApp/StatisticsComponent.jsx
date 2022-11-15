@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Suspense } from "react";
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import '../../App.css'
 import moment from "moment";
@@ -9,10 +9,11 @@ import CategoryDataService from "../../api/HomeBudget/CategoryDataService";
 import BudgetDataService from "../../api/HomeBudget/BudgetDataService";
 import btnToday from '../images/today_button.png';
 import {
-    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    getLastDayOfDate, getFirstDayOfDate, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
     newDateM, newDateMM, arrMthEng, arrMthPol, formatter, categoryMap, sortFunction, arrayColumn, getCatTotals
 } from './CommonFunctions.js'
 import { act } from "react-dom/test-utils";
+import Spinner from 'react-bootstrap/Spinner';
 
 class ChartsComponent extends Component {
 
@@ -27,6 +28,7 @@ class ChartsComponent extends Component {
             welcomeMessage: '',
             displayValue: 'tilldate',
             choosenYear: (new Date()).getFullYear(),
+            loading: true,
         };
         this.refreshExpenses = this.refreshExpenses.bind(this)
         this.refreshIncomes = this.refreshIncomes.bind(this)
@@ -43,11 +45,15 @@ class ChartsComponent extends Component {
         // console.log("xxx")// + this.state.displayValue)
 
         // let today = new Date();
+        // checkToken().then(() => this.setState({ loading: false });
 
         this.refreshExpenses()
         this.refreshIncomes()
         this.refreshCategories()
         this.refreshBudgets()
+
+        // this.setState({ loading: false });
+
     };
 
     refreshExpenses() {
@@ -83,7 +89,12 @@ class ChartsComponent extends Component {
 
     refreshBudgets() {
         let usernameid = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(usernameid).then(response => { this.setState({ budgets: response.data }) })
+        BudgetDataService.retrieveAllBudgets(usernameid)
+            .then(
+                response => {
+                    this.setState({ budgets: response.data, loading: false })
+                }
+            )
     };
 
     changeDisplOption() {
@@ -209,11 +220,11 @@ class ChartsComponent extends Component {
             }
         };
 
-        var startdatenew = getFirstDayOfYear(this.state.choosenYear, 0);
+        var startdatenew = getFirstDayOfDate(this.state.choosenYear, 0);
         if (this.state.displayValue == "tilldate") {
-            var enddatenew = getLastDayOfYear(this.state.choosenYear, today.getMonth())
+            var enddatenew = getLastDayOfDate(this.state.choosenYear, today.getMonth())
         } else {
-            var enddatenew = getLastDayOfYear(this.state.choosenYear, 11)
+            var enddatenew = getLastDayOfDate(this.state.choosenYear, 11)
         };
 
         var catData = [];
@@ -281,7 +292,29 @@ class ChartsComponent extends Component {
             }]
         };
 
+        const optionsBar = {
+            indexAxis: 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                }
+            },
+        };
+
         const optionsBar2 = {
+            indexAxis: 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false,
+                }
+            },
+        };
+
+        const optionsBar3 = {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
@@ -292,23 +325,13 @@ class ChartsComponent extends Component {
             },
         };
 
-        const optionsBar = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                }
-            },
-        };
-
         const optionsDon = {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,
-                    position: "left",
+                    position: "bottom",
                 }
             },
         };
@@ -319,19 +342,30 @@ class ChartsComponent extends Component {
             { label: "Prognoza", value: "forecast", },
         ];
 
+        if (this.state.loading) {
+            return (
+                <div className="background-color-all">
+                    <div className="container-middle-41">
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden"></span>
+                        </Spinner>
+                        <br />Ładuję...
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <>
                 <div className="background-color-all">
-                    <div className="container-stats-middle2-left">
-                        <div style={{ display: this.state.displayValue == "all" ? 'block' : 'none' }}>x</div>
+                    <div className="container-left-26">
                     </div>
-                    <div className="container-stats-middle2">
-                        <div className="text-35px-white">
-                            Podzial wydatkow i przychodow w:
+                    <div className="container-middle-41">
+                        <div className="text-h2-white">
+                            Podzial wydatkow i przychodow w {this.state.choosenYear} roku
                         </div>
-
                     </div>
-                    <div className="container-stats-middle2-right">
+                    <div className="container-right-26">
                         {/* <img src={btnToday} width="50" height="50" onClick={this.changeToCurrYear} /> */}
                         <select id="choosenYear" className="hb-form-control" onChange={this.changeYear}>
                             <option selected disabled hidden={(new Date()).getFullYear()}>{(new Date()).getFullYear()}</option>
@@ -345,70 +379,55 @@ class ChartsComponent extends Component {
                             ))}
                         </select>
                     </div>
-                    <div className="container-stats-year">
-                        <div className="container-stats-middle2-left">
-
-                        </div>
-                        <div className="container-stats-middle2">
-                            <div className="text-30px-white">
-                                {this.state.choosenYear} roku
-                            </div>
-                        </div>
-                        <div className="container-stats-middle2-right">
-
-                        </div>
-                        {/* <div className="container-stats-left" >
-                            <div className="text-25px-white">
-                                Na kategorie
-                            </div>
-                        </div>
-                        <div className="container-stats-middle" >
-                            <div className="text-25px-white">
-                                Na miesiac
-                            </div>
-                        </div>
-                        <div className="container-stats-right" >
-                            <div className="text-25px-white">
-                                Oszczednosci
-                            </div>
-                        </div> */}
-                        <div className="container-stats-left" >
-                            <div className="text-25px-white">
+                    <div className="black-border">
+                        <div className="container-left-26" >
+                            <div className="text-h2-white">
                                 Na kategorie
                             </div>
                             <div className="chart-doughnut">
                                 <Doughnut
                                     data={dataByCat}
-                                    height={280}
+                                    height={320}
                                     options={optionsDon}
                                 />
                             </div>
                         </div>
-                        <div className="container-stats-middle">
-                            <div className="text-25px-white">
+                        <div className="container-middle-41">
+                            <div className="text-h2-white">
                                 Na miesiac
                             </div>
                             <div className="chart-bar">
                                 <Bar
                                     title={{ display: false }}
                                     data={dataByMthExp}
-                                    height={280}
+                                    height={160}
                                     options={optionsBar}
                                 />
                             </div>
+                            <div className="text-h2-white">
+                                Na kategorie
+                            </div>
+                            <div className="chart-bar">
+                                <Bar
+                                    title={{ display: false }}
+                                    data={dataByCat}
+                                    height={160}
+                                    options={optionsBar2}
+                                />
+                            </div>
                         </div>
-                        <div className="container-stats-right" >
-                            <div className="text-25px-white">
+                        <div className="container-right-26" >
+                            <div className="text-h2-white">
                                 Oszczednosci
                             </div>
-                            <div className="text-20px-white">
+                            <div className="text-h5-white">
                                 Rzeczywiste: {formatter.format(totalInc - totalExp + forecastIncome - forecastExpense)} <br />
                                 <div className="chart-bar">
                                     <Bar
                                         title={{ display: false }}
                                         data={dataForSavingsFromIncomes}
-                                        height={80}
-                                        options={optionsBar2}
+                                        height={60}
+                                        options={optionsBar3}
                                     />
                                 </div>
                                 Zalozone: {formatter.format(totalBud - totalExp + forecastBudget - forecastExpense)} <br />
@@ -416,75 +435,18 @@ class ChartsComponent extends Component {
                                     <Bar
                                         title={{ display: false }}
                                         data={dataForSavingsFromBudgets}
-                                        height={80}
-                                        options={optionsBar2}
+                                        height={60}
+                                        options={optionsBar3}
                                     />
                                 </div>
                             </div>
                         </div>
-
-                        <div className="container-stats-left" >
-                            {/* <div className="text-25px-white">
-                                Na kategorie
-                            </div>
-                            <div className="chart-doughnut">
-                                <Doughnut
-                                    data={dataByCat}
-                                    height={280}
-                                    options={optionsDon}
-                                />
-                            </div> */}
-                        </div>
-                        <div className="container-stats-middle">
-                            <div className="text-25px-white">
-                                Na kategorie
-                            </div>
-                            <div className="chart-bar">
-                                <Bar
-                                    title={{ display: false }}
-                                    data={dataByCat}
-                                    height={280}
-                                    options={optionsBar}
-                                />
-                            </div>
-                        </div>
-                        <div className="container-stats-right" >
-                            {/* <div className="text-25px-white">
-                                Oszczednosci
-                            </div>
-                            <div className="text-20px-white">
-                                Rzeczywiste: {formatter.format(totalInc - totalExp + forecastIncome - forecastExpense)} <br />
-                                <div className="chart-bar">
-                                    <Bar
-                                        title={{ display: false }}
-                                        data={dataForSavingsFromIncomes}
-                                        height={80}
-                                        options={optionsBar2}
-                                    />
-                                </div>
-                                Zalozone: {formatter.format(totalBudget - totalExp + forecastBudget - forecastExpense)} <br />
-                                <div className="chart-bar">
-                                    <Bar
-                                        title={{ display: false }}
-                                        data={dataForSavingsFromBudgets}
-                                        height={80}
-                                        options={optionsBar2}
-                                    />
-                                </div>
-                            </div> */}
-                        </div>
-
+                        {/* <div className="container-left-26"></div> */}
+                        {/* <div className="container-middle-41"></div> */}
+                        {/* <div className="container-right-26" ></div> */}
                     </div>
-
-                    <div id="content">
-                        {/* {listAmounts} */}
-                    </div>
-                    <div id="footer">
-
-                    </div>
-                </div>
-                <div className="container">
-
+                    {/* <div id="content"></div> */}
+                    {/* <div id="footer"></div> */}
                 </div>
             </>
         )

@@ -131,14 +131,14 @@ class IncomeComponent extends Component {
                                     <ErrorMessage name="finish_date" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="cycle" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="amount" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.incomeid == -1 ? 'block' : 'none') }}>Dodaj przychod</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.incomeid != -1 ? 'block' : 'none') }}>Edytuj przychod</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.incomeid == -1 ? 'block' : 'none') }}>Dodaj przychod</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.incomeid != -1 ? 'block' : 'none') }}>Edytuj przychod</div>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Opis</div>
+                                        <div className="text-h5-white">Opis</div>
                                         <Field className="hb-form-control" type="text" name="description" />
                                     </fieldset>
                                     <fieldset className="form-group" >
-                                        <div className="text-20px-white">Cyklicznosc</div>
+                                        <div className="text-h5-white">Cyklicznosc</div>
                                         <Field id="periodicity" className="hb-form-control" type="text" name="cycle" as="select" onClick={this.updateCycle} >
                                             <option selected value="dummy"> -- wybierz Cyklicznosc -- </option>
                                             <option value="Nie">Nie</option>
@@ -149,20 +149,20 @@ class IncomeComponent extends Component {
                                         </Field>
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>Data poczatkowa</div>
-                                        <div className="text-20px-white" style={{ display: (this.state.cycleValue == 'Nie' ? 'block' : 'none') }}>Data transakcji</div>
+                                        <div className="text-h5-white" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>Data poczatkowa</div>
+                                        <div className="text-h5-white" style={{ display: (this.state.cycleValue == 'Nie' ? 'block' : 'none') }}>Data transakcji</div>
                                         <Field className="hb-form-control" type="date" name="target_date" />
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>
-                                        <div className="text-20px-white">Data zakonczenia</div>
+                                        <div className="text-h5-white">Data zakonczenia</div>
                                         <Field className="hb-form-control" type="date" name="finish_date" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Kwota</div>
+                                        <div className="text-h5-white">Kwota</div>
                                         <Field className="hb-form-control" type="number" name="amount" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Komentarz</div>
+                                        <div className="text-h5-white">Komentarz</div>
                                         <Field className="hb-form-control" type="text" name="comment" />
                                     </fieldset>
                                     <div className="jc-center">

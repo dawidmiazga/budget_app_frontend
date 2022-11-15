@@ -6,7 +6,7 @@ import CategoryDataService from '../../../api/HomeBudget/CategoryDataService.js'
 import AuthenticationService from '../AuthenticationService.js';
 import "../../../App.css"
 import {
-    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
+    getLastDayOfDate, getFirstDayOfDate, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
     newDateM, newDateMM, arrMthEng, arrMthPol, formatter, categoryMap
 } from '../../homeBudgetApp/CommonFunctions.js'
 
@@ -190,14 +190,14 @@ class ExpenseComponent extends Component {
                                     <ErrorMessage name="category" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="cycle" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="price" component="div" className="alert alert-warning" />
-                                    <div className="text-40px-white" style={{ display: (this.state.expenseid == -1 ? 'block' : 'none') }}>Dodaj wydatek</div>
-                                    <div className="text-40px-white" style={{ display: (this.state.expenseid != -1 ? 'block' : 'none') }}>Edytuj wydatek</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.expenseid == -1 ? 'block' : 'none') }}>Dodaj wydatek</div>
+                                    <div className="text-h1-white" style={{ display: (this.state.expenseid != -1 ? 'block' : 'none') }}>Edytuj wydatek</div>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Opis</div>
+                                        <div className="text-h5-white">Opis</div>
                                         <Field className="hb-form-control" type="text" name="description" />
                                     </fieldset>
                                     <fieldset className="form-group" >
-                                        <div className="text-20px-white">Cyklicznosc</div>
+                                        <div className="text-h5-white">Cyklicznosc</div>
                                         <Field id="periodicity" className="hb-form-control" type="text" name="cycle" as="select" onClick={this.updateCycle} >
                                             <option selected value="dummy"> -- wybierz cyklicznosc -- </option>
                                             <option value="Nie">Nie</option>
@@ -207,20 +207,20 @@ class ExpenseComponent extends Component {
                                         </Field>
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>Data poczatkowa</div>
-                                        <div className="text-20px-white" style={{ display: (this.state.cycleValue == 'Nie' ? 'block' : 'none') }}>Data transakcji</div>
+                                        <div className="text-h5-white" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>Data poczatkowa</div>
+                                        <div className="text-h5-white" style={{ display: (this.state.cycleValue == 'Nie' ? 'block' : 'none') }}>Data transakcji</div>
                                         <Field className="hb-form-control" type="date" name="target_date" />
                                     </fieldset>
                                     <fieldset className="form-group" style={{ display: (this.state.cycleValue != 'Nie' ? 'block' : 'none') }}>
-                                        <div className="text-20px-white">Data koncowa</div>
+                                        <div className="text-h5-white">Data koncowa</div>
                                         <Field className="hb-form-control" type="date" name="finish_date" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Kwota</div>
+                                        <div className="text-h5-white">Kwota</div>
                                         <Field className="hb-form-control" type="number" name="price" />
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Kategoria</div><br />
+                                        <div className="text-h5-white">Kategoria</div>
                                         <Field className="hb-form-control" type="text" name="category" as="select">
                                             <option selected value="dummy"> -- wybierz kategorie -- </option>
                                             {this.state.categories.map(category =>
@@ -229,7 +229,7 @@ class ExpenseComponent extends Component {
                                         </Field>
                                     </fieldset>
                                     <fieldset className="form-group">
-                                        <div className="text-20px-white">Komentarz</div>
+                                        <div className="text-h5-white">Komentarz</div>
                                         <Field className="hb-form-control" type="text" name="comment" />
                                     </fieldset>
                                     <div className="jc-center">

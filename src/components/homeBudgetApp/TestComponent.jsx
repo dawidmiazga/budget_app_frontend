@@ -51,7 +51,7 @@ class TestComponent extends Component {
               {
                 this.state.expenses.map(expense =>
                   <tr key={expense.expenseid}>
-                    <td><div className="text-20px-white">{expense.description}</div>
+                    <td><div className="text-h5-white">{expense.description}</div>
                       <br />
                     </td>
                   </tr>

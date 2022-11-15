@@ -89,11 +89,11 @@ export function cycleCount(tDate, fDate, sDate, eDate, whatCycle, nazwa, cena) {
     return mthCnt;
 };
 
-export function getFirstDayOfYear(year, month) {
+export function getFirstDayOfDate(year, month) {
     return new Date(year, month, 1);
 };
 
-export function getLastDayOfYear(year, month) {
+export function getLastDayOfDate(year, month) {
     return new Date(year, month + 1, 0);
 };
 
@@ -139,9 +139,9 @@ export function dateFilter(targetDate, finishDate, choosenDate, expType) {
 export function daysLeftCount(choosenDate) {
     var todayDay = new Date()
     choosenDate = new Date(choosenDate);
-    choosenDate = getLastDayOfYear(choosenDate.getFullYear(), choosenDate.getMonth());
-    var firstDayChoosenDate = getFirstDayOfYear(choosenDate.getFullYear(), choosenDate.getMonth())
-    var lastDayChoosenDate = getLastDayOfYear(choosenDate.getFullYear(), choosenDate.getMonth())
+    choosenDate = getLastDayOfDate(choosenDate.getFullYear(), choosenDate.getMonth());
+    var firstDayChoosenDate = getFirstDayOfDate(choosenDate.getFullYear(), choosenDate.getMonth())
+    var lastDayChoosenDate = getLastDayOfDate(choosenDate.getFullYear(), choosenDate.getMonth())
 
     if (todayDay < firstDayChoosenDate || todayDay > lastDayChoosenDate) {
         return (lastDayChoosenDate.getDate());

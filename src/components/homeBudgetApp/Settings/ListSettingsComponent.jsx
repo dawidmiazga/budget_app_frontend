@@ -33,11 +33,11 @@ class ListSettingsComponent extends Component {
         var currentuser = AuthenticationService.getLoggedInUserName()
         return (
             <div className="background-color-all">
-                <div className="text-40px-white">
+                <div className="text-h1-white">
                     Ustawienia
                 </div>
                 {this.state.message && <div className="alert alert-success">{this.state.message}</div>}
-                <div className="container-categories">
+                <div className="container-bud-cat">
                     <table className="hb-table">
                         <thead>
                             <tr>
@@ -51,10 +51,10 @@ class ListSettingsComponent extends Component {
                                     user =>
                                         <tr key={user.usernameid}>
                                             <td>
-                                                <div className="text-20px-white">Edytuj haslo</div>
+                                                Edytuj haslo
                                             </td>
                                             <td>
-                                                <img src={btnEdit} width="40" height="40" onClick={() => this.updateLoginClicked(user.usernameid)} />
+                                                <img src={btnEdit} width="32" height="32" onClick={() => this.updateLoginClicked(user.usernameid)} />
                                             </td>
                                         </tr>
                                 )

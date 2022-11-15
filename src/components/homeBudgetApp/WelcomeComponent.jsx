@@ -1,32 +1,28 @@
 import React, { Component } from "react";
-import { Bar, Doughnut } from 'react-chartjs-2';
-import '../../App.css'
-import moment from "moment";
-import ExpenseDataService from '../../api/HomeBudget/ExpenseDataService.js';
-import AuthenticationService from './AuthenticationService.js';
+import { Bar, Doughnut } from "react-chartjs-2";
+import "../../App.css"
+import ExpenseDataService from "../../api/HomeBudget/ExpenseDataService.js";
+import AuthenticationService from "./AuthenticationService.js";
 import CategoryDataService from "../../api/HomeBudget/CategoryDataService";
 import IncomeDataService from "../../api/HomeBudget/IncomeDataService.js";
 import BudgetDataService from "../../api/HomeBudget/BudgetDataService.js";
-import btnBack from '../images/back_button.png';
-import btnNext from '../images/next_button.png';
-import btnToday from '../images/today_button.png';
-import LoginDataService from '../../api/HomeBudget/LoginDataService.js';
+import btnBack from "../images/back_button.png";
+import btnNext from "../images/next_button.png";
+import btnToday from "../images/today_button.png";
+import LoginDataService from "../../api/HomeBudget/LoginDataService.js";
 import {
-    getLastDayOfYear, getFirstDayOfYear, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
-    newDateM, newDateMM, categoryMap, dateFilter, daysLeftCount, arrMthEng, arrMthPol, formatter, formatPercentage,
-    checkIfRecordIsInTheMonth, sortFunction, arrayColumn, getCatTotals
-} from './CommonFunctions.js'
-
-//blue #044B8D
+    cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD, dateFilter, daysLeftCount,
+    arrMthEng, arrMthPol, formatter, checkIfRecordIsInTheMonth, arrayColumn, getCatTotals
+} from "./CommonFunctions.js"
 
 class WelcomeComponent extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            dateMonthChoice: "",
-            dateMonthChoiceAllFromMth: "",
-            dateMonthChoiceAllToMth: "",
-            dateYearChoice: "",
+            mthChoice: "",
+            mthFilterStart: "",
+            mthFilterEnd: "",
+            yrChoice: "",
             expenses: [],
             incomes: [],
             budgets: [],
@@ -34,7 +30,7 @@ class WelcomeComponent extends Component {
             users: [],
             selectYear: "All",
             shchild1: false,
-            welcomeMessage: '',
+            welcomeMessage: "",
         };
 
         this.handleSuccesfulResponse = this.handleSuccesfulResponse.bind(this)
@@ -44,8 +40,8 @@ class WelcomeComponent extends Component {
         this.refreshBudgets = this.refreshBudgets.bind(this)
         this.refreshCategories = this.refreshCategories.bind(this)
         this.filterDataMonth = this.filterDataMonth.bind(this)
-        this.filterDataMonthAllFromMth = this.filterDataMonthAllFromMth.bind(this)
-        this.filterDataMonthAllToMth = this.filterDataMonthAllToMth.bind(this)
+        this.filterDataMonthStart = this.filterDataMonthStart.bind(this)
+        this.filterDataMonthEnd = this.filterDataMonthEnd.bind(this)
         this.filterDataYear = this.filterDataYear.bind(this)
         this.refreshMonth = this.refreshMonth.bind(this)
         this.refreshYear = this.refreshYear.bind(this)
@@ -75,19 +71,19 @@ class WelcomeComponent extends Component {
     };
 
     refreshMonth() {
-        var choosenMonth = newDateYYYYMM(Date()) 
-        document.getElementById("monthChoiceFilter").value = choosenMonth;
-        document.getElementById("monthChoiceFilterAllFromMth").value = choosenMonth;
-        document.getElementById("monthChoiceFilterAllToMth").value = choosenMonth;
-        this.setState({ dateMonthChoice: choosenMonth, })
-        this.setState({ dateMonthChoiceAllFromMth: choosenMonth, })
-        this.setState({ dateMonthChoiceAllToMth: choosenMonth, })
+        var choosenMth = newDateYYYYMM(Date())
+        document.getElementById("mthChoiceID").value = choosenMth;
+        document.getElementById("mthFilterStartID").value = choosenMth;
+        document.getElementById("mthFilterEndID").value = choosenMth;
+        this.setState({ mthChoice: choosenMth, })
+        this.setState({ mthFilterStart: choosenMth, })
+        this.setState({ mthFilterEnd: choosenMth, })
     };
 
     refreshYear() {
-        var choosenYear = newDateYYYY(Date()) 
-        document.getElementById("yearChoiceFilter").value = choosenYear;
-        this.setState({ dateMonthChoice: choosenYear, })
+        var choosenYr = newDateYYYY(Date())
+        document.getElementById("yrChoiceID").value = choosenYr;
+        this.setState({ mthChoice: choosenYr, })
     };
 
     refreshExpenses() {
@@ -114,27 +110,35 @@ class WelcomeComponent extends Component {
 
     refreshBudgets() {
         let usernameid = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(usernameid).then(response => { this.setState({ budgets: response.data }) })
+        BudgetDataService.retrieveAllBudgets(usernameid).then(
+            response => {
+                this.setState({ budgets: response.data })
+            }
+        )
     };
 
     refreshCategories() {
         let usernameid = AuthenticationService.getLoggedInUserName()
-        CategoryDataService.retrieveAllCategories(usernameid).then(response => { this.setState({ categories: response.data }) })
+        CategoryDataService.retrieveAllCategories(usernameid).then(
+            response => {
+                this.setState({ categories: response.data })
+            }
+        )
     };
 
     filterDataMonth() {
-        const dataMonth = document.getElementById('monthChoiceFilter').value;
-        this.setState({ dateMonthChoice: dataMonth, })
+        const dataMonth = document.getElementById("mthChoiceID").value;
+        this.setState({ mthChoice: dataMonth, })
     };
 
-    filterDataMonthAllFromMth() {
-        const dataMonth = document.getElementById('monthChoiceFilterAllFromMth').value;
-        this.setState({ dateMonthChoiceAllFromMth: dataMonth, })
+    filterDataMonthStart() {
+        const dataMonth = document.getElementById("mthFilterStartID").value;
+        this.setState({ mthFilterStart: dataMonth, })
     };
 
-    filterDataMonthAllToMth() {
-        const dataMonth = document.getElementById('monthChoiceFilterAllToMth').value;
-        this.setState({ dateMonthChoiceAllToMth: dataMonth, })
+    filterDataMonthEnd() {
+        const dataMonth = document.getElementById("mthFilterEndID").value;
+        this.setState({ mthFilterEnd: dataMonth, })
     };
 
     // changeMth(type) {
@@ -143,7 +147,7 @@ class WelcomeComponent extends Component {
     //     if (type == "curr") {
     //         currMth = moment(Date()).format("YYYY-MM")
     //     } else {
-    //         currMth = document.getElementById('monthChoiceFilter').value
+    //         currMth = document.getElementById("mthChoiceID").value
     //         if (currMth == "") { return }
     //         var newMth = new Date(currMth);
     //         newMth.setDate(1);
@@ -154,41 +158,41 @@ class WelcomeComponent extends Component {
     //         }
     //         newMth = moment(newMth).format("YYYY-MM")
     //     }
-    //     document.getElementById('monthChoiceFilter').value = newMth;
-    //     this.setState({ dateMonthChoice: newMth, })
+    //     document.getElementById("mthChoiceID").value = newMth;
+    //     this.setState({ mthChoice: newMth, })
     // };
 
     changeToPrevMonth() {
-        const currMth = document.getElementById('monthChoiceFilter').value
+        const currMth = document.getElementById("mthChoiceID").value
         if (currMth == "") { return }
         var prevMth = new Date(currMth);
         prevMth.setDate(1);
         prevMth.setMonth(prevMth.getMonth() - 1);
-        prevMth = newDateYYYYMM(prevMth) //moment(prevMth).format("YYYY-MM")
-        document.getElementById('monthChoiceFilter').value = prevMth;
-        this.setState({ dateMonthChoice: prevMth, })
+        prevMth = newDateYYYYMM(prevMth)
+        document.getElementById("mthChoiceID").value = prevMth;
+        this.setState({ mthChoice: prevMth, })
     };
 
     changeToCurrMonth() {
-        const currMth = newDateYYYYMM(Date()) //moment(Date()).format("YYYY-MM")
-        document.getElementById('monthChoiceFilter').value = currMth;
-        this.setState({ dateMonthChoice: currMth, })
+        const currMth = newDateYYYYMM(Date())
+        document.getElementById("mthChoiceID").value = currMth;
+        this.setState({ mthChoice: currMth, })
     };
 
     changeToNextMonth() {
-        const currMth = document.getElementById('monthChoiceFilter').value;
+        const currMth = document.getElementById("mthChoiceID").value;
         if (currMth == "") { return }
         var nextMth = new Date(currMth);
         nextMth.setDate(1);
         nextMth.setMonth(nextMth.getMonth() + 1);
-        nextMth = newDateYYYYMM(nextMth) //moment(nextMth).format("YYYY-MM")
-        document.getElementById('monthChoiceFilter').value = nextMth;
-        this.setState({ dateMonthChoice: nextMth, })
+        nextMth = newDateYYYYMM(nextMth)
+        document.getElementById("mthChoiceID").value = nextMth;
+        this.setState({ mthChoice: nextMth, })
     };
 
     filterDataYear() {
-        const dataYear = document.getElementById('yearChoiceFilter').value;
-        this.setState({ dateYearChoice: dataYear, })
+        const dataYear = document.getElementById("yrChoiceID").value;
+        this.setState({ yrChoice: dataYear, })
     };
 
     handleSuccesfulResponse(response) {
@@ -196,7 +200,7 @@ class WelcomeComponent extends Component {
     };
 
     handleError(error) {
-        let errorMessage = '';
+        let errorMessage = "";
         if (error.message)
             errorMessage += error.message
         if (error.response && error.response.data) {
@@ -207,58 +211,62 @@ class WelcomeComponent extends Component {
 
     render() {
 
-        if (this.state.dateMonthChoiceAllFromMth == "") {
-            this.state.dateMonthChoiceAllFromMth = new Date("1111-12-31")
+        if (this.state.mthFilterStart == "") {
+            this.state.mthFilterStart = new Date("1111-12-31")
         };
 
-        if (this.state.dateMonthChoiceAllToMth == "") {
-            this.state.dateMonthChoiceAllToMth = new Date("9999-12-31")
+        if (this.state.mthFilterEnd == "") {
+            this.state.mthFilterEnd = new Date("9999-12-31")
         };
 
-        var totalExpenses;
-        if (this.state.dateMonthChoice == "") {
-            totalExpenses = 0;
+        var totalExp;
+        if (this.state.mthChoice == "") {
+            totalExp = 0;
         } else {
-            totalExpenses = (this.state.expenses.filter(expense => (
-                dateFilter(expense.target_date, expense.finish_date, this.state.dateMonthChoice, expense.cycle)
-            )).reduce((total, currentItem) => total = total + currentItem.price, 0));
+            totalExp = (this.state.expenses.filter(
+                expense => (
+                    dateFilter(expense.target_date, expense.finish_date, this.state.mthChoice, expense.cycle)
+                )
+            ).reduce((total, currentItem) => total = total + currentItem.price, 0));
         }
 
-        var totalIncomes;
-        if (this.state.dateMonthChoice == "") {
-            totalIncomes = 0;
+        var totalInc;
+        if (this.state.mthChoice == "") {
+            totalInc = 0;
         } else {
-            totalIncomes = (this.state.incomes.filter(income => (
-                dateFilter(income.target_date, income.finish_date, this.state.dateMonthChoice, income.cycle)
-            )).reduce((total, currentItem) => total = total + currentItem.amount, 0));
+            totalInc = (this.state.incomes.filter(
+                income => (
+                    dateFilter(income.target_date, income.finish_date, this.state.mthChoice, income.cycle)
+                )
+            ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
         }
 
-        var totalIncomesBetweendDates;
-        if (this.state.dateMonthChoiceAllFromMth == "" || this.state.dateMonthChoiceAllToMth == "") {
-            totalIncomesBetweendDates = 0;
+        var totalIncBetwMths;
+        if (this.state.mthFilterStart == "" || this.state.mthFilterEnd == "") {
+            totalIncBetwMths = 0;
         } else {
-            totalIncomesBetweendDates = (this.state.incomes.reduce((total, currentItem) => total = total + currentItem.amount *
+            totalIncBetwMths = (this.state.incomes.reduce((total, currentItem) => total = total + currentItem.amount *
                 cycleCount(
                     currentItem.target_date,
                     currentItem.finish_date,
-                    newDateYYYYMMDD(this.state.dateMonthChoiceAllFromMth),
-                    newDateYYYYMMDD(this.state.dateMonthChoiceAllToMth),
+                    newDateYYYYMMDD(this.state.mthFilterStart),
+                    newDateYYYYMMDD(this.state.mthFilterEnd),
                     currentItem.cycle,
                     currentItem.description,
                     currentItem.amount
                 ), 0));
         }
 
-        var totalExpensesBetweendDates;
-        if (this.state.dateMonthChoiceAllFromMth == "" || this.state.dateMonthChoiceAllToMth == "") {
-            totalExpensesBetweendDates = 0;
+        var totalExpBetwMths;
+        if (this.state.mthFilterStart == "" || this.state.mthFilterEnd == "") {
+            totalExpBetwMths = 0;
         } else {
-            totalExpensesBetweendDates = (this.state.expenses.reduce((total, currentItem) => total = total + currentItem.price *
+            totalExpBetwMths = (this.state.expenses.reduce((total, currentItem) => total = total + currentItem.price *
                 cycleCount(
                     currentItem.target_date,
                     currentItem.finish_date,
-                    newDateYYYYMMDD(this.state.dateMonthChoiceAllFromMth),
-                    newDateYYYYMMDD(this.state.dateMonthChoiceAllToMth),
+                    newDateYYYYMMDD(this.state.mthFilterStart),
+                    newDateYYYYMMDD(this.state.mthFilterEnd),
                     currentItem.cycle,
                     currentItem.description,
                     currentItem.price
@@ -266,115 +274,156 @@ class WelcomeComponent extends Component {
         }
 
         var totalBudgets;
-        if (this.state.dateMonthChoice == "") {
+        if (this.state.mthChoice == "") {
             totalBudgets = 0;
         } else {
-            totalBudgets = (this.state.budgets.filter(budget =>
-                newDateYYYYMM(budget.target_month) == newDateYYYYMM(this.state.dateMonthChoice)
-            ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
-        }
-
-        var totalBudgetsTillDate;
-        if (this.state.dateMonthChoiceAllFromMth == "" || this.state.dateMonthChoiceAllToMth == "") {
-            totalBudgetsTillDate = 0;
-        } else {
-            totalBudgetsTillDate = (this.state.budgets.filter(
+            totalBudgets = (this.state.budgets.filter(
                 budget =>
-                    newDateYYYYMM(budget.target_month) >= newDateYYYYMM(this.state.dateMonthChoiceAllFromMth) &&
-                    newDateYYYYMM(budget.target_month) <= newDateYYYYMM(this.state.dateMonthChoiceAllToMth)
+                    newDateYYYYMM(budget.target_month) == newDateYYYYMM(this.state.mthChoice)
             ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
         }
 
-        var totalExpensesByMonth = [];
-        var totalIncomesByMonth = [];
+        var totalBudgBetwMths;
+        if (this.state.mthFilterStart == "" || this.state.mthFilterEnd == "") {
+            totalBudgBetwMths = 0;
+        } else {
+            totalBudgBetwMths = (this.state.budgets.filter(
+                budget =>
+                    newDateYYYYMM(budget.target_month) >= newDateYYYYMM(this.state.mthFilterStart) &&
+                    newDateYYYYMM(budget.target_month) <= newDateYYYYMM(this.state.mthFilterEnd)
+            ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
+        }
+
+        var cntInBudget = 0;
+        if (this.state.mthFilterStart == "" || this.state.mthFilterEnd == "" || newDateYYYY(this.state.mthFilterEnd) == "1111" || newDateYYYY(this.state.mthFilterEnd) == "9999") {
+            cntInBudget = 0;
+        } else {
+            var currMth = new Date(this.state.mthFilterStart)
+            var stopMth = new Date(this.state.mthFilterEnd)
+
+            while (newDateYYYYMM(currMth) <= newDateYYYYMM(stopMth)) {
+
+                var mthBudg = (this.state.budgets.filter(budget =>
+                    newDateYYYYMM(budget.target_month) == newDateYYYYMM(currMth)
+                ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
+
+                var mthExp = (this.state.expenses.filter(expense => (
+                    dateFilter(expense.target_date, expense.finish_date, currMth, expense.cycle)
+                )).reduce((total, currentItem) => total = total + currentItem.price, 0));
+                console.log(mthExp)
+
+                if (mthBudg >= mthExp) {
+                    cntInBudget += 1
+                }
+
+                var currMth = currMth.setMonth(currMth.getMonth() + 1);
+                currMth = new Date(currMth)
+            }
+        }
+
+        var totalExpByMonth = [];
+        var totalIncByMonth = [];
         var newDateParsed = [];
 
         for (let i = 0; i < arrMthEng.length; i++) {
             newDateParsed[i] = newDateYYYYMM(
                 new Date(
-                    newDateYYYY(this.state.dateMonthChoice),
+                    newDateYYYY(this.state.mthChoice),
                     new Date(arrMthEng[i]).getMonth()
                 )
             )
-            totalExpensesByMonth[i] = this.state.expenses.filter
-                (expense => (checkIfRecordIsInTheMonth(expense.cycle, expense.target_date, expense.finish_date,
-                    newDateParsed[i], this.state.dateMonthChoice)) == true
-                ).reduce((total, currentItem) => total = total + currentItem.price, 0);
+            totalExpByMonth[i] = this.state.expenses.filter(
+                expense => (
+                    checkIfRecordIsInTheMonth(expense.cycle, expense.target_date, expense.finish_date, newDateParsed[i], this.state.mthChoice)
+                ) == true
+            ).reduce((total, currentItem) => total = total + currentItem.price, 0);
         }
 
         for (let i = 0; i < arrMthEng.length; i++) {
             newDateParsed[i] = newDateYYYYMM(
                 new Date(
-                    newDateYYYY(this.state.dateMonthChoice),
+                    newDateYYYY(this.state.mthChoice),
                     new Date(arrMthEng[i]).getMonth()
                 )
             )
-            totalIncomesByMonth[i] = this.state.incomes.filter
-                (income => (checkIfRecordIsInTheMonth(income.cycle, income.target_date, income.finish_date,
-                    newDateParsed[i], this.state.dateMonthChoice)) == true
-                ).reduce((total, currentItem) => total = total + currentItem.amount, 0);
+            totalIncByMonth[i] = this.state.incomes.filter(
+                income => (
+                    checkIfRecordIsInTheMonth(income.cycle, income.target_date, income.finish_date, newDateParsed[i], this.state.mthChoice)
+                ) == true
+            ).reduce((total, currentItem) => total = total + currentItem.amount, 0);
 
         }
 
-        const allCategories = this.state.categories.map(category => category.categoryname);
-        const categoriesColor = this.state.categories.map(category => category.hexcolor);
+        const allCat = this.state.categories.map(category => category.categoryname);
+        const colorCat = this.state.categories.map(category => category.hexcolor);
 
-        var catData = [];
-        catData = getCatTotals(
-            allCategories,
+        var dataCat = [];
+        dataCat = getCatTotals(
+            allCat,
             this.state.expenses,
             this.state.categories,
-            newDateYYYYMMDD(this.state.dateMonthChoice),
-            newDateYYYYMMDD(this.state.dateMonthChoice),
-            categoriesColor);
+            newDateYYYYMMDD(this.state.mthChoice),
+            newDateYYYYMMDD(this.state.mthChoice),
+            colorCat
+        );
 
-        let redBgForSavingsFromIncomes;
-        if ((totalIncomes - totalExpenses) >= 0) { redBgForSavingsFromIncomes = false; }
-        else { redBgForSavingsFromIncomes = true; };
+        let redBgInc;
+        if ((totalInc - totalExp) >= 0) {
+            redBgInc = false;
+        } else {
+            redBgInc = true;
+        };
 
-        let redBgForSavingsFromBudgets;
-        if ((totalBudgets - totalExpenses) >= 0) { redBgForSavingsFromBudgets = false; }
-        else { redBgForSavingsFromBudgets = true; };
+        let redBgBudg;
+        if ((totalBudgets - totalExp) >= 0) {
+            redBgBudg = false;
+        } else {
+            redBgBudg = true;
+        };
 
-        let redBgForSavingsFromIncomes1;
-        if ((totalIncomesBetweendDates - totalExpensesBetweendDates) >= 0) { redBgForSavingsFromIncomes1 = false; }
-        else { redBgForSavingsFromIncomes1 = true; };
+        let redBgIncBetwMths;
+        if ((totalIncBetwMths - totalExpBetwMths) >= 0) {
+            redBgIncBetwMths = false;
+        } else {
+            redBgIncBetwMths = true;
+        };
 
-        let redBgForSavingsFromBudgets1;
-        if ((totalBudgetsTillDate - totalExpensesBetweendDates) >= 0) { redBgForSavingsFromBudgets1 = false; }
-        else { redBgForSavingsFromBudgets1 = true; };
+        let redBgBudgBetwMths;
+        if ((totalBudgBetwMths - totalExpBetwMths) >= 0) {
+            redBgBudgBetwMths = false;
+        } else {
+            redBgBudgBetwMths = true;
+        };
+
+        let redCntInBudget;
+        if (cntInBudget >= 0) {
+            redCntInBudget = false;
+        } else {
+            redCntInBudget = true;
+        };
 
         const dataByMonth = {
             labels: arrMthPol,
             datasets: [{
-                label: 'Wydatki',
-                data: totalExpensesByMonth,
-                backgroundColor: '#2177ef',
+                label: "Wydatki",
+                data: totalExpByMonth,
+                backgroundColor: "#2177ef",
             },
             {
-                label: 'Przychody',
-                data: totalIncomesByMonth,
-                backgroundColor: '#333',
+                label: "Przychody",
+                data: totalIncByMonth,
+                backgroundColor: "#333",
             }]
         };
 
-        const dataByCategory = {
-            labels: arrayColumn(catData, 1),
+        const dataByCat = {
+            labels: arrayColumn(dataCat, 1),
             datasets: [{
                 hoverOffset: 20,
-                data: arrayColumn(catData, 0),
-                backgroundColor: arrayColumn(catData, 2),
+                data: arrayColumn(dataCat, 0),
+                backgroundColor: arrayColumn(dataCat, 2),
             }]
         };
-
-        // const dataByCategory_2 = {
-        //     labels: arrayColumn(catData_2, 1),
-        //     datasets: [{
-        //         hoverOffset: 20,
-        //         data: arrayColumn(catData_2, 0),
-        //         backgroundColor: arrayColumn(catData_2, 2),
-        //     }]
-        // };
 
         const dataExpToBud = {
             labels: ["Wydano: ", "Pozostało: "],
@@ -383,8 +432,8 @@ class WelcomeComponent extends Component {
                 cutout: 130,
                 circumference: 180,
                 rotation: -90,
-                data: [totalExpenses, totalBudgets - totalExpenses],
-                backgroundColor: ['#2177ef', '#4a4a4a'],
+                data: [totalExp, totalBudgets - totalExp],
+                backgroundColor: ["#2177ef", "#4a4a4a"],
             }]
         };
 
@@ -395,18 +444,29 @@ class WelcomeComponent extends Component {
                 cutout: 130,
                 circumference: 180,
                 rotation: -90,
-                data: [totalExpenses, totalIncomes - totalExpenses],
-                backgroundColor: ['#2177ef', '#4a4a4a'],
+                data: [totalExp, totalInc - totalExp],
+                backgroundColor: ["#2177ef", "#4a4a4a"],
             }]
         };
 
         const optionsBar = {
+            // indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,
-                    position: "top",
+                    position: "bottom",
+                }
+            },
+        };
+
+        const optionsBar2 = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false,
                 }
             },
         };
@@ -435,62 +495,108 @@ class WelcomeComponent extends Component {
         return (
             <>
                 <div className="background-color-all">
-                    {/* <div className="hb-row"> */}
-                    <div className="container-data-left">
-                        <div className="container-height-100">
-                            <div className="text-20px-white">
-                                Wybierz miesiac
-                            </div>
+                    <div className="container-left-26">
+                        <div className="container-height-70">
                             <div>
-                                <img src={btnBack} onClick={this.changeToPrevMonth} />
-                                <input type="month" id="monthChoiceFilter" onChange={this.filterDataMonth} data-date-format="MM YYYY"></input>
-                                <img src={btnNext} onClick={this.changeToNextMonth} />
-                                <img src={btnToday} width="50" height="50" onClick={this.changeToCurrMonth} />
+                                <img src={btnBack} width="50" height="50" onClick={this.changeToPrevMonth} />
+                                <input type="month" id="mthChoiceID" onChange={this.filterDataMonth} data-date-format="MM YYYY"></input>
+                                <img src={btnNext} width="50" height="50" onClick={this.changeToNextMonth} />
+                                <img src={btnToday} width="30" height="30" onClick={this.changeToCurrMonth} />
                             </div>
                         </div>
-                        <div className="container-container-middle2">
-                            Wydatki do budzetu
-                        </div>
-                        <div
-                            className={redBgForSavingsFromBudgets ? 'container-container-middle-red' : 'container-container-middle-green'}
-                            style={{ display: (totalBudgets != 0 && totalExpenses != 0 ? 'block' : 'none') }}>
+                    </div>
 
-                            {formatter.format(totalExpenses)}/{formatter.format(totalBudgets)}<br />
-                            Pozostało: {formatter.format(totalBudgets - totalExpenses)}
-                            {" ("}Na dzień: {formatter.format((totalBudgets - totalExpenses) / daysLeftCount(this.state.dateMonthChoice))}{")"}
+                    <div className="container-middle-41">
+                        <div className="container-height-70">
+                            <div className="text-h1-white">
+                                Oto Twoje podsumowanie:
+                            </div>
+                        </div>
+                    </div>
+                    <div className="container-right-26">
 
+                    </div>
+                    <div className="container-full-width">
+                        <div className="text-h4-white" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
+                            Wydatki i przychody w wybranym miesiącu
                         </div>
-                        <div className={'container-container-middle-black'} style={{ display: (totalBudgets == 0 && totalExpenses != 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Budzet nie zostal ustalony na wybrany miesiac
+                    </div>
+
+                    <div className="container-left-26">
+                        <div className="container-top-black">
+                            Wydatki do budżetu
                         </div>
-                        <div className={'container-container-middle-black'} style={{ display: (totalExpenses == 0 && totalBudgets != 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Brak wydatkow w wybranym miesiacu
+                        <div className={redBgBudg ? "container-bottom-red" : "container-bottom-green"} style={{ display: (totalBudgets != 0 && totalExp != 0 ? "block" : "none") }}>
+                            {formatter.format(totalExp)}/{formatter.format(totalBudgets)}<br />
                         </div>
-                        <div className={'container-container-middle-black'} style={{ display: (totalExpenses == 0 && totalBudgets == 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Brak wydatkow i budzetu w wybranym miesiacu
+                        <div className={"container-bottom-black"} style={{ display: (totalBudgets == 0 && totalExp != 0 && this.state.mthChoice != "" ? "block" : "none") }}>
+                            Budżet nie został ustalony na wybrany miesiąc
                         </div>
-                        <div className={'container-container-middle-black'} style={{ display: (this.state.dateMonthChoice == "" ? 'block' : 'none') }}>
-                            Miesiac nie zostal wybrany
+                        <div className={"container-bottom-black"} style={{ display: (totalExp == 0 && totalBudgets != 0 && this.state.mthChoice != "" ? "block" : "none") }}>
+                            Brak wydatków w wybranym miesiącu
                         </div>
-                        <div className="text-25px-white" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Podzial wydatkow na kategorie w wybranym miesiacu
+                        <div className={"container-bottom-black"} style={{ display: (totalExp == 0 && totalBudgets == 0 && this.state.mthChoice != "" ? "block" : "none") }}>
+                            Brak wydatków i budzetu w wybranym miesiącu
                         </div>
+                        <div className={"container-bottom-black"} style={{ display: (this.state.mthChoice == "" ? "block" : "none") }}>
+                            Miesiąc nie został wybrany
+                        </div>
+                    </div>
+
+                    <div className="container-middle-41">
+                        <div className="container-left-top-black">
+                            Oszczędności założone:
+                        </div>
+
+                        <div className={redBgBudg ? "container-right-top-red" : "container-right-top-green"}>
+                            Pozostało: {formatter.format(totalBudgets - totalExp)}
+                            {" ("}Na dzień: {formatter.format((totalBudgets - totalExp) / daysLeftCount(this.state.mthChoice))}{")"}
+                        </div>
+
+                        <div className="container-left-bottom-black">
+                            Oszczędności rzeczywiste:
+                        </div>
+
+                        <div className={redBgInc ? "container-right-bottom-red" : "container-right-bottom-green"}>
+                            Pozostało: {formatter.format(totalInc - totalExp)}
+                            {" ("}Na dzień: {formatter.format((totalInc - totalExp) / daysLeftCount(this.state.mthChoice))}{")"}
+                        </div>
+                    </div>
+
+                    <div className="container-right-26">
+                        <div className="container-top-black">
+                            Wydatki do przychodów
+                        </div>
+                        <div className={redBgInc ? "container-bottom-red" : "container-bottom-green"} style={{ display: (totalInc != 0 && totalExp != 0 ? "block" : "none") }}>
+                            {formatter.format(totalExp)}/{formatter.format(totalInc)}<br />
+                        </div>
+                        <div className={"container-bottom-black"} style={{ display: (totalExp == 0 && totalInc != 0 && this.state.mthChoice != "" ? "block" : "none") }}>
+                            Brak wydatków w wybranym miesiącu
+                        </div>
+                        <div className={"container-bottom-black"} style={{ display: (totalInc == 0 && totalExp != 0 && this.state.mthChoice != "" ? "block" : "none") }}>
+                            Brak przychodów w wybranym miesiącu
+                        </div>
+                        <div className={"container-bottom-black"} style={{ display: (totalInc == 0 && totalExp == 0 && this.state.mthChoice != "" ? "block" : "none") }}>
+                            Brak przychodów i wydatków w wybranym miesiącu
+                        </div>
+                        <div className={"container-bottom-black"} style={{ display: (this.state.mthChoice == "" ? "block" : "none") }}>
+                            Miesiąc nie został wybrany
+                        </div>
+                    </div>
+
+                    <div className="container-left-26">
+                        <div className="text-h4-white" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
+                            Podział wydatków na kategorie
+                        </div>
+
                         <div className="chart-doughnut">
                             <Doughnut
-                                data={dataByCategory}
-                                height={300}
+                                data={dataByCat}
+                                height={250}
                                 options={optionsDon}
                             />
                         </div>
 
-                        <div className="chart-bar" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            <Bar
-                                title={{ display: false }}
-                                data={dataByCategory}
-                                // height={300}
-                                options={optionsBar}
-                            />
-                        </div>
                         {/* <div className="chart-doughnut">
                             <Doughnut
                                 data={dataByCategory_2}
@@ -499,41 +605,14 @@ class WelcomeComponent extends Component {
                             />
                         </div> */}
                     </div>
-                    <div className="container-data-middle" >
-                        <div className="container-height-100">
-                            <div className="text-40px-white">
-                                {/* Witaj {userMap(AuthenticationService.getLoggedInUserName(), this.state.users)}!<br /> */}
-                                Oto Twoje podsumowanie:
-                            </div>
-                        </div>
-                        <div className="container-container-middle2">
-                            Wydatki do przychodow
-                        </div>
-                        <div
-                            className={redBgForSavingsFromIncomes ? 'container-container-middle-red' : 'container-container-middle-green'}
-                            style={{ display: (totalIncomes != 0 && totalExpenses != 0 ? 'block' : 'none') }}>
 
-                            {formatter.format(totalExpenses)}/{formatter.format(totalIncomes)}<br />
-                            Pozostało: {formatter.format(totalIncomes - totalExpenses)}
-                            {" ("}Na dzień: {formatter.format((totalIncomes - totalExpenses) / daysLeftCount(this.state.dateMonthChoice))}{")"}
+                    <div className="container-middle-41" >
+                        <div className="text-h4-white" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
+                            {/* Wydatki i przychody w {moment(this.state.mthChoice).format("YYYY")} roku */}
+                            Wydatki i przychody w {newDateYYYY(this.state.mthChoice)} roku
                         </div>
-                        <div className={'container-container-middle-black'} style={{ display: (totalExpenses == 0 && totalIncomes != 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Brak wydatkow w wybranym miesiacu
-                        </div>
-                        <div className={'container-container-middle-black'} style={{ display: (totalIncomes == 0 && totalExpenses != 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Brak przychodow w wybranym miesiacu
-                        </div>
-                        <div className={'container-container-middle-black'} style={{ display: (totalIncomes == 0 && totalExpenses == 0 && this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            Brak przychodow i wydatkow w wybranym miesiacu
-                        </div>
-                        <div className={'container-container-middle-black'} style={{ display: (this.state.dateMonthChoice == "" ? 'block' : 'none') }}>
-                            Miesiac nie zostal wybrany
-                        </div>
-                        <div className="text-25px-white" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
-                            {/* Wydatki i przychody w {moment(this.state.dateMonthChoice).format("YYYY")} roku */}
-                            Wydatki i przychody w {newDateYYYY(this.state.dateMonthChoice)} roku
-                        </div>
-                        <div className="chart-bar" style={{ display: (this.state.dateMonthChoice != "" ? 'block' : 'none') }}>
+
+                        <div className="chart-bar" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
                             <Bar
                                 title={{ display: false }}
                                 data={dataByMonth}
@@ -541,103 +620,94 @@ class WelcomeComponent extends Component {
                                 options={optionsBar}
                             />
                         </div>
-
-
-
-                    </div>
-                    <div className="container-data-right">
-                        <div className="text-20px-white">
-                            Bilans<br />
-                            od:
-                            <input type="month" id="monthChoiceFilterAllFromMth" onChange={this.filterDataMonthAllFromMth}></input>
-                            do:
-                            <input type="month" id="monthChoiceFilterAllToMth" onChange={this.filterDataMonthAllToMth}></input>
-                        </div>
-
-                        <div className="container-savings-left">
-                            Oszczednosci zalozone: <br />
-                            Pozostało do wydania: <br />
-                        </div>
-
-                        <div className={redBgForSavingsFromBudgets1 ? "container-savings-right-red" : "container-savings-right-green"}>
-                            {formatter.format(totalIncomesBetweendDates-totalBudgetsTillDate)}<br />
-                            {formatter.format(totalBudgetsTillDate - totalExpensesBetweendDates)}
-                        </div>
-
-                        <div className="container-savings-left">
-                            Oszczednosci rzeczywiste: <br />
-                        </div>
-
-                        <div className={redBgForSavingsFromIncomes1 ? "container-savings-right-red" : "container-savings-right-green"}>
-                            {/* {formatter.format(totalIncomesBetweendDates)} / {formatter.format(totalExpensesBetweendDates)}<br /> */}
-                            {formatter.format(totalIncomesBetweendDates - totalExpensesBetweendDates)}
-                        </div>
-                        {/* <div className="container-data-middle-insideleft">
-
-
-                            <div className="chart-doughnut">
-                                <Doughnut
-                                    data={dataExpToBud}
-                                    // height={70}
-                                    options={optionsDonNoLabels}
-                                />
-                            </div>
-                            <div className="text-25px-white">
-                                {formatPercentage(totalExpenses / totalBudgets)}
-                            </div>
-
-                        </div>
-                        <div className="container-data-middle-insideright">
-                            <div className="chart-doughnut">
-                                <Doughnut
-                                    data={dataExpToInc}
-                                    // height={300}
-                                    options={optionsDonNoLabels}
-                                />
-                            </div>
-                            <div className="text-25px-white">
-                                {formatPercentage(totalExpenses / totalIncomes)}
-                            </div>
+                        {/* <div className="chart-bar" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
+                            <Bar
+                                title={{ display: false }}
+                                data={dataByCat}
+                                height={300}
+                                options={optionsBar2}
+                            />
                         </div> */}
-                        {/* <div className="container-container-middle">5 ostatnich transakcji z wybranego miesiaca</div>
-                        <div className="text-25px-white">Wydatki</div>
-                        <table className="hb-table-red">
-                            <thead>
-                                <tr>
-                                    <th>Opis</th>
-                                    <th>Kwota</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    this.state.expenses.filter(
-                                        expense =>
-                                            this.state.dateMonthChoice != "" &&
-                                            (
-                                                ((expense.cycle == "Nie" && newDateYYYYMM(expense.target_date) == newDateYYYYMM(this.state.dateMonthChoice)))
-                                                || (expense.cycle == "Co miesiac" ||
-                                                    (expense.cycle == "Co pol roku" && (newDateMM(this.state.dateMonthChoice) - newDateMM(expense.target_date)) % 6 == 0) ||
-                                                    (expense.cycle == "Co rok" && (newDateMM(this.state.dateMonthChoice) - newDateMM(expense.target_date)) % 12 == 0))
-                                                &&
-                                                ((newDateYYYYMM(expense.target_date) == newDateYYYYMM(this.state.dateMonthChoice)) ||
-                                                    (newDateYYYYMM(expense.finish_date) == newDateYYYYMM(this.state.dateMonthChoice)) ||
-                                                    (newDateYYYYMM(expense.target_date) < newDateYYYYMM(this.state.dateMonthChoice) && newDateYYYYMM(expense.finish_date) > newDateYYYYMM(this.state.dateMonthChoice)))
-                                            )
-                                    ).slice(0, 5).map(expense =>
-                                        <tr key={expense.expenseid}>
-                                            <td>{expense.description}</td>
-                                            <td>{formatter.format(expense.price)}</td>
-                                        </tr>
-                                    )
-                                }
-                            </tbody>
-                        </table>
-                            */}
+                    </div>
+
+                    <div className="container-right-26">
+                        <div className="text-h4-white" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
+                            Bilans w wybranym przedziale miesięcy
+                        </div>
+
+                        <div className="black-border">
+                            <div className="text-h5-white">
+                                od:
+                                <input type="month" id="mthFilterStartID" onChange={this.filterDataMonthStart}></input>
+                                do:
+                                <input type="month" id="mthFilterEndID" onChange={this.filterDataMonthEnd}></input>
+                            </div>
+
+                            <div className="container-left-black">
+                                Oszczędności założone: <br />
+                                Pozostało do wydania: <br />
+                            </div>
+
+                            <div className={redBgBudgBetwMths ? "container-right-red" : "container-right-green"}>
+                                {formatter.format(totalIncBetwMths - totalBudgBetwMths)}<br />
+                                {formatter.format(totalBudgBetwMths - totalExpBetwMths)}
+                            </div>
+
+                            <div className="container-left-black">
+                                Oszczędności rzeczywiste: <br />
+                            </div>
+
+                            <div className={redBgIncBetwMths ? "container-right-red" : "container-right-green"}>
+                                {formatter.format(totalIncBetwMths - totalExpBetwMths)}
+                            </div>
+
+                            <div className="container-left-black">
+                                Ilość miesięcy "w budżecie": <br />
+                            </div>
+                            <div className={redCntInBudget ? "container-right-red" : "container-right-green"}>
+                                {cntInBudget}
+                            </div>
+                            
+                            {/* <div className="container-top">5 ostatnich transakcji z wybranego miesiaca</div>
+                            <div className="text-h4-white">Wydatki</div>
+                            <table className="hb-table-exp">
+                                <thead>
+                                    <tr>
+                                        <th>Opis</th>
+                                        <th>Kwota</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        this.state.expenses.filter(
+                                            expense =>
+                                                this.state.mthChoice != "" &&
+                                                (
+                                                    ((expense.cycle == "Nie" && newDateYYYYMM(expense.target_date) == newDateYYYYMM(this.state.mthChoice)))
+                                                    || (expense.cycle == "Co miesiac" ||
+                                                        (expense.cycle == "Co pol roku" && (newDateMM(this.state.mthChoice) - newDateMM(expense.target_date)) % 6 == 0) ||
+                                                        (expense.cycle == "Co rok" && (newDateMM(this.state.mthChoice) - newDateMM(expense.target_date)) % 12 == 0))
+                                                    &&
+                                                    ((newDateYYYYMM(expense.target_date) == newDateYYYYMM(this.state.mthChoice)) ||
+                                                        (newDateYYYYMM(expense.finish_date) == newDateYYYYMM(this.state.mthChoice)) ||
+                                                        (newDateYYYYMM(expense.target_date) < newDateYYYYMM(this.state.mthChoice) && newDateYYYYMM(expense.finish_date) > newDateYYYYMM(this.state.mthChoice)))
+                                                )
+                                        ).slice(0, 5).map(expense =>
+                                            <tr key={expense.expenseid}>
+                                                <td>{expense.description}</td>
+                                                <td>{formatter.format(expense.price)}</td>
+                                            </tr>
+                                        )
+                                    }
+                                </tbody>
+                            </table> */}
+
+                        </div>
                     </div>
                     {/* </div> */}
-                    <div className="container-data-left"></div>
-                    <div className="container-data-middle"></div>
-                    <div className="container-data-right"></div>
+                    <div className="container-left-26"></div>
+                    <div className="container-middle-41"></div>
+                    <div className="container-right-26"></div>
                 </div>
             </>
         )
