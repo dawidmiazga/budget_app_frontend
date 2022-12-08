@@ -97,7 +97,6 @@ class ListCategoriesComponent extends Component {
                             <tr>
                                 <th>Nazwa</th>
                                 <th></th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>

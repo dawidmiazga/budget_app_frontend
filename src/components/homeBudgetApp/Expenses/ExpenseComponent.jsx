@@ -3,6 +3,7 @@ import moment from 'moment'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import ExpenseDataService from '../../../api/HomeBudget/ExpenseDataService.js'
 import CategoryDataService from '../../../api/HomeBudget/CategoryDataService.js'
+import BankAccountDataService from '../../../api/HomeBudget/BankAccountDataService.js'
 import AuthenticationService from '../AuthenticationService.js';
 import "../../../App.css"
 import {
@@ -16,6 +17,7 @@ class ExpenseComponent extends Component {
         this.state = {
             expenses: [],
             categories: [],
+            bankaccounts: [],
             expenseid: this.props.match.params.id,
             expenseid2: this.props.match.params.id2,
             description: '',
@@ -25,6 +27,7 @@ class ExpenseComponent extends Component {
             category: '',
             comment: '',
             cycle: '',
+            bankaccountname: '',
             cycleValue: '',
         };
 
@@ -32,6 +35,7 @@ class ExpenseComponent extends Component {
         this.validate = this.validate.bind(this)
         this.refreshExpenses = this.refreshExpenses.bind(this)
         this.refreshCategories = this.refreshCategories.bind(this)
+        this.refreshBankAccounts = this.refreshBankAccounts.bind(this)
         this.updateCycle = this.updateCycle.bind(this)
         this.getPeriodicity = this.getPeriodicity.bind(this)
     };
@@ -41,14 +45,19 @@ class ExpenseComponent extends Component {
             console.log("null")
         }
 
+        this.refreshCategories()
+        this.refreshBankAccounts()
+
         if (this.state.expenseid == -1 && this.state.expenseid2 == null) {
             this.getPeriodicity()
-            this.refreshCategories()
+            // this.refreshCategories()
+            // this.refreshBankAccounts()
             return
         }
 
         this.refreshExpenses()
-        this.refreshCategories()
+        // this.refreshCategories()
+        // this.refreshBankAccounts()
 
         let usernameid = AuthenticationService.getLoggedInUserName()
         if (this.state.expenseid == -1) {
@@ -61,6 +70,7 @@ class ExpenseComponent extends Component {
                     category: response.data.category,//categoryMap(response.data.category, this.state.categories),
                     comment: response.data.comment,
                     cycle: response.data.cycle,
+                    bankaccountname: response.data.bankaccountname,
                 }))
         } else {
             ExpenseDataService.retrieveExpense(usernameid, this.state.expenseid)
@@ -72,6 +82,7 @@ class ExpenseComponent extends Component {
                     category: response.data.category,//categoryMap(response.data.category, this.state.categories),
                     comment: response.data.comment,
                     cycle: response.data.cycle,
+                    bankaccountname: response.data.bankaccountname,
                 }))
         }
     };
@@ -92,6 +103,12 @@ class ExpenseComponent extends Component {
         let usernameid = AuthenticationService.getLoggedInUserName()
         CategoryDataService.retrieveAllCategories(usernameid)
             .then(response => { this.setState({ categories: response.data }) })
+    };
+
+    refreshBankAccounts() {
+        let usernameid = AuthenticationService.getLoggedInUserName()
+        BankAccountDataService.retrieveAllBankAccounts(usernameid)
+            .then(response => { this.setState({ bankaccounts: response.data }) })
     };
 
     validate(values) {
@@ -118,7 +135,11 @@ class ExpenseComponent extends Component {
     };
 
     onSubmit(values) {
-
+        console.log(values.bankaccountname)
+        var divide = this.state.bankaccounts.filter
+            (bankaccount => bankaccount.bankaccountname == values.bankaccountname)
+            .map(bankaccount => bankaccount.divide)
+        console.log(divide[0])
         function categoryMap(name, categoryList) {
             const arrCat = ([(categoryList.map(category => category.categoryname)), (categoryList.map(category => category.categoryid))]);
             if (arrCat[0].includes(name)) {
@@ -140,10 +161,11 @@ class ExpenseComponent extends Component {
             target_date: values.target_date,
             finish_date: values.finish_date,
             usernameid: usernameid,
-            price: values.price,
+            price: values.price / divide,
             category: categoryMap(values.category, this.state.categories),
             comment: values.comment,
             cycle: values.cycle,
+            bankaccountname: values.bankaccountname,
         }
         if (this.state.expenseid == -1) {
             ExpenseDataService.createExpense(usernameid, expense).then(() => this.props.history.push('/expenses'))
@@ -164,7 +186,7 @@ class ExpenseComponent extends Component {
 
     render() {
 
-        let { description, target_date, finish_date, price, comment, cycle } = this.state
+        let { description, target_date, finish_date, price, comment, cycle, bankaccountname } = this.state
         let category = categoryMap(this.state.category, this.state.categories)
 
         if (this.state.cycleValue == '') {
@@ -174,7 +196,7 @@ class ExpenseComponent extends Component {
             <div className="background-color-all">
                 <div className="container">
                     <Formik
-                        initialValues={{ description, target_date, finish_date, price, category, comment, cycle }}
+                        initialValues={{ description, target_date, finish_date, price, category, comment, cycle, bankaccountname }}
                         onSubmit={this.onSubmit}
                         validateOnChange={false}  //to i to ponizej zostawia nam wyswietlanie bledu "na zywo"
                         validateOnBlur={false}
@@ -190,6 +212,7 @@ class ExpenseComponent extends Component {
                                     <ErrorMessage name="category" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="cycle" component="div" className="alert alert-warning" />
                                     <ErrorMessage name="price" component="div" className="alert alert-warning" />
+                                    <ErrorMessage name="bankaccount" component="div" className="alert alert-warning" />
                                     <div className="text-h1-white" style={{ display: (this.state.expenseid == -1 ? 'block' : 'none') }}>Dodaj wydatek</div>
                                     <div className="text-h1-white" style={{ display: (this.state.expenseid != -1 ? 'block' : 'none') }}>Edytuj wydatek</div>
                                     <fieldset className="form-group">
@@ -225,6 +248,15 @@ class ExpenseComponent extends Component {
                                             <option selected value="dummy"> -- wybierz kategorie -- </option>
                                             {this.state.categories.map(category =>
                                                 <option value={category.categoryname}>{category.categoryname}</option>
+                                            )}
+                                        </Field>
+                                    </fieldset>
+                                    <fieldset className="form-group">
+                                        <div className="text-h5-white">Konto</div>
+                                        <Field className="hb-form-control" type="text" name="bankaccountname" as="select">
+                                            <option selected value="dummy"> -- wybierz kategorie -- </option>
+                                            {this.state.bankaccounts.map(bankaccount =>
+                                                <option value={bankaccount.bankaccountname}>{bankaccount.bankaccountname}</option>
                                             )}
                                         </Field>
                                     </fieldset>

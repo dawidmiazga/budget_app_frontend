@@ -351,7 +351,7 @@ class ListExpensesComponent extends Component {
                                     <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsNotCycle} /></div>
                                 </th>
                                 <th>
-                                    Kategoria
+                                    Kategoria/Konto
                                     <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByCatNotCycle} /></div>
                                 </th>
                                 <th>
@@ -384,6 +384,8 @@ class ListExpensesComponent extends Component {
                                         <td>
                                             {/* <div className="text-h5-white"> */}
                                             {categoryMap(expense.category, this.state.categories)}
+                                            <br />
+                                            {expense.bankaccountname}
                                             {/* </div> */}
                                         </td>
                                         <td>{newDateDDMMYYYY(expense.target_date)}</td>
@@ -414,7 +416,7 @@ class ListExpensesComponent extends Component {
                                     <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByDecsCycle} /></div>
                                 </th>
                                 <th>
-                                    Kategoria
+                                    Kategoria/Konto
                                     <div className="button-sort"><img src={btnSort} width="20" height="20" onClick={this.sortByCatCycle} /></div>
                                 </th>
                                 <th>
@@ -467,6 +469,8 @@ class ListExpensesComponent extends Component {
                                         <td>
                                             {/* <div className="text-h5-white"> */}
                                             {categoryMap(expense.category, this.state.categories)}
+                                            <br />
+                                            {expense.bankaccountname}
                                             {/* </div> */}
                                         </td>
                                         <td>

@@ -111,10 +111,10 @@ export function categoryMap(id, categoryList) {
 };
 
 export function dateFilter(targetDate, finishDate, choosenDate, expType) {
-    
+
     targetDate = newDateYYYYMM(targetDate)
     finishDate = newDateYYYYMM(finishDate)
-    
+
     if (choosenDate < targetDate || choosenDate > finishDate) { return false }
     if (expType == "Nie") {
         if (newDateYYYYMM(targetDate) == newDateYYYYMM(choosenDate)) {
@@ -214,27 +214,45 @@ export function sortFunction(a, b) {
     }
 };
 
-export function getCatTotals(allCategories, expenses, categories, startdatenew, enddatenew, categoriesColor) {
+export function getCatTotals(allCategories, expenses, categories, startdatenew, enddatenew, categoriesColor, divide) {
     var catData = [];
     var tempSum = []
     for (let i = 0; i < allCategories.length; i++) {
         var checkValueCurrentYear = 0
-        tempSum[i] =
-            (expenses
-                .filter(expense => (
-                    categoryMap(expense.category, categories) == allCategories[i]
-                ))
-                .reduce((total, currentItem) => total = total + (currentItem.price *
-                    cycleCount(
-                        currentItem.target_date,
-                        currentItem.finish_date,
-                        newDateYYYYMMDD(startdatenew),
-                        newDateYYYYMMDD(enddatenew),
-                        currentItem.cycle,
-                        currentItem.description,
-                        currentItem.price
-                    )), 0));
-
+        if (divide == "Razem") {
+            tempSum[i] =
+                (expenses
+                    .filter(expense => (
+                        categoryMap(expense.category, categories) == allCategories[i]
+                    ))
+                    .reduce((total, currentItem) => total = total + (currentItem.price *
+                        cycleCount(
+                            currentItem.target_date,
+                            currentItem.finish_date,
+                            newDateYYYYMMDD(startdatenew),
+                            newDateYYYYMMDD(enddatenew),
+                            currentItem.cycle,
+                            currentItem.description,
+                            currentItem.price
+                        )), 0));
+        } else {
+            tempSum[i] =
+                (expenses
+                    .filter(expense => (
+                        categoryMap(expense.category, categories) == allCategories[i] &&
+                        expense.bankaccountname == divide
+                    ))
+                    .reduce((total, currentItem) => total = total + (currentItem.price *
+                        cycleCount(
+                            currentItem.target_date,
+                            currentItem.finish_date,
+                            newDateYYYYMMDD(startdatenew),
+                            newDateYYYYMMDD(enddatenew),
+                            currentItem.cycle,
+                            currentItem.description,
+                            currentItem.price
+                        )), 0));
+        }
         checkValueCurrentYear += tempSum[i];
         if (checkValueCurrentYear != 0) {
             catData.push([checkValueCurrentYear, allCategories[i], categoriesColor[i]])

@@ -39,7 +39,7 @@ class CategoryComponent extends Component {
             this.refreshCategories()
             return
         }
-        
+
         let usernameid = AuthenticationService.getLoggedInUserName()
         CategoryDataService.retrieveCategory(usernameid, this.state.categoryid)
             .then(response => this.setState({

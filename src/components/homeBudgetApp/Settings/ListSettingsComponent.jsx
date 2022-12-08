@@ -14,6 +14,10 @@ class ListSettingsComponent extends Component {
             displayColorPicker: false,
             categoryNameMain: '',
         }
+
+        this.updateLoginClicked = this.updateLoginClicked.bind(this)
+        this.manageBankAccounts = this.manageBankAccounts.bind(this)
+
     }
 
     componentDidMount() {
@@ -27,6 +31,10 @@ class ListSettingsComponent extends Component {
 
     updateLoginClicked(usernameid) {
         this.props.history.push(`/changepassword/${usernameid}`)
+    }
+
+    manageBankAccounts(usernameid) {
+        this.props.history.push(`/bankaccounts`)
     }
 
     render() {
@@ -55,6 +63,19 @@ class ListSettingsComponent extends Component {
                                             </td>
                                             <td>
                                                 <img src={btnEdit} width="32" height="32" onClick={() => this.updateLoginClicked(user.usernameid)} />
+                                            </td>
+                                        </tr>
+                                )
+                            }
+                            {
+                                this.state.users.filter(user => user.usernameid == currentuser).map(
+                                    user =>
+                                        <tr key={user.usernameid}>
+                                            <td>
+                                                Zarządzaj kontami bankowymi
+                                            </td>
+                                            <td>
+                                                <img src={btnEdit} width="32" height="32" onClick={() => this.manageBankAccounts()} />
                                             </td>
                                         </tr>
                                 )

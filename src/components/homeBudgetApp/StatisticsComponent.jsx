@@ -7,6 +7,7 @@ import ExpenseDataService from "../../api/HomeBudget/ExpenseDataService";
 import IncomeDataService from "../../api/HomeBudget/IncomeDataService.js";
 import CategoryDataService from "../../api/HomeBudget/CategoryDataService";
 import BudgetDataService from "../../api/HomeBudget/BudgetDataService";
+import BankAccountDataService from "../../api/HomeBudget/BankAccountDataService";
 import btnToday from '../images/today_button.png';
 import {
     getLastDayOfDate, getFirstDayOfDate, cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD,
@@ -24,6 +25,7 @@ class ChartsComponent extends Component {
             incomes: [],
             budgets: [],
             categories: [],
+            bankaccounts: [],
             selectYear: "All",
             welcomeMessage: '',
             displayValue: 'tilldate',
@@ -31,12 +33,14 @@ class ChartsComponent extends Component {
             loading: true,
         };
         this.refreshExpenses = this.refreshExpenses.bind(this)
-        this.refreshIncomes = this.refreshIncomes.bind(this)
-        this.refreshCategories = this.refreshCategories.bind(this)
-        this.refreshBudgets = this.refreshBudgets.bind(this)
-        this.changeDisplOption = this.changeDisplOption.bind(this)
-        this.changeYear = this.changeYear.bind(this)
-        this.changeToCurrYear = this.changeToCurrYear.bind(this)
+        this.refreshIncomes = this.refreshIncomes.bind(this);
+        this.refreshCategories = this.refreshCategories.bind(this);
+        this.refreshBankAccounts = this.refreshBankAccounts.bind(this);
+        this.refreshBudgets = this.refreshBudgets.bind(this);
+        this.changeDisplOption = this.changeDisplOption.bind(this);
+        this.changeBankAccount = this.changeBankAccount.bind(this);
+        this.changeYear = this.changeYear.bind(this);
+        this.changeToCurrYear = this.changeToCurrYear.bind(this);
     };
 
     componentDidMount() {
@@ -47,62 +51,77 @@ class ChartsComponent extends Component {
         // let today = new Date();
         // checkToken().then(() => this.setState({ loading: false });
 
-        this.refreshExpenses()
-        this.refreshIncomes()
-        this.refreshCategories()
-        this.refreshBudgets()
+        this.refreshExpenses();
+        this.refreshIncomes();
+        this.refreshCategories();
+        this.refreshBankAccounts();
+        this.refreshBudgets();
 
         // this.setState({ loading: false });
 
     };
 
     refreshExpenses() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName();
         ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     this.setState({ expenses: response.data })
                 }
-            )
+            );
     };
 
     refreshIncomes() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName();
         IncomeDataService.retrieveAllIncomes(usernameid)
             .then(
                 response => {
                     response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
                     this.setState({ incomes: response.data })
                 }
-            )
+            );
     };
 
     refreshCategories() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName();
         CategoryDataService.retrieveAllCategories(usernameid)
             .then(
                 response => {
                     this.setState({ categories: response.data })
                 }
-            )
+            );
+    };
+
+    refreshBankAccounts() {
+        let usernameid = AuthenticationService.getLoggedInUserName();
+        BankAccountDataService.retrieveAllBankAccounts(usernameid)
+            .then(
+                response => {
+                    this.setState({ bankaccounts: response.data })
+                }
+            );
     };
 
     refreshBudgets() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName();
         BudgetDataService.retrieveAllBudgets(usernameid)
             .then(
                 response => {
                     this.setState({ budgets: response.data, loading: false })
                 }
-            )
+            );
     };
 
     changeDisplOption() {
-        this.setState({ displayValue: document.getElementById("displOptionID").value, })
+        this.setState({ displayValue: document.getElementById("displOptionID").value, });
+    };
+
+    changeBankAccount() {
+        // this.setState({ displayValue: document.getElementById("displOptionID").value, })
     };
 
     changeYear() {
-        this.setState({ choosenYear: document.getElementById("choosenYear").value, })
+        this.setState({ choosenYear: document.getElementById("choosenYear").value, });
     };
 
     changeToCurrYear() {
@@ -121,8 +140,8 @@ class ChartsComponent extends Component {
         var maxDate = Math.max(...expFiniYears);
         var minDate = Math.min(...expTargYears);
 
-        const uniqueYears = []
-        for (var i = minDate; i <= maxDate; i++) { uniqueYears.push(i); }
+        const uniqueYears = [];
+        for (var i = minDate; i <= maxDate; i++) { uniqueYears.push(i); };
 
         const currMth = newDateYYYYMM(new Date(today.getFullYear(), today.getMonth()));
         const allCategories = this.state.categories.map(category => category.categoryname);
@@ -163,7 +182,8 @@ class ChartsComponent extends Component {
                         currentItem.cycle,
                         currentItem.description,
                         currentItem.price
-                    )), 0));
+                    )), 0
+                ));
 
             totalValueMthInc[i] =
                 (this.state.incomes.reduce((total, currentItem) => total = total + (currentItem.amount *
@@ -175,7 +195,8 @@ class ChartsComponent extends Component {
                         currentItem.cycle,
                         currentItem.description,
                         currentItem.amount
-                    )), 0));
+                    )), 0
+                ));
 
             totalValueMthBud[i] =
                 (this.state.budgets.reduce((total, currentItem) => total = total + (currentItem.amount *
@@ -187,44 +208,45 @@ class ChartsComponent extends Component {
                         "Nie",
                         "",
                         currentItem.amount
-                    )), 0));
+                    )), 0
+                ));
 
             if (this.state.displayValue == "all") {
-                totalExp += totalValueMthExp[i]
-                totalInc += totalValueMthInc[i]
-                totalBud += totalValueMthBud[i]
+                totalExp += totalValueMthExp[i];
+                totalInc += totalValueMthInc[i];
+                totalBud += totalValueMthBud[i];
             } else {
                 if (newMthParsedDate[i] <= currMth) {
 
-                    totalValueMthExp[i] = totalValueMthExp[i]
-                    totalExp += totalValueMthExp[i]
+                    totalValueMthExp[i] = totalValueMthExp[i];
+                    totalExp += totalValueMthExp[i];
 
-                    totalValueMthInc[i] = totalValueMthInc[i]
-                    totalInc += totalValueMthInc[i]
+                    totalValueMthInc[i] = totalValueMthInc[i];
+                    totalInc += totalValueMthInc[i];
 
-                    totalValueMthBud[i] = totalValueMthBud[i]
-                    totalBud += totalValueMthBud[i]
+                    totalValueMthBud[i] = totalValueMthBud[i];
+                    totalBud += totalValueMthBud[i];
 
                 } else if (this.state.displayValue == "tilldate") {
                     totalValueMthExp[i] = 0;
                     totalValueMthInc[i] = 0;
                     totalValueMthBud[i] = 0;
                 }
-            }
+            };
+
             if (this.state.displayValue == "forecast" && newMthParsedDate[i] == this.state.choosenYear + "-12") {
                 let monthsLeft = 12 - today.getMonth() - 1;
                 forecastExpense = (totalExp / 12) * monthsLeft;
                 forecastIncome = (totalInc / 12) * monthsLeft;
                 forecastBudget = (totalBud / 12) * monthsLeft;
-
-            }
+            };
         };
 
         var startdatenew = getFirstDayOfDate(this.state.choosenYear, 0);
         if (this.state.displayValue == "tilldate") {
-            var enddatenew = getLastDayOfDate(this.state.choosenYear, today.getMonth())
+            var enddatenew = getLastDayOfDate(this.state.choosenYear, today.getMonth());
         } else {
-            var enddatenew = getLastDayOfDate(this.state.choosenYear, 11)
+            var enddatenew = getLastDayOfDate(this.state.choosenYear, 11);
         };
 
         var catData = [];
@@ -234,8 +256,8 @@ class ChartsComponent extends Component {
             this.state.categories,
             startdatenew,
             enddatenew,
-            categoriesColor);
-
+            categoriesColor,
+            this.state.bankAccChoice);
 
         const dataByMthExp = {
             labels: arrMthPol,
@@ -336,6 +358,10 @@ class ChartsComponent extends Component {
             },
         };
 
+        var allBankAccounts;
+        allBankAccounts = this.state.bankaccounts.map(bankaccount => bankaccount.bankaccountname);
+        allBankAccounts.unshift('Razem');
+
         const displOptions = [
             { label: "Do dzisiaj", value: "tilldate", },
             { label: "Cały rok", value: "all", },
@@ -376,6 +402,11 @@ class ChartsComponent extends Component {
                         <select id="displOptionID" className="hb-form-control" onChange={this.changeDisplOption}>
                             {displOptions.map((displOptions) => (
                                 <option value={displOptions.value}>{displOptions.label}</option>
+                            ))}
+                        </select>
+                        <select id="displBankAccount" className="hb-form-control" onChange={this.changeBankAccount}>
+                            {allBankAccounts.map((allBankAccounts) => (
+                                <option value={allBankAccounts}>{allBankAccounts}</option>
                             ))}
                         </select>
                     </div>

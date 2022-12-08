@@ -20,6 +20,8 @@ import BudgetComponent from './Budget/BudgetComponent.jsx';
 import AddUserComponent from './Login/LoginAddComponent.jsx';
 import ListSettingsComponent from './Settings/ListSettingsComponent.jsx';
 import TestComponent from './TestComponent.jsx';
+import ListBankAccountsComponent from './BankAccounts/ListBankAccountsComponent.jsx';
+import BankAccountsComponent from './BankAccounts/BankAccountsComponent.jsx';
 
 class BudgetApp extends Component {
 
@@ -41,6 +43,7 @@ class BudgetApp extends Component {
                         <AuthenticatedRoute path="/expenses/:id" exact component={ExpenseComponent} />
                         <AuthenticatedRoute path="/expenses/:id2/:id" exact component={ExpenseComponent} />
                         <AuthenticatedRoute path="/incomes/:id" exact component={IncomeComponent} />
+                        <AuthenticatedRoute path="/incomes/:id2/:id" exact component={IncomeComponent} />
                         <AuthenticatedRoute path="/expenses" exact component={ListExpensesComponent} />
                         <AuthenticatedRoute path="/statistics" exact component={StatisticsComponent} />
                         <AuthenticatedRoute path="/incomes" exact component={ListIncomesComponent} />
@@ -54,7 +57,8 @@ class BudgetApp extends Component {
                         <AuthenticatedRoute path="/settings" exact component={ListSettingsComponent} />
                         <AuthenticatedRoute path="/changepassword/:id" exact component={AddUserComponent} />
                         <AuthenticatedRoute path="/test" exact component={TestComponent} />
-                        {/* <AuthenticatedRoute path="/year/:yearnumber" exact component={TestComponent} /> */}
+                        <AuthenticatedRoute path="/bankaccounts" exact component={ListBankAccountsComponent} />
+                        <AuthenticatedRoute path="/bankaccounts/:id" exact component={BankAccountsComponent} />
                         <Route component={ErrorComponent} />
                     </Switch>
                     <FooterComponent />

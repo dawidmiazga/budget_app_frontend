@@ -1,25 +1,29 @@
 import React, { Component } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "../../App.css"
-import ExpenseDataService from "../../api/HomeBudget/ExpenseDataService.js";
 import AuthenticationService from "./AuthenticationService.js";
+import ExpenseDataService from "../../api/HomeBudget/ExpenseDataService.js";
 import CategoryDataService from "../../api/HomeBudget/CategoryDataService";
 import IncomeDataService from "../../api/HomeBudget/IncomeDataService.js";
 import BudgetDataService from "../../api/HomeBudget/BudgetDataService.js";
+import BankAccountDataService from "../../api/HomeBudget/BankAccountDataService.js";
+import LoginDataService from "../../api/HomeBudget/LoginDataService.js";
 import btnBack from "../images/back_button.png";
 import btnNext from "../images/next_button.png";
 import btnToday from "../images/today_button.png";
-import LoginDataService from "../../api/HomeBudget/LoginDataService.js";
 import {
     cycleCount, newDateYYYY, newDateYYYYMM, newDateYYYYMMDD, dateFilter, daysLeftCount,
     arrMthEng, arrMthPol, formatter, checkIfRecordIsInTheMonth, arrayColumn, getCatTotals
 } from "./CommonFunctions.js"
+import Spinner from 'react-bootstrap/Spinner';
+import { waitFor } from "@testing-library/react";
 
 class WelcomeComponent extends Component {
     constructor(props) {
         super(props)
         this.state = {
             mthChoice: "",
+            bankAccChoice: "",
             mthFilterStart: "",
             mthFilterEnd: "",
             yrChoice: "",
@@ -27,118 +31,143 @@ class WelcomeComponent extends Component {
             incomes: [],
             budgets: [],
             categories: [],
+            bankaccounts: [],
             users: [],
             selectYear: "All",
             shchild1: false,
             welcomeMessage: "",
+            loading: true
         };
 
-        this.handleSuccesfulResponse = this.handleSuccesfulResponse.bind(this)
-        this.handleError = this.handleError.bind(this)
-        this.refreshExpenses = this.refreshExpenses.bind(this)
-        this.refreshIncomes = this.refreshIncomes.bind(this)
-        this.refreshBudgets = this.refreshBudgets.bind(this)
-        this.refreshCategories = this.refreshCategories.bind(this)
-        this.filterDataMonth = this.filterDataMonth.bind(this)
-        this.filterDataMonthStart = this.filterDataMonthStart.bind(this)
-        this.filterDataMonthEnd = this.filterDataMonthEnd.bind(this)
-        this.filterDataYear = this.filterDataYear.bind(this)
-        this.refreshMonth = this.refreshMonth.bind(this)
-        this.refreshYear = this.refreshYear.bind(this)
-        this.changeToPrevMonth = this.changeToPrevMonth.bind(this)
-        this.changeToNextMonth = this.changeToNextMonth.bind(this)
-        this.changeToCurrMonth = this.changeToCurrMonth.bind(this)
+        this.handleSuccesfulResponse = this.handleSuccesfulResponse.bind(this);
+        this.handleError = this.handleError.bind(this);
+        this.refreshExpenses = this.refreshExpenses.bind(this);
+        this.refreshIncomes = this.refreshIncomes.bind(this);
+        this.refreshBudgets = this.refreshBudgets.bind(this);
+        this.refreshCategories = this.refreshCategories.bind(this);
+        this.refreshBankAccounts = this.refreshBankAccounts.bind(this);
+        this.filterDataMonth = this.filterDataMonth.bind(this);
+        this.filterDataMonthStart = this.filterDataMonthStart.bind(this);
+        this.filterDataMonthEnd = this.filterDataMonthEnd.bind(this);
+        this.filterDataYear = this.filterDataYear.bind(this);
+        this.refreshMonth = this.refreshMonth.bind(this);
+        this.refreshYear = this.refreshYear.bind(this);
+        this.changeToPrevMonth = this.changeToPrevMonth.bind(this);
+        this.changeToNextMonth = this.changeToNextMonth.bind(this);
+        this.changeToCurrMonth = this.changeToCurrMonth.bind(this);
+        this.changeBankAccount = this.changeBankAccount.bind(this);
         // this.changeMth = this.changeMth.bind(this)
-        this.refreshUsers = this.refreshUsers.bind(this)
+        this.refreshUsers = this.refreshUsers.bind(this);
     };
 
     componentDidMount() {
-        this.refreshExpenses()
-        this.refreshIncomes()
-        this.refreshBudgets()
-        this.refreshCategories()
-        this.refreshMonth()
-        this.refreshUsers()
+        this.refreshExpenses();
+        this.refreshIncomes();
+        this.refreshBudgets();
+        this.refreshCategories();
+        this.refreshBankAccounts();
+        this.refreshMonth();
+        this.refreshUsers();
+
+        console.log(this.state.loading)
+        var choosenMth = newDateYYYYMM(Date());
+        if (this.state.loading == false) {
+            document.getElementById("mthChoiceID").value = choosenMth;
+            document.getElementById("mthFilterStartID").value = choosenMth;
+            document.getElementById("mthFilterEndID").value = choosenMth;
+        }
     };
 
     refreshUsers() {
         LoginDataService.retrieveAllLogins()
             .then(
                 response => {
-                    this.setState({ users: response.data })
+                    this.setState({ users: response.data, loading: false })
                 }
             )
     };
 
     refreshMonth() {
-        var choosenMth = newDateYYYYMM(Date())
+        var choosenMth = newDateYYYYMM(Date());
         document.getElementById("mthChoiceID").value = choosenMth;
         document.getElementById("mthFilterStartID").value = choosenMth;
         document.getElementById("mthFilterEndID").value = choosenMth;
-        this.setState({ mthChoice: choosenMth, })
-        this.setState({ mthFilterStart: choosenMth, })
-        this.setState({ mthFilterEnd: choosenMth, })
+        this.setState({ mthChoice: choosenMth, });
+        this.setState({ mthFilterStart: choosenMth, });
+        this.setState({ mthFilterEnd: choosenMth, });
     };
 
     refreshYear() {
-        var choosenYr = newDateYYYY(Date())
+        var choosenYr = newDateYYYY(Date());
         document.getElementById("yrChoiceID").value = choosenYr;
-        this.setState({ mthChoice: choosenYr, })
+        this.setState({ mthChoice: choosenYr, });
     };
 
     refreshExpenses() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName();
         ExpenseDataService.retrieveAllExpenses(usernameid)
             .then(
                 response => {
                     response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
                     this.setState({ expenses: response.data })
                 }
-            )
+            );
     };
 
     refreshIncomes() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
+        let usernameid = AuthenticationService.getLoggedInUserName();
         IncomeDataService.retrieveAllIncomes(usernameid)
             .then(
                 response => {
                     response.data.sort((a, b) => (a.target_date < b.target_date) ? 1 : -1)
                     this.setState({ incomes: response.data })
                 }
-            )
+            );
     };
 
     refreshBudgets() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
-        BudgetDataService.retrieveAllBudgets(usernameid).then(
-            response => {
-                this.setState({ budgets: response.data })
-            }
-        )
+        let usernameid = AuthenticationService.getLoggedInUserName();
+        BudgetDataService.retrieveAllBudgets(usernameid)
+            .then(
+                response => {
+                    this.setState({ budgets: response.data })
+                }
+            );
     };
 
     refreshCategories() {
-        let usernameid = AuthenticationService.getLoggedInUserName()
-        CategoryDataService.retrieveAllCategories(usernameid).then(
-            response => {
-                this.setState({ categories: response.data })
-            }
-        )
+        let usernameid = AuthenticationService.getLoggedInUserName();
+        CategoryDataService.retrieveAllCategories(usernameid)
+            .then(
+                response => {
+                    this.setState({ categories: response.data })
+                }
+            );
+    };
+
+    refreshBankAccounts() {
+        let usernameid = AuthenticationService.getLoggedInUserName();
+        BankAccountDataService.retrieveAllBankAccounts(usernameid)
+            .then(
+                response => {
+                    this.setState({ bankaccounts: response.data })
+                }
+            );
     };
 
     filterDataMonth() {
         const dataMonth = document.getElementById("mthChoiceID").value;
-        this.setState({ mthChoice: dataMonth, })
+        this.setState({ mthChoice: dataMonth, });
     };
 
     filterDataMonthStart() {
         const dataMonth = document.getElementById("mthFilterStartID").value;
-        this.setState({ mthFilterStart: dataMonth, })
+        this.setState({ mthFilterStart: dataMonth, });
     };
 
     filterDataMonthEnd() {
         const dataMonth = document.getElementById("mthFilterEndID").value;
-        this.setState({ mthFilterEnd: dataMonth, })
+        this.setState({ mthFilterEnd: dataMonth, });
     };
 
     // changeMth(type) {
@@ -162,72 +191,95 @@ class WelcomeComponent extends Component {
     //     this.setState({ mthChoice: newMth, })
     // };
 
+    changeBankAccount() {
+        const currBankAcc = document.getElementById("bankAccID").value;
+        console.log("changeBankAccount " + currBankAcc);
+        document.getElementById("bankAccID").value = currBankAcc;
+        this.setState({ bankAccChoice: currBankAcc, });
+    };
+
     changeToPrevMonth() {
-        const currMth = document.getElementById("mthChoiceID").value
-        if (currMth == "") { return }
+        const currMth = document.getElementById("mthChoiceID").value;
+        if (currMth == "") { return; };
         var prevMth = new Date(currMth);
         prevMth.setDate(1);
         prevMth.setMonth(prevMth.getMonth() - 1);
-        prevMth = newDateYYYYMM(prevMth)
+        prevMth = newDateYYYYMM(prevMth);
         document.getElementById("mthChoiceID").value = prevMth;
-        this.setState({ mthChoice: prevMth, })
+        this.setState({ mthChoice: prevMth, });
     };
 
     changeToCurrMonth() {
-        const currMth = newDateYYYYMM(Date())
+        const currMth = newDateYYYYMM(Date());
         document.getElementById("mthChoiceID").value = currMth;
-        this.setState({ mthChoice: currMth, })
+        this.setState({ mthChoice: currMth, });
     };
 
     changeToNextMonth() {
         const currMth = document.getElementById("mthChoiceID").value;
-        if (currMth == "") { return }
+        if (currMth == "") { return; };
         var nextMth = new Date(currMth);
         nextMth.setDate(1);
         nextMth.setMonth(nextMth.getMonth() + 1);
-        nextMth = newDateYYYYMM(nextMth)
+        nextMth = newDateYYYYMM(nextMth);
         document.getElementById("mthChoiceID").value = nextMth;
-        this.setState({ mthChoice: nextMth, })
+        this.setState({ mthChoice: nextMth, });
     };
 
     filterDataYear() {
         const dataYear = document.getElementById("yrChoiceID").value;
-        this.setState({ yrChoice: dataYear, })
+        this.setState({ yrChoice: dataYear, });
     };
 
     handleSuccesfulResponse(response) {
-        this.setState({ welcomeMessage: response.data.message })
+        this.setState({ welcomeMessage: response.data.message });
     };
 
     handleError(error) {
         let errorMessage = "";
         if (error.message)
-            errorMessage += error.message
+            errorMessage += error.message;
         if (error.response && error.response.data) {
-            errorMessage += error.response.data.message
+            errorMessage += error.response.data.message;
         }
-        this.setState({ welcomeMessage: errorMessage })
+        this.setState({ welcomeMessage: errorMessage });
     };
 
     render() {
 
         if (this.state.mthFilterStart == "") {
-            this.state.mthFilterStart = new Date("1111-12-31")
+            this.state.mthFilterStart = new Date("1111-12-31");
         };
 
         if (this.state.mthFilterEnd == "") {
-            this.state.mthFilterEnd = new Date("9999-12-31")
+            this.state.mthFilterEnd = new Date("9999-12-31");
         };
+
+        if (this.state.bankAccChoice == "") {
+            this.state.bankAccChoice = "Razem";
+        };
+
+        var allBankAccounts = this.state.bankaccounts.map(bankaccount => bankaccount.bankaccountname);
+        allBankAccounts.unshift('Razem');
 
         var totalExp;
         if (this.state.mthChoice == "") {
             totalExp = 0;
         } else {
-            totalExp = (this.state.expenses.filter(
-                expense => (
-                    dateFilter(expense.target_date, expense.finish_date, this.state.mthChoice, expense.cycle)
-                )
-            ).reduce((total, currentItem) => total = total + currentItem.price, 0));
+            if (this.state.bankAccChoice == "Razem") {
+                totalExp = (this.state.expenses.filter(
+                    expense => (
+                        dateFilter(expense.target_date, expense.finish_date, this.state.mthChoice, expense.cycle)
+                    )
+                ).reduce((total, currentItem) => total = total + currentItem.price, 0));
+            } else {
+                totalExp = (this.state.expenses.filter(
+                    expense => (
+                        dateFilter(expense.target_date, expense.finish_date, this.state.mthChoice, expense.cycle) &&
+                        expense.bankaccountname == this.state.bankAccChoice
+                    )
+                ).reduce((total, currentItem) => total = total + currentItem.price, 0));
+            }
         }
 
         var totalInc;
@@ -254,23 +306,42 @@ class WelcomeComponent extends Component {
                     currentItem.cycle,
                     currentItem.description,
                     currentItem.amount
-                ), 0));
+                ), 0
+            ));
         }
 
         var totalExpBetwMths;
         if (this.state.mthFilterStart == "" || this.state.mthFilterEnd == "") {
             totalExpBetwMths = 0;
         } else {
-            totalExpBetwMths = (this.state.expenses.reduce((total, currentItem) => total = total + currentItem.price *
-                cycleCount(
-                    currentItem.target_date,
-                    currentItem.finish_date,
-                    newDateYYYYMMDD(this.state.mthFilterStart),
-                    newDateYYYYMMDD(this.state.mthFilterEnd),
-                    currentItem.cycle,
-                    currentItem.description,
-                    currentItem.price
-                ), 0));
+            if (this.state.bankAccChoice == "Razem") {
+                totalExpBetwMths = (this.state.expenses.reduce((total, currentItem) => total = total + currentItem.price *
+                    cycleCount(
+                        currentItem.target_date,
+                        currentItem.finish_date,
+                        newDateYYYYMMDD(this.state.mthFilterStart),
+                        newDateYYYYMMDD(this.state.mthFilterEnd),
+                        currentItem.cycle,
+                        currentItem.description,
+                        currentItem.price
+                    ), 0
+                ));
+            } else {
+                totalExpBetwMths = (this.state.expenses.filter(
+                    expense =>
+                        expense.bankaccountname == this.state.bankAccChoice
+                ).reduce((total, currentItem) => total = total + currentItem.price *
+                    cycleCount(
+                        currentItem.target_date,
+                        currentItem.finish_date,
+                        newDateYYYYMMDD(this.state.mthFilterStart),
+                        newDateYYYYMMDD(this.state.mthFilterEnd),
+                        currentItem.cycle,
+                        currentItem.description,
+                        currentItem.price
+                    ), 0
+                ));
+            }
         }
 
         var totalBudgets;
@@ -307,17 +378,24 @@ class WelcomeComponent extends Component {
                     newDateYYYYMM(budget.target_month) == newDateYYYYMM(currMth)
                 ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
 
-                var mthExp = (this.state.expenses.filter(expense => (
-                    dateFilter(expense.target_date, expense.finish_date, currMth, expense.cycle)
-                )).reduce((total, currentItem) => total = total + currentItem.price, 0));
-                console.log(mthExp)
+                var mthExp;
+                if (this.state.bankAccChoice == "Razem") {
+                    mthExp = (this.state.expenses.filter(expense => (
+                        dateFilter(expense.target_date, expense.finish_date, currMth, expense.cycle)
+                    )).reduce((total, currentItem) => total = total + currentItem.price, 0));
+                } else {
+                    mthExp = (this.state.expenses.filter(expense => (
+                        dateFilter(expense.target_date, expense.finish_date, currMth, expense.cycle) &&
+                        expense.bankaccountname == this.state.bankAccChoice
+                    )).reduce((total, currentItem) => total = total + currentItem.price, 0));
+                }
 
                 if (mthBudg >= mthExp) {
-                    cntInBudget += 1
+                    cntInBudget += 1;
                 }
 
                 var currMth = currMth.setMonth(currMth.getMonth() + 1);
-                currMth = new Date(currMth)
+                currMth = new Date(currMth);
             }
         }
 
@@ -331,12 +409,22 @@ class WelcomeComponent extends Component {
                     newDateYYYY(this.state.mthChoice),
                     new Date(arrMthEng[i]).getMonth()
                 )
-            )
-            totalExpByMonth[i] = this.state.expenses.filter(
-                expense => (
-                    checkIfRecordIsInTheMonth(expense.cycle, expense.target_date, expense.finish_date, newDateParsed[i], this.state.mthChoice)
-                ) == true
-            ).reduce((total, currentItem) => total = total + currentItem.price, 0);
+            );
+
+            if (this.state.bankAccChoice == "Razem") {
+                totalExpByMonth[i] = this.state.expenses.filter(
+                    expense => (
+                        checkIfRecordIsInTheMonth(expense.cycle, expense.target_date, expense.finish_date, newDateParsed[i], this.state.mthChoice)
+                    ) == true
+                ).reduce((total, currentItem) => total = total + currentItem.price, 0);
+            } else {
+                totalExpByMonth[i] = this.state.expenses.filter(
+                    expense => (
+                        checkIfRecordIsInTheMonth(expense.cycle, expense.target_date, expense.finish_date, newDateParsed[i], this.state.mthChoice) &&
+                        expense.bankaccountname == this.state.bankAccChoice
+                    ) == true
+                ).reduce((total, currentItem) => total = total + currentItem.price, 0);
+            }
         }
 
         for (let i = 0; i < arrMthEng.length; i++) {
@@ -345,7 +433,8 @@ class WelcomeComponent extends Component {
                     newDateYYYY(this.state.mthChoice),
                     new Date(arrMthEng[i]).getMonth()
                 )
-            )
+            );
+
             totalIncByMonth[i] = this.state.incomes.filter(
                 income => (
                     checkIfRecordIsInTheMonth(income.cycle, income.target_date, income.finish_date, newDateParsed[i], this.state.mthChoice)
@@ -364,7 +453,8 @@ class WelcomeComponent extends Component {
             this.state.categories,
             newDateYYYYMMDD(this.state.mthChoice),
             newDateYYYYMMDD(this.state.mthChoice),
-            colorCat
+            colorCat,
+            this.state.bankAccChoice
         );
 
         let redBgInc;
@@ -492,14 +582,46 @@ class WelcomeComponent extends Component {
             },
         };
 
+        var dropdownData = allBankAccounts,
+            MakeItem = function (X) {
+                return <option>{X}</option>;
+            };
+
+        // if (this.state.loading) {
+        //     return (
+        //         <div className="background-color-all">
+        //             <div className="container-middle-41">
+        //                 <Spinner animation="border" role="status">
+        //                     <span className="visually-hidden"></span>
+        //                 </Spinner>
+        //                 <br />Ładuję...
+        //             </div>
+        //         </div>
+        //     );
+        // } else {
+        //     // while (document.getElementById("mthChoiceID") != null) {
+        //     //     console.log("x")
+        //     // }
+        //     const divElement = document.getElementById('mthChoiceID');
+        //     console.log(divElement)
+        //     var choosenMth = newDateYYYYMM(Date());
+
+        //     // console.log(document.getElementById("mthChoiceID"))//.value = choosenMth;
+        //     // console.log(document.getElementById("mthFilterStartID"))//.value = choosenMth;
+        //     // console.log(document.getElementById("mthFilterEndID"))//.value = choosenMth;
+        // }
+
         return (
             <>
                 <div className="background-color-all">
                     <div className="container-left-26">
+                        <div className="text-h5-white">
+                            Pokazany miesiąc
+                        </div>
                         <div className="container-height-70">
                             <div>
-                                <img src={btnBack} width="50" height="50" onClick={this.changeToPrevMonth} />
                                 <input type="month" id="mthChoiceID" onChange={this.filterDataMonth} data-date-format="MM YYYY"></input>
+                                <img src={btnBack} width="50" height="50" onClick={this.changeToPrevMonth} />
                                 <img src={btnNext} width="50" height="50" onClick={this.changeToNextMonth} />
                                 <img src={btnToday} width="30" height="30" onClick={this.changeToCurrMonth} />
                             </div>
@@ -514,9 +636,12 @@ class WelcomeComponent extends Component {
                         </div>
                     </div>
                     <div className="container-right-26">
-
+                        <div className="text-h5-white">
+                            Wybierz konto
+                        </div>
+                        <select className="hb-form-control" id="bankAccID" onChange={this.changeBankAccount}>{dropdownData.map(MakeItem)}</select>
                     </div>
-                    <div className="container-full-width">
+                    <div className="container-full-width-welcome">
                         <div className="text-h4-white" style={{ display: (this.state.mthChoice != "" ? "block" : "none") }}>
                             Wydatki i przychody w wybranym miesiącu
                         </div>
@@ -667,7 +792,7 @@ class WelcomeComponent extends Component {
                             <div className={redCntInBudget ? "container-right-red" : "container-right-green"}>
                                 {cntInBudget}
                             </div>
-                            
+
                             {/* <div className="container-top">5 ostatnich transakcji z wybranego miesiaca</div>
                             <div className="text-h4-white">Wydatki</div>
                             <table className="hb-table-exp">
