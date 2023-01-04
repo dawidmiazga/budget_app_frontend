@@ -115,7 +115,7 @@ class BankAccountsComponent extends Component {
                         {bankaccount.comment}
                       </td>
                       <td>
-                        {formatter.format(bankaccount.divide)}
+                        {(bankaccount.divide)}
                       </td>
                       <td>
                         <img src={btnEdit} width="32" height="32" onClick={() => this.updateBankaccountClicked(bankaccount.id)} />

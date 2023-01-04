@@ -31,6 +31,7 @@ class ChartsComponent extends Component {
             displayValue: 'tilldate',
             choosenYear: (new Date()).getFullYear(),
             loading: true,
+            bankAccChoice: 'Razem'
         };
         this.refreshExpenses = this.refreshExpenses.bind(this)
         this.refreshIncomes = this.refreshIncomes.bind(this);
@@ -117,7 +118,9 @@ class ChartsComponent extends Component {
     };
 
     changeBankAccount() {
-        // this.setState({ displayValue: document.getElementById("displOptionID").value, })
+        const choosenAcc = document.getElementById("displBankAccount").value;
+        this.setState({ displayValue: choosenAcc, })
+        this.setState({ bankAccChoice: choosenAcc })
     };
 
     changeYear() {
@@ -410,7 +413,7 @@ class ChartsComponent extends Component {
                             ))}
                         </select>
                     </div>
-                    <div className="black-border">
+                    <div className="grey-border">
                         <div className="container-left-26" >
                             <div className="text-h2-white">
                                 Na kategorie

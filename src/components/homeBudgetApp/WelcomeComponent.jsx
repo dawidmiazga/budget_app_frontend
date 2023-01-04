@@ -172,13 +172,13 @@ class WelcomeComponent extends Component {
 
     // changeMth(type) {
 
-    //     var currMth;
+    //     var filteredMth;
     //     if (type == "curr") {
-    //         currMth = moment(Date()).format("YYYY-MM")
+    //         filteredMth = moment(Date()).format("YYYY-MM")
     //     } else {
-    //         currMth = document.getElementById("mthChoiceID").value
-    //         if (currMth == "") { return }
-    //         var newMth = new Date(currMth);
+    //         filteredMth = document.getElementById("mthChoiceID").value
+    //         if (filteredMth == "") { return }
+    //         var newMth = new Date(filteredMth);
     //         newMth.setDate(1);
     //         if (type == "prev") {
     //             newMth.setMonth(newMth.getMonth() - 1);
@@ -199,9 +199,9 @@ class WelcomeComponent extends Component {
     };
 
     changeToPrevMonth() {
-        const currMth = document.getElementById("mthChoiceID").value;
-        if (currMth == "") { return; };
-        var prevMth = new Date(currMth);
+        const filteredMth = document.getElementById("mthChoiceID").value;
+        if (filteredMth == "") { return; };
+        var prevMth = new Date(filteredMth);
         prevMth.setDate(1);
         prevMth.setMonth(prevMth.getMonth() - 1);
         prevMth = newDateYYYYMM(prevMth);
@@ -210,15 +210,15 @@ class WelcomeComponent extends Component {
     };
 
     changeToCurrMonth() {
-        const currMth = newDateYYYYMM(Date());
-        document.getElementById("mthChoiceID").value = currMth;
-        this.setState({ mthChoice: currMth, });
+        const filteredMth = newDateYYYYMM(Date());
+        document.getElementById("mthChoiceID").value = filteredMth;
+        this.setState({ mthChoice: filteredMth, });
     };
 
     changeToNextMonth() {
-        const currMth = document.getElementById("mthChoiceID").value;
-        if (currMth == "") { return; };
-        var nextMth = new Date(currMth);
+        const filteredMth = document.getElementById("mthChoiceID").value;
+        if (filteredMth == "") { return; };
+        var nextMth = new Date(filteredMth);
         nextMth.setDate(1);
         nextMth.setMonth(nextMth.getMonth() + 1);
         nextMth = newDateYYYYMM(nextMth);
@@ -369,33 +369,29 @@ class WelcomeComponent extends Component {
         if (this.state.mthFilterStart == "" || this.state.mthFilterEnd == "" || newDateYYYY(this.state.mthFilterEnd) == "1111" || newDateYYYY(this.state.mthFilterEnd) == "9999") {
             cntInBudget = 0;
         } else {
-            var currMth = new Date(this.state.mthFilterStart)
+            var startMth = new Date(this.state.mthFilterStart)
             var stopMth = new Date(this.state.mthFilterEnd)
-
-            while (newDateYYYYMM(currMth) <= newDateYYYYMM(stopMth)) {
-
+            var filteredMth = startMth
+            while (newDateYYYYMM(filteredMth) <= newDateYYYYMM(stopMth)) {
                 var mthBudg = (this.state.budgets.filter(budget =>
-                    newDateYYYYMM(budget.target_month) == newDateYYYYMM(currMth)
+                    newDateYYYYMM(budget.target_month) == newDateYYYYMM(filteredMth)
                 ).reduce((total, currentItem) => total = total + currentItem.amount, 0));
-
                 var mthExp;
                 if (this.state.bankAccChoice == "Razem") {
                     mthExp = (this.state.expenses.filter(expense => (
-                        dateFilter(expense.target_date, expense.finish_date, currMth, expense.cycle)
+                        dateFilter(expense.target_date, expense.finish_date, filteredMth, expense.cycle)
                     )).reduce((total, currentItem) => total = total + currentItem.price, 0));
                 } else {
                     mthExp = (this.state.expenses.filter(expense => (
-                        dateFilter(expense.target_date, expense.finish_date, currMth, expense.cycle) &&
+                        dateFilter(expense.target_date, expense.finish_date, filteredMth, expense.cycle) &&
                         expense.bankaccountname == this.state.bankAccChoice
                     )).reduce((total, currentItem) => total = total + currentItem.price, 0));
                 }
-
-                if (mthBudg >= mthExp) {
+                if (mthBudg >= mthExp && mthBudg > 0) {
                     cntInBudget += 1;
                 }
-
-                var currMth = currMth.setMonth(currMth.getMonth() + 1);
-                currMth = new Date(currMth);
+                var filteredMth = filteredMth.setMonth(filteredMth.getMonth() + 1);
+                filteredMth = new Date(filteredMth);
             }
         }
 
@@ -760,7 +756,7 @@ class WelcomeComponent extends Component {
                             Bilans w wybranym przedziale miesięcy
                         </div>
 
-                        <div className="black-border">
+                        <div className="grey-border">
                             <div className="text-h5-white">
                                 od:
                                 <input type="month" id="mthFilterStartID" onChange={this.filterDataMonthStart}></input>

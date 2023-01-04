@@ -24,12 +24,15 @@
 }
 
 .black-border {
-  margin-left: 2.5%;
-  margin-right: 2.5%;
-  margin-top: .5%;
-  margin-bottom: .5%;
+  margin: .5%;
   border: 1px solid var(--borderBlack);
   border-radius: 30px;
+}
+
+.grey-border {
+  margin: .5%;
+  border: 5px solid var(--borderGrey);
+  border-radius: 20px;
 }
 
 .container-height-70 {
